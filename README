@@ -12,7 +12,7 @@ here is a list of them:
  * cntlm - Authentication Proxy: http://cntlm.sourceforge.net/
  * redsocks - transparent socks redirector: http://darkk.net.ru/redsocks/
  * netfilter/iptables - NAT module: http://www.netfilter.org/
- * transproxy - transparently proxy for HTTP requests: http://sourceforge.net/projects/transproxy/
+ * transproxy - transparent proxy for HTTP: http://sourceforge.net/projects/transproxy/
  * stunnel - multiplatform SSL tunneling proxy: http://www.stunnel.org/
 
 BUILD

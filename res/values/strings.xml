@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- app string -->
+    <string name="app_name">ProxyDroid</string>
+    <string name="ok_iknow">OK, I know</string>
+    <string name="feedback">Feedback @ofmax</string>
+
+    <!-- alert string -->
+    <string name="port_empty">Port should not be empty</string>
+    <string name="host_empty">Host should not be empty</string>
+    <string name="local_port_empty">Local port should not be empty</string>
+    <string name="remote_port_empty">Remote port should not be empty</string>
+    <string name="number_alert">Please check your port number</string>
+    <string name="user_empty">User name should not be empty</string>
+    <string name="port_alert">The port number should be greater than 1024</string>
+    <string name="crash_alert">You are recovering from a crash. \n\nplease report your problem to the project page. \n\n(proxydroid.googlecode.com)</string>
+    <string name="require_root_alert">PLEASE ROOT YOUR DEVICE FIRST !!!</string>
+    <string name="update_finished">Programs and configurations have been updated</string>
+
+    <!-- status string -->
+    <string name="service_running">Running in the background</string>
+    <string name="forward_success">Connected</string>
+    <string name="forward_fail">Fail to connect</string>
+    <string name="service_stopped">ProxyDroid service stopped</string>
+    <string name="auto_reconnected">Reconnecting</string>
+    <string name="reconnect_success">Reconnected</string>
+    <string name="already_stopped">Service has already been stopped</string>
+    <string name="already_running">Service has already been started</string>
+    <string name="forward_stop">Disconnected</string>
+    <string name="service_failed">Please check your network and login information</string>
+    <string name="reconnect_fail">Cannot reconnect, service stopped</string>
+    <string name="connecting">Connecting</string>
+    <string name="auto_connecting">Connecting...</string>
+    <string name="loading">Loading app list...</string>
+
+    <!-- settings function category -->
+    <string name="function_cat">Service Controller</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="connect">Connect</string>
+    <string name="service_controller">Proxy Switch</string>
+    <string name="service_summary">Enable / Disable Proxy</string>
+
+    <!-- settings proxy category -->
+    <string name="proxy_cat">Proxy Settings</string>
+    <string name="host">Host</string>
+    <string name="host_summary">The host name of your proxy service</string>
+    <string name="host_pac">PAC</string>
+    <string name="host_pac_summary">The URL of your PAC file</string>
+    <string name="pac">Auto Setting</string>
+    <string name="pac_summary">Get proxy settings from the PAC file automatically</string>
+    <string name="proxy_summary">Proxy URL</string>
+    <string name="port">Port</string>
+    <string name="port_summary">The port number of your Proxy service</string>
+    <string name="set_bypass">Bypass Addresses</string>
+    <string name="set_bypass_summary">Set bypass addresses</string>
+
+    <!-- settings account category -->
+    <string name="auth">Enable Authentication</string>
+    <string name="user_cat">Account Information</string>
+    <string name="user">User</string>
+    <string name="user_summary">Proxy User name</string>
+    <string name="password">Password</string>
+    <string name="password_summary">Proxy Password</string>
+    <string name="ntlm">NTLM Authentication</string>
+    <string name="ntlm_summary">Enable to support NTLM / NTLM2 authentication
+		method</string>
+    <string name="domain">Domain</string>
+    <string name="domain_summary">Domain name for NTLM</string>
+
+    <!-- settings feature category -->
+    <string name="fearute_cat">Feature Settings</string>
+    <string name="auto_connect">Auto Connect</string>
+    <string name="auto_connect_summary">Start Proxy when specified network is available</string>
+    <string name="ssid">Bound Network</string>
+    <string name="ssid_summary">Bind your proxy setting to 2G/3G Network or
+		specified SSID</string>
+
+    <string-array name="ssid_default_values"></string-array>
+    <string-array name="ssid_default_entries"></string-array>
+
+    <string name="auto_set_proxy">Global Proxy</string>
+    <string name="auto_set_proxy_summary">Enable the global proxy (needs ROOT permission
+		and IPTABLES support)</string>
+    <string name="dns_proxy">DNS Proxy</string>
+    <string name="dns_proxy_summary">Enable DNS Proxy for some LAN users. Turn it on
+ 		only if you know what it is</string>
+
+    <!-- settings proxyed apps category -->
+    <string name="proxyed_apps">Individual Proxy</string>
+    <string name="proxyed_apps_summary">Select apps for proxying or bypassing (needs ROOT
+		permission and
+		IPTABLES support)</string>
+    <string name="bypass_apps">Bypass Mode</string>
+    <string name="bypass_apps_summary">Enable this option to bypass selected apps instead of proxying</string>
+    <string name="proxyed_help">Select apps to use with ProxyDroid:</string>
+
+    <!-- menu bar category -->
+    <string name="recovery">Recover</string>
+    <string name="copy_rights">\n\nProxyDroid is an open source project
+		published
+		under
+		the GPLv3. \n\nIf you have any question, please visit
+		our project
+		page on
+		googlecode. \n\n(proxydroid.googlecode.com)</string>
+    <string name="about">About</string>
+    <string name="change_name">Rename</string>
+    <string name="alert_dialog_ok">OK</string>
+    <string name="alert_dialog_cancel">Cancel</string>
+    <string name="use_system_iptables">Use system\'s iptables</string>
+
+    <!-- settings notification category -->
+    <string name="notif_cat">Notification Settings</string>
+    <string name="notif_ringtone_title">Ringtone</string>
+    <string name="notif_ringtone_summary">Select the notification\'s ringtone</string>
+    <string name="notif_vibrate_title">Vibrate</string>
+    <string name="notif_vibrate_summary">Also vibrate when connection status changes</string>
+
+    <!-- profile switcher -->
+    <string name="profile">Profiles</string>
+    <string name="profile_default">Profile 1</string>
+    <string name="profile_new">New Profile</string>
+    <string name="profile_base">Profile</string>
+    <string name="profile_del">Remove</string>
+
+    <!-- proxy type -->
+    <string name="proxy_type">Proxy Type</string>
+    <string name="proxy_type_summary">Choose your proxy type</string>
+
+    <array name="proxy_type_value">
+        <item>http</item>
+        <item>https</item>
+        <item>socks4</item>
+        <item>socks5</item>
+    </array>
+    <array name="proxy_type_entry">
+        <item>HTTP</item>
+        <item>HTTPS</item>
+        <item>SOCKS4</item>
+        <item>SOCKS5</item>
+    </array>
+
+    <!-- bypass list activity -->
+    <string name="add_button">Add</string>
+    <string name="bypass_edit_title">Address scope</string>
+    <string name="bypass_del_title">Confirm</string>
+    <string name="bypass_del_text">Remove this address?</string>
+    <string name="ok_button">OK</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="err_addr">unknown domain name or incorrect format of IP address</string>
+
+    <!-- Connection errors -->
+    <string name="msg_pac_error">Incorrect or unsupported PAC file</string>
+    <string name="msg_resolve_error">Incorrect or unknown proxy host name</string>
+
+</resources>

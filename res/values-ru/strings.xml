@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- app string -->
+    <string name="app_name">ProxyDroid</string>
+    <string name="ok_iknow">Хорошо</string>
+    <string name="feedback">Feedback @ofmax</string>
+
+    <!-- alert string -->
+    <string name="port_empty">Необходимо указать номер порта</string>
+    <string name="host_empty">Необходимо указать адрес узла</string>
+    <string name="local_port_empty">Необходимо указать локальный порт</string>
+    <string name="remote_port_empty">Необходимо указать удалённый порт</string>
+    <string name="number_alert">Пожалуйста проверьте номер порта</string>
+    <string name="user_empty">Необходимо указать имя пользователя</string>
+    <string name="port_alert">Номер порта должен быть больше 1024</string>
+    <string name="crash_alert">Идёт восстановление после сбоя \n\n
+        Пожалуйста, сообщите об этой проблеме на странице проекта. \n\n
+        (proxydroid.googlecode.com)</string>
+    <string name="require_root_alert">СНАЧАЛА НЕОБХОДИМО ПОЛУЧИТЬ ПРАВА СУПЕРПОЛЬЗОВАТЕЛЯ !!!</string>
+    <string name="update_finished">Обновление компонентов и конфигурации завершено</string>
+
+    <!-- status string -->
+    <string name="service_running">Запущен в фоновом режиме</string>
+    <string name="forward_success">Подключение выполнено</string>
+    <string name="forward_fail">Невозможно подключиться</string>
+    <string name="service_stopped">Служба ProxyDroid остановлена</string>
+    <string name="auto_reconnected">Переподключение...</string>
+    <string name="reconnect_success">Соединение восстановлено</string>
+    <string name="already_stopped">Служба уже остановлена</string>
+    <string name="already_running">Служба уже запущена</string>
+    <string name="forward_stop">Отключение выполнено</string>
+    <string name="service_failed">Проверьте настройки сети и учётные данные прокси</string>
+    <string name="reconnect_fail">Невозможно восстановить соединение. Служба остановлена</string>
+    <string name="connecting">Подключение</string>
+    <string name="auto_connecting">Подключение...</string>
+    <string name="loading">Загрузка списка приложений...</string>
+
+    <!-- settings function category -->
+    <string name="function_cat">Диспетчер службы</string>
+    <string name="disconnect">Отключить</string>
+    <string name="connect">Включить</string>
+    <string name="service_controller">Вкл/Выкл</string>
+    <string name="service_summary">Изменить состояние прокси</string>
+
+    <!-- settings proxy category -->
+    <string name="proxy_cat">Настройки прокси</string>
+    <string name="host">Адрес</string>
+    <string name="host_summary">Адрес прокси-сервера</string>
+    <string name="proxy_summary">URL до прокси</string>
+    <string name="port">Порт</string>
+    <string name="port_summary">Номер порта прокси-сервера</string>
+    <string name="set_bypass">Игнорировать адреса</string>
+    <string name="set_bypass_summary">Куда подключаться в обход прокси-сервера</string>
+
+    <!-- settings account category -->
+    <string name="auth">Включить Авторизацию</string>
+    <string name="user_cat">Учётные данные прокси</string>
+    <string name="user">Пользователь</string>
+    <string name="user_summary">Имя пользователя прокси-сервера</string>
+    <string name="password">Пароль</string>
+    <string name="password_summary">Пароль прокси-сервера</string>
+    <string name="ntlm">Авторизация NTLM</string>
+    <string name="ntlm_summary">Включает авторизацию по NTLM / NTLM2</string>
+    <string name="domain">Домен</string>
+    <string name="domain_summary">Имя Домена для NTLM-авторизации</string>
+
+    <!-- settings feature category -->
+    <string name="fearute_cat">Разное</string>
+    <string name="auto_connect">Автоподключение</string>
+    <string name="auto_connect_summary">Автоматически запускать службу при обнаружении указанной сети</string>
+    <string name="ssid">Связанная сеть</string>
+    <string name="ssid_summary">Связать настройки с указанным адресом 2G/3G сети
+        или её SSID</string>
+
+    <string-array name="ssid_default_values"></string-array>
+    <string-array name="ssid_default_entries"></string-array>
+
+    <string name="auto_set_proxy">Для всех приложений</string>
+    <string name="auto_set_proxy_summary">Включает глобальный режим (требуются права ROOT
+		и поддержка IPTABLES)</string>
+    <string name="dns_proxy">DNS Proxy</string>
+    <string name="dns_proxy_summary">Включает проксирование DNS-запросов (только для опытных)</string>
+
+    <!-- settings proxyed apps category -->
+    <string name="proxyed_apps">Для выбранных приложений</string>
+    <string name="proxyed_apps_summary">Включает избирательный режим (требуются права ROOT
+		permission and
+		и поддержка IPTABLES)</string>
+    <string name="proxyed_help">Разрешённые приложения:</string>
+
+    <!-- menu bar category -->
+    <string name="recovery">Сброс</string>
+    <string name="copy_rights">\n\nProxyDroid - проект с открытым исходным кодом,
+		выпущенный под лицензией GPL версии 3. \n\nПо всем вопросам просьба обращаться
+		на страницу пректа в googlecode. \n\n(proxydroid.googlecode.com)</string>
+    <string name="about">О программе</string>
+    <string name="change_name">Переименовать</string>
+    <string name="alert_dialog_ok">OK</string>
+    <string name="alert_dialog_cancel">Отмена</string>
+    <string name="use_system_iptables">Вернуть стандартные настройки системы</string>
+
+    <!-- settings notification category -->
+    <string name="notif_cat">Уведомления</string>
+    <string name="notif_ringtone_title">Выбрать звук</string>
+    <string name="notif_vibrate_title">Вибрация</string>
+    <string name="notif_vibrate_summary">Также вибрировать при изменении состояния подключения</string>
+
+    <!-- profile switcher -->
+    <string name="profile">Профили</string>
+    <string name="profile_default">Профиль 1</string>
+    <string name="profile_new">Новый Профиль</string>
+    <string name="profile_base">Профиль</string>
+    <string name="profile_del">Удалить</string>
+
+    <!-- proxy type -->
+    <string name="proxy_type">Тип прокси-сервера</string>
+    <string name="proxy_type_summary">Выберите тип вашего прокси</string>
+
+    <array name="proxy_type_value">
+        <item>http</item>
+        <item>socks4</item>
+        <item>socks5</item>
+    </array>
+    <array name="proxy_type_entry">
+        <item>HTTP</item>
+        <item>SOCKS4</item>
+        <item>SOCKS5</item>
+    </array>
+
+    <!-- bypass list activity -->
+    <string name="add_button">Добавить</string>
+    <string name="bypass_edit_title">Диапазон адресов</string>
+    <string name="bypass_del_title">Подтверждение</string>
+    <string name="bypass_del_text">Удалить этот адрес?</string>
+    <string name="ok_button">OK</string>
+    <string name="cancel_button">Отмена</string>
+
+</resources>

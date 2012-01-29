@@ -215,9 +215,14 @@ public class ProxyDroid extends PreferenceActivity implements
 		WifiManager wm = (WifiManager) this
 				.getSystemService(Context.WIFI_SERVICE);
 		List<WifiConfiguration> wcs = wm.getConfiguredNetworks();
-		String[] ssidEntries = new String[wcs.size() + 1];
-		ssidEntries[0] = "2G/3G";
-		int n = 1;
+        
+		int n = 3;
+
+		String[] ssidEntries = new String[wcs.size() + n];
+        ssidEntries[0] = Constraints.WIFI_AND_3G;
+        ssidEntries[1] = Constraints.ONLY_WIFI;
+        ssidEntries[2] = Constraints.ONLY_3G;
+
 		for (WifiConfiguration wc : wcs) {
 			if (wc != null && wc.SSID != null)
 				ssidEntries[n++] = wc.SSID.replace("\"", "");
@@ -232,51 +237,6 @@ public class ProxyDroid extends PreferenceActivity implements
 	public void onStart() {
 		super.onStart();
 		FlurryAgent.onStartSession(this, "AV372I7R5YYD52NWPUPE");
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-		FlurryAgent.onEndSession(this);
-	}
-
-	/** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		setContentView(R.layout.main);
-		addPreferencesFromResource(R.xml.proxydroid_preference);
-		// Create the adView
-		adView = new AdView(this, AdSize.BANNER, "a14db2c016cb9b6");
-		// Lookup your LinearLayout assuming it’s been given
-		// the attribute android:id="@+id/mainLayout"
-		LinearLayout layout = (LinearLayout) findViewById(R.id.ad);
-		// Add the adView to it
-		layout.addView(adView);
-		// Initiate a generic request to load it with an ad
-		AdRequest aq = new AdRequest();
-		adView.loadAd(aq);
-
-		hostText = (EditTextPreference) findPreference("host");
-		portText = (EditTextPreference) findPreference("port");
-		userText = (EditTextPreference) findPreference("user");
-		passwordText = (EditTextPreference) findPreference("password");
-		domainText = (EditTextPreference) findPreference("domain");
-		bypassAddrs = (Preference) findPreference("bypassAddrs");
-		ssidList = (ListPreferenceMultiSelect) findPreference("ssid");
-		proxyTypeList = (ListPreference) findPreference("proxyType");
-		proxyedApps = (Preference) findPreference("proxyedApps");
-		profileList = (ListPreference) findPreference("profile");
-
-		isRunningCheck = (CheckBoxPreference) findPreference("isRunning");
-		isAutoSetProxyCheck = (CheckBoxPreference) findPreference("isAutoSetProxy");
-		isAuthCheck = (CheckBoxPreference) findPreference("isAuth");
-		isNTLMCheck = (CheckBoxPreference) findPreference("isNTLM");
-		isDNSProxyCheck = (CheckBoxPreference) findPreference("isDNSProxy");
-		isPACCheck = (CheckBoxPreference) findPreference("isPAC");
-		isAutoConnectCheck = (CheckBoxPreference) findPreference("isAutoConnect");
-        isBypassAppsCheck = (CheckBoxPreference) findPreference("isBypassApps");
 
 		SharedPreferences settings = PreferenceManager
 				.getDefaultSharedPreferences(this);
@@ -352,6 +312,52 @@ public class ProxyDroid extends PreferenceActivity implements
 			}.start();
 
 		}
+
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		FlurryAgent.onEndSession(this);
+	}
+
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		setContentView(R.layout.main);
+		addPreferencesFromResource(R.xml.proxydroid_preference);
+		// Create the adView
+		adView = new AdView(this, AdSize.BANNER, "a14db2c016cb9b6");
+		// Lookup your LinearLayout assuming it’s been given
+		// the attribute android:id="@+id/mainLayout"
+		LinearLayout layout = (LinearLayout) findViewById(R.id.ad);
+		// Add the adView to it
+		layout.addView(adView);
+		// Initiate a generic request to load it with an ad
+		AdRequest aq = new AdRequest();
+		adView.loadAd(aq);
+
+		hostText = (EditTextPreference) findPreference("host");
+		portText = (EditTextPreference) findPreference("port");
+		userText = (EditTextPreference) findPreference("user");
+		passwordText = (EditTextPreference) findPreference("password");
+		domainText = (EditTextPreference) findPreference("domain");
+		bypassAddrs = (Preference) findPreference("bypassAddrs");
+		ssidList = (ListPreferenceMultiSelect) findPreference("ssid");
+		proxyTypeList = (ListPreference) findPreference("proxyType");
+		proxyedApps = (Preference) findPreference("proxyedApps");
+		profileList = (ListPreference) findPreference("profile");
+
+		isRunningCheck = (CheckBoxPreference) findPreference("isRunning");
+		isAutoSetProxyCheck = (CheckBoxPreference) findPreference("isAutoSetProxy");
+		isAuthCheck = (CheckBoxPreference) findPreference("isAuth");
+		isNTLMCheck = (CheckBoxPreference) findPreference("isNTLM");
+		isDNSProxyCheck = (CheckBoxPreference) findPreference("isDNSProxy");
+		isPACCheck = (CheckBoxPreference) findPreference("isPAC");
+		isAutoConnectCheck = (CheckBoxPreference) findPreference("isAutoConnect");
+        isBypassAppsCheck = (CheckBoxPreference) findPreference("isBypassApps");
 
 	}
 

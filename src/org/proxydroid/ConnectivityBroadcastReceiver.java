@@ -63,142 +63,163 @@ import android.util.Log;
 
 public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
-	private static final String TAG = "ConnectivityBroadcastReceiver";
+    private static final String TAG = "ConnectivityBroadcastReceiver";
 
-	@Override
-	public synchronized void onReceive(Context context, Intent intent) {
-		String action = intent.getAction();
+    @Override
+        public synchronized void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
 
-		if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-			Log.w(TAG, "onReceived() called uncorrectly");
-			return;
-		}
+            if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+                Log.w(TAG, "onReceived() called uncorrectly");
+                return;
+            }
 
-		if (Utils.isConnecting())
-			return;
+            if (Utils.isConnecting())
+                return;
 
-		Log.e(TAG, "Connection Test");
+            Log.e(TAG, "Connection Test");
 
-		SharedPreferences settings = PreferenceManager
-				.getDefaultSharedPreferences(context);
+            SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(context);
 
-		Profile mProfile = new Profile();
-		mProfile.getProfile(settings);
+            Profile mProfile = new Profile();
+            mProfile.getProfile(settings);
 
-		// Store current settings first
-		String oldProfile = settings.getString("profile", "1");
+            // Store current settings first
+            String oldProfile = settings.getString("profile", "1");
 
-		Editor ed = settings.edit();
-		ed.putString(oldProfile, mProfile.toString());
-		ed.commit();
+            Editor ed = settings.edit();
+            ed.putString(oldProfile, mProfile.toString());
+            ed.commit();
 
-		// Load all profiles
-		String[] profileValues = settings.getString("profileValues", "").split(
-				"\\|");
+            // Load all profiles
+            String[] profileValues = settings.getString("profileValues", "").split(
+                    "\\|");
 
-		String curSSID = null;
-		boolean autoConnect = false;
+            String curSSID = null;
+            boolean autoConnect = false;
 
-		// Test on each profile
-		for (String profile : profileValues) {
-			String profileString = settings.getString(profile, "");
-			mProfile.decodeJson(profileString);
-			curSSID = onlineSSID(context, mProfile.getSsid());
-			if (mProfile.isAutoConnect() && curSSID != null) {
+            // Test on each profile
+            for (String profile : profileValues) {
+                String profileString = settings.getString(profile, "");
+                mProfile.decodeJson(profileString);
+                curSSID = onlineSSID(context, mProfile.getSsid());
+                if (mProfile.isAutoConnect() && curSSID != null) {
 
-				// XXX: Switch profile first
-				ed = settings.edit();
-				ed.putString("profile", profile);
-				ed.commit();
+                    // XXX: Switch profile first
+                    ed = settings.edit();
+                    ed.putString("profile", profile);
+                    ed.commit();
 
-				autoConnect = true;
+                    autoConnect = true;
 
-				// Then switch profile values
-				mProfile.setProfile(settings);
-				break;
-			}
-		}
+                    // Then switch profile values
+                    mProfile.setProfile(settings);
+                    break;
+                }
+            }
 
-		// only switching profiles when needed
-		ConnectivityManager manager = (ConnectivityManager) context
-				.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-		if (networkInfo == null) {
-			if (Utils.isWorked()) {
-				context.stopService(new Intent(context, ProxyDroidService.class));
-			}
-		} else {
-			String lastSSID = settings.getString("lastSSID", "-1");
+            // only switching profiles when needed
+            ConnectivityManager manager = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+            if (networkInfo == null) {
+                if (Utils.isWorked()) {
+                    context.stopService(new Intent(context, ProxyDroidService.class));
+                }
+            } else {
 
-			if (networkInfo.getTypeName().equals("WIFI")) {
-				if (!lastSSID.equals("-1")) {
-					WifiManager wm = (WifiManager) context
-							.getSystemService(Context.WIFI_SERVICE);
-					WifiInfo wInfo = wm.getConnectionInfo();
-					if (wInfo != null) {
-						String current = wInfo.getSSID();
-						if (current != null && !current.equals(lastSSID)) {
-							if (Utils.isWorked()) {
-								context.stopService(new Intent(context,
-										ProxyDroidService.class));
-							}
-						}
-					}
-				}
-			} else {
-				if (!lastSSID.equals("2G/3G")) {
-					if (Utils.isWorked()) {
-						context.stopService(new Intent(context,
-								ProxyDroidService.class));
-					}
-				}
-			}
-		}
+                // no network available now
+                if (networkInfo.getState() != NetworkInfo.State.CONNECTED)
+                    return;
 
-		if (autoConnect && curSSID != null) {
-			if (!Utils.isWorked()) {
-				ProxyDroidReceiver pdr = new ProxyDroidReceiver();
-				ed = settings.edit();
-				ed.putString("lastSSID", curSSID);
-				ed.commit();
-				Utils.setConnecting(true);
-				pdr.onReceive(context, intent);
-			}
-		}
+                String lastSSID = settings.getString("lastSSID", "-1");
 
-	}
+                if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
 
-	public String onlineSSID(Context context, String ssid) {
-		String ssids[] = ListPreferenceMultiSelect.parseStoredValue(ssid);
-		if (ssids == null)
-			return null;
-		if (ssids.length < 1)
-			return null;
-		ConnectivityManager manager = (ConnectivityManager) context
-				.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-		if (networkInfo == null)
-			return null;
-		if (!networkInfo.getTypeName().equals("WIFI")) {
-			for (String item : ssids) {
-				if (item.equals("2G/3G"))
-					return "2G/3G";
-			}
-			return null;
-		}
-		WifiManager wm = (WifiManager) context
-				.getSystemService(Context.WIFI_SERVICE);
-		WifiInfo wInfo = wm.getConnectionInfo();
-		if (wInfo == null)
-			return null;
-		String current = wInfo.getSSID();
-		if (current == null || current.equals(""))
-			return null;
-		for (String item : ssids) {
-			if (item.equals(current))
-				return item;
-		}
-		return null;
-	}
+                    // no last SSID, should give up here
+                    if (lastSSID.equals("-1"))
+                        return;
+
+                    // get WIFI info
+                    WifiManager wm = (WifiManager) context
+                        .getSystemService(Context.WIFI_SERVICE);
+                    WifiInfo wInfo = wm.getConnectionInfo();
+                    if (wInfo == null)
+                        return;
+
+                    // compare with the current SSID
+                    String current = wInfo.getSSID();
+                    if (current == null || current.equals(lastSSID))
+                        return;
+
+                    // need to switch profile, so stop service first
+                    if (Utils.isWorked())
+                        context.stopService(new Intent(context,
+                                    ProxyDroidService.class));
+                } else {
+
+                    // still statisfy the last triger
+                    if (lastSSID.equals(Constraints.ONLY_3G) 
+                            || lastSSID.equals(Constraints.WIFI_AND_3G))
+                        return;
+
+                    if (Utils.isWorked())
+                        context.stopService(new Intent(context,
+                                    ProxyDroidService.class));
+                }
+            }
+
+            if (autoConnect && curSSID != null) {
+                if (!Utils.isWorked()) {
+                    ProxyDroidReceiver pdr = new ProxyDroidReceiver();
+                    ed = settings.edit();
+                    ed.putString("lastSSID", curSSID);
+                    ed.commit();
+                    Utils.setConnecting(true);
+                    pdr.onReceive(context, intent);
+                }
+            }
+
+        }
+
+    public String onlineSSID(Context context, String ssid) {
+        String ssids[] = ListPreferenceMultiSelect.parseStoredValue(ssid);
+        if (ssids == null)
+            return null;
+        if (ssids.length < 1)
+            return null;
+        ConnectivityManager manager = (ConnectivityManager) context
+            .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+        if (networkInfo == null)
+            return null;
+        if (networkInfo.getType() != ConnectivityManager.TYPE_WIFI) {
+            for (String item : ssids) {
+                if (item.equals(Constraints.WIFI_AND_3G))
+                    return item;
+                if (item.equals(Constraints.ONLY_3G))
+                    return item;
+            }
+            return null;
+        }
+        WifiManager wm = (WifiManager) context
+            .getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wInfo = wm.getConnectionInfo();
+        if (wInfo == null)
+            return null;
+        String current = wInfo.getSSID();
+        if (current == null || current.equals(""))
+            return null;
+        for (String item : ssids) {
+            if (item.equals(Constraints.WIFI_AND_3G))
+                return item;
+            if (item.equals(Constraints.ONLY_WIFI))
+                return item;
+            if (item.equals(current))
+                return item;
+        }
+        return null;
+    }
 
 }

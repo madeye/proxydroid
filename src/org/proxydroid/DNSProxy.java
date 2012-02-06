@@ -31,6 +31,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.proxydroid.utils.Base64;
 
 import com.github.droidfu.http.BetterHttp;
 import com.github.droidfu.http.BetterHttpRequest;

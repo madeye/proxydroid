@@ -143,12 +143,35 @@
 
     <!-- bypass list activity -->
     <string name="add_button">Add</string>
+    <string name="preset_button">Presets</string>
+    <string name="import_button">Import</string>
+    <string name="export_button">Export</string>
     <string name="bypass_edit_title">Address scope</string>
     <string name="bypass_del_title">Confirm</string>
     <string name="bypass_del_text">Remove this address?</string>
     <string name="ok_button">OK</string>
     <string name="cancel_button">Cancel</string>
     <string name="err_addr">unknown domain name or incorrect format of IP address</string>
+    <string name="reseting">Reseting…</string>
+    <string name="importing">Importing…</string>
+    <string name="exporting">Exported to:</string>
+
+    <string-array name="presets_list">
+        <item>Blank</item>
+        <item>Localhost</item>
+        <item>Intranet</item>
+        <item>CHN Route</item>
+    </string-array>
+
+    <!-- file chooser -->
+    <string name="file_chooser">Choose your key file</string>
+    <string name="key_manager">Key File Manager</string>
+    <string name="current_dir">Current Directory</string>
+    <string name="parent_dir">Parent Directory</string>
+    <string name="folder">Folder</string>
+    <string name="file_size">File Size</string>
+    <string name="file_toast">Import from this file: </string>
+    <string name="file_error">Too many rules: </string>
 
     <!-- Connection errors -->
     <string name="msg_pac_error">Incorrect or unsupported PAC file</string>

@@ -46,6 +46,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.proxydroid.utils.Constraints;
+import org.proxydroid.utils.Utils;
+
 import com.flurry.android.FlurryAgent;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
@@ -646,6 +649,8 @@ public class ProxyDroid extends PreferenceActivity implements
 		if (!settings.getString("bypassAddrs", "").equals(""))
 			bypassAddrs.setSummary(settings.getString("bypassAddrs",
 					getString(R.string.set_bypass_summary)).replace("|", ", "));
+		else
+			bypassAddrs.setSummary(R.string.set_bypass_summary);
 		if (!settings.getString("port", "-1").equals("-1")
 				&& !settings.getString("port", "-1").equals(""))
 			portText.setSummary(settings.getString("port",

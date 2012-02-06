@@ -41,6 +41,8 @@ package org.proxydroid;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import org.proxydroid.utils.Utils;
+
 import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.app.ActivityManager.RunningServiceInfo;

@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.proxydroid.utils.ImageLoader;
+import org.proxydroid.utils.ImageLoaderFactory;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;

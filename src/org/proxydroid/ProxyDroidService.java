@@ -51,6 +51,8 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.proxydroid.utils.Utils;
+
 import com.btr.proxy.selector.pac.PacProxySelector;
 import com.btr.proxy.selector.pac.PacScriptSource;
 import com.btr.proxy.selector.pac.Proxy;

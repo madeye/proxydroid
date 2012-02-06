@@ -81,7 +81,7 @@ public class Profile implements Serializable {
 		String portText = settings.getString("port", "");
 
 		if (name.equals("")) {
-			name = host + ":" + port + "@" + proxyType;
+			name = host + ":" + port + "." + proxyType;
 		}
 
 		try {

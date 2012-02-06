@@ -40,6 +40,9 @@ package org.proxydroid;
 
 import java.util.ArrayList;
 
+import org.proxydroid.utils.Constraints;
+import org.proxydroid.utils.Utils;
+
 import com.ksmaze.android.preference.ListPreferenceMultiSelect;
 
 import android.app.ActivityManager;

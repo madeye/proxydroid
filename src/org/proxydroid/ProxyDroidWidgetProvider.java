@@ -38,14 +38,9 @@
 
 package org.proxydroid;
 
-import java.util.ArrayList;
-import java.util.regex.Pattern;
-
 import org.proxydroid.utils.Utils;
 
-import android.app.ActivityManager;
 import android.app.PendingIntent;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
@@ -63,6 +58,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 	public static final String SERVICE_NAME = "org.proxydroid.ProxyDroidService";
 	public static final String TAG = "ProxyDroidWidgetProvider";
 
+	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
 			int[] appWidgetIds) {
 		final int N = appWidgetIds.length;
@@ -145,7 +141,7 @@ public class ProxyDroidWidgetProvider extends AppWidgetProvider {
 
 				bundle.putString("proxyType", mProfile.getProxyType());
 				bundle.putBoolean("isAutoSetProxy", mProfile.isAutoSetProxy());
-                bundle.putBoolean("isBypassApps", mProfile.isBypassApps());
+				bundle.putBoolean("isBypassApps", mProfile.isBypassApps());
 				bundle.putBoolean("isAuth", mProfile.isAuth());
 				bundle.putBoolean("isNTLM", mProfile.isNTLM());
 				bundle.putBoolean("isDNSProxy", mProfile.isDNSProxy());

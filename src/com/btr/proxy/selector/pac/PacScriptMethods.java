@@ -53,6 +53,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * @see com.btr.proxy.selector.pac.ScriptMethods#isPlainHostName(java.lang.String)
 	 ************************************************************************/
 
+	@Override
 	public boolean isPlainHostName(String host) {
 		return host.indexOf(".") < 0;
 	}
@@ -67,6 +68,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * @return true if the domain of host name matches.
 	 ************************************************************************/
 
+	@Override
 	public boolean dnsDomainIs(String host, String domain) {
 		return host.endsWith(domain);
 	}
@@ -83,6 +85,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * @return true if matches else false.
 	 ************************************************************************/
 
+	@Override
 	public boolean localHostOrDomainIs(String host, String domain) {
 		return domain.startsWith(host);
 	}
@@ -95,6 +98,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * @return true if resolvable else false.
 	 ************************************************************************/
 
+	@Override
 	public boolean isResolvable(String host) {
 		try {
 			InetAddress.getByName(host).getHostAddress();
@@ -126,6 +130,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * @return true if it matches else false.
 	 ************************************************************************/
 
+	@Override
 	public boolean isInNet(String host, String pattern, String mask) {
 		long lhost = parseIpAddressToLong(host);
 		long lpattern = parseIpAddressToLong(pattern);
@@ -164,6 +169,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * @return the resolved IP, empty string if not resolvable.
 	 ************************************************************************/
 
+	@Override
 	public String dnsResolve(String host) {
 		try {
 			return InetAddress.getByName(host).getHostAddress();
@@ -181,6 +187,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * @return an IP as string.
 	 ************************************************************************/
 
+	@Override
 	public String myIpAddress() {
 		try {
 			String overrideIP = System.getProperty(OVERRIDE_LOCAL_IP);
@@ -203,6 +210,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * @return number of DNS domain levels.
 	 ************************************************************************/
 
+	@Override
 	public int dnsDomainLevels(String host) {
 		int count = 0;
 		int startPos = 0;
@@ -224,6 +232,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * @return true if the string matches, else false.
 	 ************************************************************************/
 
+	@Override
 	public boolean shExpMatch(String str, String shexp) {
 		StringTokenizer tokenizer = new StringTokenizer(shexp, "*");
 		int startPos = 0;
@@ -260,6 +269,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * @return true if current day matches the criteria.
 	 ************************************************************************/
 
+	@Override
 	public boolean weekdayRange(String wd1, String wd2, String gmt) {
 		boolean useGmt = GMT.equalsIgnoreCase(wd2) || GMT.equalsIgnoreCase(gmt);
 		Calendar cal = getCurrentTime(useGmt);
@@ -338,6 +348,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * @return true if the current date matches the given range.
 	 ************************************************************************/
 
+	@Override
 	public boolean dateRange(Object day1, Object month1, Object year1,
 			Object day2, Object month2, Object year2, Object gmt) {
 
@@ -476,6 +487,7 @@ public class PacScriptMethods implements ScriptMethods {
 	 * @return true if the current time matches the given range.
 	 ************************************************************************/
 
+	@Override
 	public boolean timeRange(Object hour1, Object min1, Object sec1,
 			Object hour2, Object min2, Object sec2, Object gmt) {
 		boolean useGmt = GMT.equalsIgnoreCase(String.valueOf(min1))

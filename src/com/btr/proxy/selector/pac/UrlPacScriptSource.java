@@ -46,6 +46,7 @@ public class UrlPacScriptSource implements PacScriptSource {
 	 * @see com.btr.proxy.selector.pac.PacScriptSource#getScriptContent()
 	 ************************************************************************/
 
+	@Override
 	public synchronized String getScriptContent() throws IOException {
 		if (this.scriptContent == null
 				|| (this.expireAtMillis > 0 && this.expireAtMillis > System

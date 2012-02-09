@@ -97,13 +97,13 @@
 
     <!-- menu bar category -->
     <string name="recovery">Recover</string>
-    <string name="copy_rights">\n\nProxyDroid is an open source project
+    <string name="copy_rights">\n\nProxyDroid is an open source software
 		published
 		under
-		the GPLv3. \n\nIf you have any question, please visit
+		GPLv3. \n\nIf you have any question, please visit
 		our project
-		page on
-		googlecode. \n\n(proxydroid.googlecode.com)</string>
+		site on
+		google code. \n\n(proxydroid.googlecode.com)</string>
     <string name="about">About</string>
     <string name="change_name">Rename</string>
     <string name="alert_dialog_ok">OK</string>
@@ -122,7 +122,8 @@
     <string name="profile_default">Profile 1</string>
     <string name="profile_new">New Profile</string>
     <string name="profile_base">Profile</string>
-    <string name="profile_del">Remove</string>
+    <string name="profile_del">Delete</string>
+    <string name="profile_del_confirm">Delete this profile?</string>
 
     <!-- proxy type -->
     <string name="proxy_type">Proxy Type</string>

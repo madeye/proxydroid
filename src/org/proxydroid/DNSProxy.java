@@ -1,123 +1,31 @@
 package org.proxydroid;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.HttpURLConnection;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.SocketException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.List;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.proxydroid.db.DNSResponse;
+import org.proxydroid.db.DatabaseHelper;
 import org.proxydroid.utils.Base64;
+
+import android.content.Context;
+import android.util.Log;
 
 import com.github.droidfu.http.BetterHttp;
 import com.github.droidfu.http.BetterHttpRequest;
 import com.github.droidfu.http.BetterHttpResponse;
-
-import android.util.Log;
-
-/**
- * DNS Response Class
- * 
- * @author biaji
- * 
- */
-class DnsResponse implements Serializable {
-
-	private static final long serialVersionUID = -6693216674221293274L;
-
-	private String request = null;
-	private long timestamp = System.currentTimeMillis();;
-	private int reqTimes = 0;
-	private byte[] dnsResponse = null;
-
-	public DnsResponse(String request) {
-		this.request = request;
-	}
-
-	/**
-	 * @return the dnsResponse
-	 */
-	public byte[] getDnsResponse() {
-		this.reqTimes++;
-		return dnsResponse;
-	}
-
-	/**
-	 * @return IP string
-	 */
-	public String getIPString() {
-		String ip = null;
-		int i;
-
-		if (dnsResponse == null) {
-			return null;
-		}
-
-		i = dnsResponse.length - 4;
-
-		if (i < 0) {
-			return null;
-		}
-
-		ip = "" + (dnsResponse[i] & 0xFF); /* Unsigned byte to int */
-
-		for (i++; i < dnsResponse.length; i++) {
-			ip += "." + (dnsResponse[i] & 0xFF);
-		}
-
-		return ip;
-	}
-
-	/**
-	 * @return the reqTimes
-	 */
-	public int getReqTimes() {
-		return reqTimes;
-	}
-
-	public String getRequest() {
-		return this.request;
-	}
-
-	/**
-	 * @return the timestamp
-	 */
-	public long getTimestamp() {
-		return timestamp;
-	}
-
-	/**
-	 * @param dnsResponse
-	 *            the dnsResponse to set
-	 */
-	public void setDnsResponse(byte[] dnsResponse) {
-		this.dnsResponse = dnsResponse;
-	}
-}
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
 
 /**
  * DNS Proxy
@@ -138,10 +46,6 @@ public class DNSProxy implements Runnable {
 	}
 
 	private final String TAG = "ProxyDroid";
-	private String homePath;
-	private final String CACHE_PATH = "cache/";
-
-	private final String CACHE_FILE = "dnscache";
 
 	private volatile int threadNum = 0;
 	private final static int MAX_THREAD_NUM = 5;
@@ -150,7 +54,6 @@ public class DNSProxy implements Runnable {
 	private DatagramSocket srvSocket;
 
 	private int srvPort = 8153;
-	private String name;
 	final protected int DNS_PKG_HEADER_LEN = 12;
 	final private int[] DNS_HEADERS = { 0, 0, 0x81, 0x80, 0, 0, 0, 0, 0, 0, 0,
 			0 };
@@ -161,8 +64,6 @@ public class DNSProxy implements Runnable {
 
 	private boolean inService = false;
 
-	private Hashtable<String, DnsResponse> dnsCache = new Hashtable<String, DnsResponse>();
-
 	/**
 	 * DNS Proxy upper stream
 	 * 
@@ -171,15 +72,23 @@ public class DNSProxy implements Runnable {
 
 	private static final String CANT_RESOLVE = "Error";
 
-	public DNSProxy(String name, int port) {
-		
-		this.name = name;
+	private DatabaseHelper helper;
+
+	public DNSProxy(Context ctx, int port) {
+
 		this.srvPort = port;
-		
+
 		BetterHttp.setupHttpClient();
 		BetterHttp.setSocketTimeout(10 * 1000);
 
 		domains = new HashSet<String>();
+
+		OpenHelperManager.setOpenHelperClass(DatabaseHelper.class);
+
+		if (helper == null) {
+			helper = OpenHelperManager.getHelper(ctx,
+					DatabaseHelper.class);
+		}
 
 		try {
 			InetAddress addr = InetAddress.getByName("www.google.com");
@@ -196,7 +105,7 @@ public class DNSProxy implements Runnable {
 					InetAddress.getByName("127.0.0.1"));
 			inService = true;
 			srvPort = srvSocket.getLocalPort();
-			Log.e(TAG, this.name + "Start at port： " + srvPort);
+			Log.e(TAG, "Start at port " + srvPort);
 		} catch (SocketException e) {
 			Log.e(TAG, "DNSProxy fail to init，port: " + srvPort, e);
 		} catch (UnknownHostException e) {
@@ -209,22 +118,39 @@ public class DNSProxy implements Runnable {
 	 * Add a domain name to cache
 	 * 
 	 * @param questDomainName
-	 *            域名
+	 * 
 	 * @param answer
-	 *            解析结果
+	 * 
 	 */
 	private synchronized void addToCache(String questDomainName, byte[] answer) {
-		DnsResponse response = new DnsResponse(questDomainName);
-		response.setDnsResponse(answer);
-		dnsCache.put(questDomainName, response);
-		saveCache();
+		DNSResponse response = new DNSResponse(questDomainName);
+		response.setDNSResponse(answer);
+		try {
+			Dao<DNSResponse, String> dnsCacheDao = helper.getDNSCacheDao();
+			dnsCacheDao.createOrUpdate(response);
+		} catch (Exception e) {
+			Log.e(TAG, "Cannot open DAO", e);
+		}
+	}
+
+	private synchronized DNSResponse queryFromCache(String questDomainName) {
+		try {
+			Dao<DNSResponse, String> dnsCacheDao = helper.getDNSCacheDao();
+			return dnsCacheDao.queryForId(questDomainName);
+		} catch (Exception e) {
+			Log.e(TAG, "Cannot open DAO", e);
+		}
+		return null;
 	}
 
 	public void close() throws IOException {
 		inService = false;
 		srvSocket.close();
-		saveCache();
-		Log.i(TAG, "DNS Server closed");
+		if (helper != null) {
+			OpenHelperManager.releaseHelper();
+			helper = null;
+		}
+		Log.i(TAG, "DNS Proxy closed");
 	}
 
 	/*
@@ -310,46 +236,21 @@ public class DNSProxy implements Runnable {
 	}
 
 	/**
-	 * 由缓存载入域名解析缓存
+	 * load cache
 	 */
 	private void loadCache() {
-		ObjectInputStream ois = null;
-		File cache = new File(homePath + CACHE_PATH + CACHE_FILE);
 		try {
-			if (!cache.exists())
-				return;
-			ois = new ObjectInputStream(new FileInputStream(cache));
-			dnsCache = (Hashtable<String, DnsResponse>) ois.readObject();
-			ois.close();
-			ois = null;
-
-			Hashtable<String, DnsResponse> tmpCache = (Hashtable<String, DnsResponse>) dnsCache
-					.clone();
-			for (DnsResponse resp : dnsCache.values()) {
-				// 检查缓存时效(十天)
-				if ((System.currentTimeMillis() - resp.getTimestamp()) > 864000000L) {
-					Log.d(TAG, "Delete a record: " + resp.getRequest());
-					tmpCache.remove(resp.getRequest());
+			Dao<DNSResponse, String> dnsCacheDao = helper.getDNSCacheDao();
+			List<DNSResponse> list = dnsCacheDao.queryForAll();
+			for (DNSResponse resp : list) {
+				// expire after 3 days
+				if ((System.currentTimeMillis() - resp.getTimestamp()) > 259200000L) {
+					Log.d(TAG, "deleted: " + resp.getRequest());
+					dnsCacheDao.delete(resp);
 				}
 			}
-
-			dnsCache = tmpCache;
-			tmpCache = null;
-
-		} catch (ClassCastException e) {
-			Log.e(TAG, e.getLocalizedMessage(), e);
-		} catch (FileNotFoundException e) {
-			Log.e(TAG, e.getLocalizedMessage(), e);
-		} catch (IOException e) {
-			Log.e(TAG, e.getLocalizedMessage(), e);
-		} catch (ClassNotFoundException e) {
-			Log.e(TAG, e.getLocalizedMessage(), e);
-		} finally {
-			try {
-				if (ois != null)
-					ois.close();
-			} catch (IOException e) {
-			}
+		} catch (Exception e) {
+			Log.e(TAG, "Cannot open DAO", e);
 		}
 	}
 
@@ -448,13 +349,12 @@ public class DNSProxy implements Runnable {
 
 				Log.d(TAG, "Resolving: " + questDomain);
 
-				if (dnsCache.containsKey(questDomain)) {
+				DNSResponse resp = queryFromCache(questDomain);
 
-					sendDns(dnsCache.get(questDomain).getDnsResponse(), dnsq,
-							srvSocket);
+				if (resp != null) {
 
-					Log.d(TAG, "DNS cache hit for " + questDomain + ": "
-							+ dnsCache.get(questDomain).getIPString());
+					sendDns(resp.getDNSResponse(), dnsq, srvSocket);
+					Log.d(TAG, "DNS cache hit for " + questDomain);
 
 				} else if (questDomain.toLowerCase().endsWith(".appspot.com")) {
 					// for appspot.com
@@ -472,17 +372,14 @@ public class DNSProxy implements Runnable {
 							domains.add(questDomain);
 					}
 
-//					while (threadNum >= MAX_THREAD_NUM) {
-//						Thread.sleep(2000);
-//					}
-
 					if (threadNum >= MAX_THREAD_NUM) {
 						continue;
 					}
-					
+
 					threadNum++;
 
 					new Thread() {
+						@Override
 						public void run() {
 							long startTime = System.currentTimeMillis();
 							try {
@@ -494,8 +391,10 @@ public class DNSProxy implements Runnable {
 											"Success to get DNS response for "
 													+ questDomain
 													+ "，length: "
-													+ answer.length + " "
-													+ (System.currentTimeMillis() - startTime)
+													+ answer.length
+													+ " "
+													+ (System
+															.currentTimeMillis() - startTime)
 													/ 1000 + "s");
 								} else {
 									Log.e(TAG,
@@ -503,7 +402,8 @@ public class DNSProxy implements Runnable {
 								}
 							} catch (Exception e) {
 								// Nothing
-								Log.e(TAG, "Failed to resolve " + questDomain + ": " + e.getLocalizedMessage(), e);
+								Log.e(TAG, "Failed to resolve " + questDomain
+										+ ": " + e.getLocalizedMessage(), e);
 							}
 							synchronized (DNSProxy.this) {
 								domains.remove(questDomain);
@@ -514,17 +414,6 @@ public class DNSProxy implements Runnable {
 
 				}
 
-				/* For test, validate dnsCache */
-				/*
-				 * if (dnsCache.size() > 0) { Log.d(TAG, "Domains in cache:");
-				 * 
-				 * Enumeration<String> enu = dnsCache.keys(); while
-				 * (enu.hasMoreElements()) { String domain = (String)
-				 * enu.nextElement(); DnsResponse resp = dnsCache.get(domain);
-				 * 
-				 * Log.d(TAG, domain + " : " + resp.getIPString()); } }
-				 */
-
 			} catch (SocketException e) {
 				Log.e(TAG, "Socket Exception", e);
 				break;
@@ -533,9 +422,6 @@ public class DNSProxy implements Runnable {
 				break;
 			} catch (IOException e) {
 				Log.e(TAG, "IO Exception", e);
-//			} catch (InterruptedException e) {
-//				Log.e(TAG, "Interrupted", e);
-//				break;
 			}
 		}
 
@@ -562,26 +448,8 @@ public class DNSProxy implements Runnable {
 		String host = "gaednsproxy.appspot.com";
 		url = url.replace(host, dnsRelay);
 
-//		try {
-//			URL aURL = new URL(url);
-//			HttpURLConnection conn = (HttpURLConnection) aURL.openConnection();
-//			conn.setRequestProperty("Host", host);
-//			conn.setConnectTimeout(10 * 1000);
-//			conn.setReadTimeout(20 * 1000);
-//			conn.connect();
-//			is = conn.getInputStream();
-//			BufferedReader br = new BufferedReader(new InputStreamReader(is));
-//			ip = br.readLine();
-//		} catch (SocketException e) {
-//			Log.e(TAG, "Failed to request URI: " + url, e);
-//		} catch (IOException e) {
-//			Log.e(TAG, "Failed to request URI: " + url, e);
-//		} catch (NullPointerException e) {
-//			Log.e(TAG, "Failed to request URI: " + url, e);
-//		}
-		
 		BetterHttpRequest conn = BetterHttp.get(url, host);
-		
+
 		try {
 			BetterHttpResponse resp = conn.send();
 			is = resp.getResponseBody();
@@ -608,7 +476,8 @@ public class DNSProxy implements Runnable {
 		DomainValidator dv = DomainValidator.getInstance();
 
 		/* Not support reverse domain name query */
-		if (domain.endsWith("ip6.arpa") || domain.endsWith("in-addr.arpa") || !dv.isValid(domain)) {
+		if (domain.endsWith("ip6.arpa") || domain.endsWith("in-addr.arpa")
+				|| !dv.isValid(domain)) {
 			return createDNSResponse(quest, parseIPString("127.0.0.1"));
 		}
 
@@ -629,38 +498,6 @@ public class DNSProxy implements Runnable {
 		}
 
 		return result;
-	}
-
-	/**
-	 * 保存域名解析内容缓存
-	 */
-	private void saveCache() {
-		ObjectOutputStream oos = null;
-		File cache = new File(homePath + CACHE_PATH + CACHE_FILE);
-		try {
-			if (!cache.exists()) {
-				File cacheDir = new File(homePath + CACHE_PATH);
-				if (!cacheDir.exists()) { // android的createNewFile这个方法真够恶心的啊
-					cacheDir.mkdir();
-				}
-				cache.createNewFile();
-			}
-			oos = new ObjectOutputStream(new FileOutputStream(cache));
-			oos.writeObject(dnsCache);
-			oos.flush();
-			oos.close();
-			oos = null;
-		} catch (FileNotFoundException e) {
-			Log.e(TAG, e.getLocalizedMessage(), e);
-		} catch (IOException e) {
-			Log.e(TAG, e.getLocalizedMessage(), e);
-		} finally {
-			try {
-				if (oos != null)
-					oos.close();
-			} catch (IOException e) {
-			}
-		}
 	}
 
 	/**
@@ -688,10 +525,6 @@ public class DNSProxy implements Runnable {
 		} catch (IOException e) {
 			Log.e(TAG, "", e);
 		}
-	}
-
-	public void setBasePath(String path) {
-		this.homePath = path;
 	}
 
 }

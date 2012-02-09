@@ -73,7 +73,7 @@ public class Profile implements Serializable {
 		isAuth = settings.getBoolean("isAuth", false);
 		isNTLM = settings.getBoolean("isNTLM", false);
 		isAutoSetProxy = settings.getBoolean("isAutoSetProxy", false);
-        isBypassApps = settings.getBoolean("isBypassApps", false);
+		isBypassApps = settings.getBoolean("isBypassApps", false);
 		isDNSProxy = settings.getBoolean("isDNSProxy", false);
 		isPAC = settings.getBoolean("isPAC", false);
 		isAutoConnect = settings.getBoolean("isAutoConnect", false);
@@ -106,7 +106,7 @@ public class Profile implements Serializable {
 		ed.putString("proxyType", proxyType);
 		ed.putBoolean("isAutoConnect", isAutoConnect);
 		ed.putBoolean("isAutoSetProxy", isAutoSetProxy);
-        ed.putBoolean("isBypassApps", isBypassApps);
+		ed.putBoolean("isBypassApps", isBypassApps);
 		ed.putBoolean("isPAC", isPAC);
 		ed.putBoolean("isDNSProxy", isDNSProxy);
 		ed.putString("ssid", ssid);
@@ -153,7 +153,7 @@ public class Profile implements Serializable {
 		obj.put("isNTLM", isNTLM);
 		obj.put("isAutoConnect", isAutoConnect);
 		obj.put("isAutoSetProxy", isAutoSetProxy);
-        obj.put("isBypassApps", isBypassApps);
+		obj.put("isBypassApps", isBypassApps);
 		obj.put("isDNSProxy", isDNSProxy);
 		obj.put("isPAC", isPAC);
 
@@ -224,7 +224,7 @@ public class Profile implements Serializable {
 		isNTLM = jd.getBoolean("isNTLM", false);
 		isAutoConnect = jd.getBoolean("isAutoConnect", false);
 		isAutoSetProxy = jd.getBoolean("isAutoSetProxy", false);
-        isBypassApps = jd.getBoolean("isBypassApps", false);
+		isBypassApps = jd.getBoolean("isBypassApps", false);
 		isDNSProxy = jd.getBoolean("isDNSProxy", false);
 		isPAC = jd.getBoolean("isPAC", false);
 
@@ -239,9 +239,9 @@ public class Profile implements Serializable {
 				"[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}", ia);
 
 		if (valid1 || valid2) {
-			
+
 			return ia;
-			
+
 		} else {
 
 			String addrString = null;
@@ -515,7 +515,7 @@ public class Profile implements Serializable {
 	public void setDNSProxy(boolean isDNSProxy) {
 		this.isDNSProxy = isDNSProxy;
 	}
-	
+
 	/**
 	 * @return the isPAC
 	 */

@@ -22,15 +22,15 @@ import org.apache.http.HttpResponse;
 
 public interface BetterHttpResponse {
 
-    public HttpResponse unwrap();
+	public HttpResponse unwrap();
 
-    public InputStream getResponseBody() throws IOException;
+	public InputStream getResponseBody() throws IOException;
 
-    public byte[] getResponseBodyAsBytes() throws IOException;
+	public byte[] getResponseBodyAsBytes() throws IOException;
 
-    public String getResponseBodyAsString() throws IOException;
+	public String getResponseBodyAsString() throws IOException;
 
-    public int getStatusCode();
+	public int getStatusCode();
 
-    public String getHeader(String header);
+	public String getHeader(String header);
 }

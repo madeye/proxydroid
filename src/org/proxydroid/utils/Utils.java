@@ -9,24 +9,21 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
-import java.lang.NoClassDefFoundError;
-
 import org.proxydroid.Exec;
 import org.proxydroid.ProxyDroidService;
 import org.proxydroid.R;
-import org.proxydroid.R.drawable;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.util.Log;
 
 public class Utils {
-	
+
 	/**
 	 * Internal thread used to execute scripts (as root or not).
 	 */
@@ -122,12 +119,12 @@ public class Utils {
 		 */
 		@Override
 		public synchronized void destroy() {
-            try {
-                Exec.hangupProcessGroup(mProcId);
-                Exec.close(mTermFd);
-            } catch (NoClassDefFoundError ignore) {
-                // Nothing
-            }
+			try {
+				Exec.hangupProcessGroup(mProcId);
+				Exec.close(mTermFd);
+			} catch (NoClassDefFoundError ignore) {
+				// Nothing
+			}
 		}
 
 		@Override
@@ -212,17 +209,17 @@ public class Utils {
 	private static String iptables = null;
 
 	private static String data_path = null;
-	
+
 	private static boolean isConnecting = false;
-	
-	public static boolean isConnecting () {
+
+	public static boolean isConnecting() {
 		return isConnecting;
 	}
-	
+
 	public static void setConnecting(boolean value) {
 		isConnecting = value;
 	}
-	
+
 	public static String preserve(String s) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
@@ -233,7 +230,7 @@ public class Utils {
 		}
 		return sb.toString();
 	}
-	
+
 	private static void checkIptables() {
 
 		if (!isRoot()) {
@@ -250,8 +247,8 @@ public class Utils {
 		boolean version = false;
 
 		StringBuilder sb = new StringBuilder();
-		String command = iptables + " --version\n" + iptables + " -L -t nat -n\n"
-				+ "exit\n";
+		String command = iptables + " --version\n" + iptables
+				+ " -L -t nat -n\n" + "exit\n";
 
 		int exitcode = runScript(command, sb, 10 * 1000, true);
 
@@ -408,13 +405,13 @@ public class Utils {
 
 		return true;
 	}
-	
+
 	public static boolean runCommand(String command) {
-		
+
 		return runCommand(command, 10 * 1000);
-		
+
 	}
-	
+
 	public static boolean runRootCommand(String command, int timeout) {
 
 		Log.d(TAG, command);
@@ -427,7 +424,7 @@ public class Utils {
 	public static boolean runRootCommand(String command) {
 
 		return runRootCommand(command, 10 * 1000);
-		
+
 	}
 
 	private synchronized static int runScript(String script, StringBuilder res,

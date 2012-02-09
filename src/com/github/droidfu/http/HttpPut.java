@@ -23,24 +23,26 @@ import org.apache.http.impl.client.AbstractHttpClient;
 
 class HttpPut extends BetterHttpRequestBase {
 
-    HttpPut(AbstractHttpClient httpClient, String url, HashMap<String, String> defaultHeaders) {
-        super(httpClient);
-        this.request = new org.apache.http.client.methods.HttpPut(url);
-        for (String header : defaultHeaders.keySet()) {
-            request.setHeader(header, defaultHeaders.get(header));
-        }
-    }
+	HttpPut(AbstractHttpClient httpClient, String url,
+			HashMap<String, String> defaultHeaders) {
+		super(httpClient);
+		this.request = new org.apache.http.client.methods.HttpPut(url);
+		for (String header : defaultHeaders.keySet()) {
+			request.setHeader(header, defaultHeaders.get(header));
+		}
+	}
 
-    HttpPut(AbstractHttpClient httpClient, String url, HttpEntity payload,
-            HashMap<String, String> defaultHeaders) {
-        super(httpClient);
-        this.request = new org.apache.http.client.methods.HttpPut(url);
-        ((HttpEntityEnclosingRequest) request).setEntity(payload);
+	HttpPut(AbstractHttpClient httpClient, String url, HttpEntity payload,
+			HashMap<String, String> defaultHeaders) {
+		super(httpClient);
+		this.request = new org.apache.http.client.methods.HttpPut(url);
+		((HttpEntityEnclosingRequest) request).setEntity(payload);
 
-        request.setHeader(HTTP_CONTENT_TYPE_HEADER, payload.getContentType().getValue());
-        for (String header : defaultHeaders.keySet()) {
-            request.setHeader(header, defaultHeaders.get(header));
-        }
-    }
+		request.setHeader(HTTP_CONTENT_TYPE_HEADER, payload.getContentType()
+				.getValue());
+		for (String header : defaultHeaders.keySet()) {
+			request.setHeader(header, defaultHeaders.get(header));
+		}
+	}
 
 }

@@ -25,41 +25,47 @@ import org.apache.http.util.EntityUtils;
 
 public class BetterHttpResponseImpl implements BetterHttpResponse {
 
-    private HttpResponse response;
-    private HttpEntity entity;
+	private HttpResponse response;
+	private HttpEntity entity;
 
-    public BetterHttpResponseImpl(HttpResponse response) throws IOException {
-        this.response = response;
-        HttpEntity temp = response.getEntity();
-        if (temp != null) {
-            entity = new BufferedHttpEntity(temp);
-        }
-    }
+	public BetterHttpResponseImpl(HttpResponse response) throws IOException {
+		this.response = response;
+		HttpEntity temp = response.getEntity();
+		if (temp != null) {
+			entity = new BufferedHttpEntity(temp);
+		}
+	}
 
-    public HttpResponse unwrap() {
-        return response;
-    }
+	@Override
+	public HttpResponse unwrap() {
+		return response;
+	}
 
-    public InputStream getResponseBody() throws IOException {
-        return entity.getContent();
-    }
+	@Override
+	public InputStream getResponseBody() throws IOException {
+		return entity.getContent();
+	}
 
-    public byte[] getResponseBodyAsBytes() throws IOException {
-        return EntityUtils.toByteArray(entity);
-    }
+	@Override
+	public byte[] getResponseBodyAsBytes() throws IOException {
+		return EntityUtils.toByteArray(entity);
+	}
 
-    public String getResponseBodyAsString() throws IOException {
-        return EntityUtils.toString(entity);
-    }
+	@Override
+	public String getResponseBodyAsString() throws IOException {
+		return EntityUtils.toString(entity);
+	}
 
-    public int getStatusCode() {
-        return this.response.getStatusLine().getStatusCode();
-    }
+	@Override
+	public int getStatusCode() {
+		return this.response.getStatusLine().getStatusCode();
+	}
 
-    public String getHeader(String header) {
-        if (!response.containsHeader(header)) {
-            return null;
-        }
-        return response.getFirstHeader(header).getValue();
-    }
+	@Override
+	public String getHeader(String header) {
+		if (!response.containsHeader(header)) {
+			return null;
+		}
+		return response.getFirstHeader(header).getValue();
+	}
 }

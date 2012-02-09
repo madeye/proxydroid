@@ -51,6 +51,9 @@ import java.util.ArrayList;
 import org.proxydroid.utils.Constraints;
 import org.proxydroid.utils.Utils;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.MenuItem;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -64,9 +67,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -77,8 +80,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class BypassListActivity extends Activity implements OnClickListener,
-		OnItemClickListener, OnItemLongClickListener {
+public class BypassListActivity extends SherlockActivity implements
+		OnClickListener, OnItemClickListener, OnItemLongClickListener {
 
 	private static final String TAG = BypassListActivity.class.getName();
 
@@ -154,12 +157,25 @@ public class BypassListActivity extends Activity implements OnClickListener,
 	}
 
 	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			// app icon in action bar clicked; go home
+			Intent intent = new Intent(this, ProxyDroid.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
-		// Remove title bar
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
 		super.onCreate(savedInstanceState);
+
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		setContentView(R.layout.bypass_list);
 		TextView addButton = (TextView) findViewById(R.id.addBypassAddr);
@@ -195,6 +211,7 @@ public class BypassListActivity extends Activity implements OnClickListener,
 				.setTitle(R.string.preset_button)
 				.setNegativeButton(R.string.alert_dialog_cancel,
 						new DialogInterface.OnClickListener() {
+							@Override
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
 								/* User clicked Cancel so do some stuff */
@@ -218,6 +235,7 @@ public class BypassListActivity extends Activity implements OnClickListener,
 		ad.show();
 	}
 
+	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == Constraints.IMPORT_REQUEST) {
 			if (resultCode == RESULT_OK) {
@@ -241,6 +259,7 @@ public class BypassListActivity extends Activity implements OnClickListener,
 				};
 
 				new Thread() {
+					@Override
 					public void run() {
 						FileInputStream input;
 						try {
@@ -292,12 +311,14 @@ public class BypassListActivity extends Activity implements OnClickListener,
 				.setView(textEntryView)
 				.setPositiveButton(R.string.alert_dialog_ok,
 						new DialogInterface.OnClickListener() {
+							@Override
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
 								if (path.getText() == null
 										|| path.getText().toString() == null)
 									dialog.dismiss();
 								new Thread() {
+									@Override
 									public void run() {
 
 										FileOutputStream output;
@@ -339,6 +360,7 @@ public class BypassListActivity extends Activity implements OnClickListener,
 						})
 				.setNegativeButton(R.string.alert_dialog_cancel,
 						new DialogInterface.OnClickListener() {
+							@Override
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
 								/* User clicked cancel so do some stuff */
@@ -356,6 +378,7 @@ public class BypassListActivity extends Activity implements OnClickListener,
 				.setMessage(R.string.bypass_del_text)
 				.setPositiveButton(R.string.alert_dialog_ok,
 						new DialogInterface.OnClickListener() {
+							@Override
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
 								/* User clicked OK so do some stuff */
@@ -368,6 +391,7 @@ public class BypassListActivity extends Activity implements OnClickListener,
 						})
 				.setNegativeButton(R.string.alert_dialog_cancel,
 						new DialogInterface.OnClickListener() {
+							@Override
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
 								/* User clicked Cancel so do some stuff */
@@ -394,11 +418,13 @@ public class BypassListActivity extends Activity implements OnClickListener,
 				.setView(textEntryView)
 				.setPositiveButton(R.string.alert_dialog_ok,
 						new DialogInterface.OnClickListener() {
+							@Override
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
 								/* User clicked OK so do some stuff */
 
 								new Thread() {
+									@Override
 									public void run() {
 										EditText addrText = (EditText) textEntryView
 												.findViewById(R.id.text_edit);
@@ -421,6 +447,7 @@ public class BypassListActivity extends Activity implements OnClickListener,
 						})
 				.setNegativeButton(R.string.alert_dialog_cancel,
 						new DialogInterface.OnClickListener() {
+							@Override
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
 
@@ -484,6 +511,7 @@ public class BypassListActivity extends Activity implements OnClickListener,
 
 		adapter = new ArrayAdapter<String>(this, R.layout.bypass_list_item,
 				R.id.bypasslistItemText, bypassList) {
+			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
 				String addr;
 				if (convertView == null) {

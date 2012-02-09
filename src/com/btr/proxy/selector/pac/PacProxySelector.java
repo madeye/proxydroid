@@ -1,6 +1,5 @@
 package com.btr.proxy.selector.pac;
 
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;

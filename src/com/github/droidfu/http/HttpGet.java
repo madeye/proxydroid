@@ -21,13 +21,14 @@ import org.apache.http.impl.client.AbstractHttpClient;
 
 class HttpGet extends BetterHttpRequestBase {
 
-    HttpGet(AbstractHttpClient httpClient, String url, String host, HashMap<String, String> defaultHeaders) {
-        super(httpClient);
-        request = new org.apache.http.client.methods.HttpGet(url);
-        for (String header : defaultHeaders.keySet()) {
-            request.setHeader(header, defaultHeaders.get(header));
-        }
-        request.setHeader("Host", host);
-    }
+	HttpGet(AbstractHttpClient httpClient, String url, String host,
+			HashMap<String, String> defaultHeaders) {
+		super(httpClient);
+		request = new org.apache.http.client.methods.HttpGet(url);
+		for (String header : defaultHeaders.keySet()) {
+			request.setHeader(header, defaultHeaders.get(header));
+		}
+		request.setHeader("Host", host);
+	}
 
 }

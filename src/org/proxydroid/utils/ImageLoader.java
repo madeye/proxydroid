@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Stack;
 
 import org.proxydroid.R;
-import org.proxydroid.R.drawable;
 
 import android.app.Activity;
 import android.content.Context;
@@ -56,8 +55,7 @@ public class ImageLoader {
 						Bitmap bmp = getBitmap(photoToLoad.uid);
 						cache.put(photoToLoad.uid, bmp);
 						Object tag = photoToLoad.imageView.getTag();
-						if (tag != null
-								&& ((Integer) tag) == photoToLoad.uid) {
+						if (tag != null && ((Integer) tag) == photoToLoad.uid) {
 							BitmapDisplayer bd = new BitmapDisplayer(bmp,
 									photoToLoad.imageView);
 							Activity a = (Activity) photoToLoad.imageView
@@ -80,18 +78,18 @@ public class ImageLoader {
 
 		// removes all instances of this ImageView
 		public void Clean(ImageView image) {
-            synchronized (this) {
-                try {
-                    for (int j = 0; j < photosToLoad.size();) {
-                        if (photosToLoad.get(j).imageView == image)
-                            photosToLoad.remove(j);
-                        else
-                            ++j;
-                    }
-                } catch (java.lang.ArrayIndexOutOfBoundsException ignore) {
-                    // Nothing
-                }
-            }
+			synchronized (this) {
+				try {
+					for (int j = 0; j < photosToLoad.size();) {
+						if (photosToLoad.get(j).imageView == image)
+							photosToLoad.remove(j);
+						else
+							++j;
+					}
+				} catch (java.lang.ArrayIndexOutOfBoundsException ignore) {
+					// Nothing
+				}
+			}
 		}
 	}
 
@@ -129,7 +127,7 @@ public class ImageLoader {
 
 		// Find the dir to save cached images
 		cacheDir = context.getCacheDir();
-		
+
 	}
 
 	public void clearCache() {

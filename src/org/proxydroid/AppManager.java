@@ -13,9 +13,13 @@ import java.util.Vector;
 import org.proxydroid.utils.ImageLoader;
 import org.proxydroid.utils.ImageLoaderFactory;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.MenuItem;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
@@ -42,7 +46,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class AppManager extends Activity implements OnCheckedChangeListener,
+public class AppManager extends SherlockActivity implements OnCheckedChangeListener,
 		OnClickListener {
 
 	private ProxyedApp[] apps = null;
@@ -115,9 +119,26 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 			super.handleMessage(msg);
 		}
 	};
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			// app icon in action bar clicked; go home
+			Intent intent = new Intent(this, ProxyDroid.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
 
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		this.setContentView(R.layout.layout_apps);
 
@@ -138,6 +159,15 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 		mAppManager = this;
 
 	}
+	
+	/** Called when the activity is closed. */
+	@Override
+	public void onDestroy() {
+		
+		getWindowManager().removeView(overlay);
+
+		super.onDestroy();
+	}
 
 	@Override
 	protected void onResume() {
@@ -145,6 +175,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 
 		new Thread() {
 
+			@Override
 			public void run() {
 				handler.sendEmptyMessage(MSG_LOAD_START);
 
@@ -162,6 +193,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 		getApps(this);
 
 		Arrays.sort(apps, new Comparator<ProxyedApp>() {
+			@Override
 			public int compare(ProxyedApp o1, ProxyedApp o2) {
 				if (o1 == null || o2 == null || o1.getName() == null
 						|| o2.getName() == null)
@@ -178,6 +210,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 
 		adapter = new ArrayAdapter<ProxyedApp>(this, R.layout.layout_apps_item,
 				R.id.itemtext, apps) {
+			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
 				ListEntry entry;
 				if (convertView == null) {
@@ -289,16 +322,16 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 			// check if this application is allowed
 			if (aInfo.packageName != null
 					&& aInfo.packageName.equals("org.proxydroid")) {
-                if (self)
-    				app.setProxyed(true);
+				if (self)
+					app.setProxyed(true);
 			} else if (Arrays.binarySearch(tordApps, app.getUsername()) >= 0) {
 				app.setProxyed(true);
 			} else {
 				app.setProxyed(false);
 			}
 
-            if (app.isProxyed())
-    			vectorApps.add(app);
+			if (app.isProxyed())
+				vectorApps.add(app);
 
 		}
 
@@ -401,6 +434,7 @@ public class AppManager extends Activity implements OnCheckedChangeListener,
 	/**
 	 * Called an application is check/unchecked
 	 */
+	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		final ProxyedApp app = (ProxyedApp) buttonView.getTag();
 		if (app != null) {

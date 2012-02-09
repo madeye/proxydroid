@@ -25,5 +25,6 @@ public interface PacScriptParser {
 	 * @throws ProxyEvaluationException
 	 *             on execution error.
 	 ************************************************************************/
-	public String evaluate(String url, String host) throws ProxyEvaluationException;
+	public String evaluate(String url, String host)
+			throws ProxyEvaluationException;
 }

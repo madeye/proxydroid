@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.proxydroid"
-    android:versionCode="44"
-    android:versionName="2.5.2" >
+    android:versionCode="46"
+    android:versionName="2.6.0" >
 
     <uses-sdk
-        android:minSdkVersion="4"
+        android:minSdkVersion="7"
         android:targetSdkVersion="15" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -16,7 +16,8 @@
 
     <application
         android:icon="@drawable/icon"
-        android:label="@string/app_name" >
+        android:label="@string/app_name"
+        android:theme="@style/Theme.Sherlock" >
         <activity
             android:name="ProxyDroid"
             android:label="@string/app_name" >
@@ -40,7 +41,7 @@
             android:label="@string/app_name" />
 
         <service
-            android:name="ProxyDroidService"
+            android:name=".ProxyDroidService"
             android:enabled="true" />
 
         <receiver android:name=".ConnectivityBroadcastReceiver" >
@@ -48,7 +49,7 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-        <receiver android:name="ProxyDroidWidgetProvider" >
+        <receiver android:name=".ProxyDroidWidgetProvider" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="org.proxydroid.ProxyDroidWidgetProvider.PROXY_SWITCH_ACTION" />

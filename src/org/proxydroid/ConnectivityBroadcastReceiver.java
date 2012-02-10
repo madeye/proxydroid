@@ -117,17 +117,24 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 		ConnectivityManager manager = (ConnectivityManager) context
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+
+		String lastSSID = settings.getString("lastSSID", "-1");
+
 		if (networkInfo == null) {
-			if (Utils.isWorked()) {
-				context.stopService(new Intent(context, ProxyDroidService.class));
+			if (!lastSSID.equals(Constraints.ONLY_3G)
+					&& !lastSSID.equals(Constraints.WIFI_AND_3G)
+					&& !lastSSID.equals(Constraints.ONLY_WIFI))
+			{
+				if (Utils.isWorked()) {
+					context.stopService(new Intent(context,
+							ProxyDroidService.class));
+				}
 			}
 		} else {
 
 			// no network available now
 			if (networkInfo.getState() != NetworkInfo.State.CONNECTED)
 				return;
-
-			String lastSSID = settings.getString("lastSSID", "-1");
 
 			if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
 

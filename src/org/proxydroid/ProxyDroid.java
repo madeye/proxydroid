@@ -316,6 +316,10 @@ public class ProxyDroid extends SherlockPreferenceActivity implements
 		registerReceiver(ssidReceiver, new IntentFilter(
 				android.net.ConnectivityManager.CONNECTIVITY_ACTION));
 
+		loadProfileList();
+
+		loadNetworkList();
+
 		new Thread() {
 			@Override
 			public void run() {
@@ -326,10 +330,6 @@ public class ProxyDroid extends SherlockPreferenceActivity implements
 				} catch (InterruptedException ignore) {
 					// Nothing
 				}
-
-				loadProfileList();
-
-				loadNetworkList();
 
 				if (!Utils.isRoot()) {
 					handler.sendEmptyMessage(MSG_NO_ROOT);

@@ -1,8 +1,8 @@
 ProxyDroid
-----------
+==========
 
 INTRO
-=====
+-----
 
 Global Proxy App for Android System
 
@@ -16,7 +16,7 @@ here is a list of them:
  * stunnel - multiplatform SSL tunneling proxy: http://www.stunnel.org/
 
 BUILD
-=====
+-----
 
 Create "local.properties" with your android sdk configuration, like this:
 sdk.dir=C:\\Program Files\\Android\\android-sdk-windows

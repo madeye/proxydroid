@@ -47,7 +47,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	 */
 	public Dao<DNSResponse, String> getDNSCacheDao() throws SQLException {
 		if (dnsCacheDao == null) {
-			dnsCacheDao = getDao(DNSResponse.class);
+			// FIXME: with the 'ant' compiler the following line fails with:
+			// type parameters of <D>D cannot be determined; no unique maximal instance exists for type variable D with upper bounds com.j256.ormlite.dao.Dao<org.proxydroid.db.DNSResponse,java.lang.String>,com.j256.ormlite.dao.Dao<T,?>
+			// dnsCacheDao = getDao(DNSResponse.class);
 		}
 		return dnsCacheDao;
 	}

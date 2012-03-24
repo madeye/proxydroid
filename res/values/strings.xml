@@ -132,12 +132,14 @@
     <array name="proxy_type_value">
         <item>http</item>
         <item>https</item>
+        <item>http-tunnel</item>
         <item>socks4</item>
         <item>socks5</item>
     </array>
     <array name="proxy_type_entry">
         <item>HTTP</item>
         <item>HTTPS</item>
+        <item>HTTP-Tunnel</item>
         <item>SOCKS4</item>
         <item>SOCKS5</item>
     </array>

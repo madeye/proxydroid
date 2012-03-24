@@ -105,6 +105,14 @@ public class ProxyDroidService extends Service {
 			+ "iptables -t nat -A OUTPUT -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:8124\n"
 			+ "iptables -t nat -A OUTPUT -p tcp --dport 5228 -j DNAT --to-destination 127.0.0.1:8124\n";
 
+	final static String CMD_IPTABLES_REDIRECT_ADD_HTTP_TUNNEL = "iptables -t nat -A OUTPUT -p tcp --dport 80 -j REDIRECT --to 8123\n"
+			+ "iptables -t nat -A OUTPUT -p tcp --dport 443 -j REDIRECT --to 8123\n"
+			+ "iptables -t nat -A OUTPUT -p tcp --dport 5228 -j REDIRECT --to 8123\n";
+
+	final static String CMD_IPTABLES_DNAT_ADD_HTTP_TUNNEL = "iptables -t nat -A OUTPUT -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:8123\n"
+			+ "iptables -t nat -A OUTPUT -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:8123\n"
+			+ "iptables -t nat -A OUTPUT -p tcp --dport 5228 -j DNAT --to-destination 127.0.0.1:8123\n";
+
 	final static String CMD_IPTABLES_REDIRECT_ADD_SOCKS = "iptables -t nat -A OUTPUT -p tcp -j REDIRECT --to 8123\n";
 
 	final static String CMD_IPTABLES_DNAT_ADD_SOCKS = "iptables -t nat -A OUTPUT -p tcp -j DNAT --to-destination 127.0.0.1:8123\n";
@@ -138,8 +146,8 @@ public class ProxyDroidService extends Service {
 	private ProxyedApp apps[];
 
 	private static final Class<?>[] mSetForegroundSignature = new Class[] { boolean.class };
-	private static final Class<?>[] mStartForegroundSignature = new Class[] {
-			int.class, Notification.class };
+	private static final Class<?>[] mStartForegroundSignature = new Class[] { int.class,
+			Notification.class };
 	private static final Class<?>[] mStopForegroundSignature = new Class[] { boolean.class };
 
 	private Method mSetForeground;
@@ -253,11 +261,9 @@ public class ProxyDroidService extends Service {
 			if (proxyType.equals("https")) {
 
 				// Configure file for Stunnel
-				FileOutputStream fs = new FileOutputStream(BASE
-						+ "stunnel.conf");
-				String conf = "debug = 0\n" + "client = yes\n" + "pid = "
-						+ BASE + "stunnel.pid\n" + "[https]\n"
-						+ "sslVersion = all\n" + "accept = 127.0.0.1:8126\n"
+				FileOutputStream fs = new FileOutputStream(BASE + "stunnel.conf");
+				String conf = "debug = 0\n" + "client = yes\n" + "pid = " + BASE + "stunnel.pid\n"
+						+ "[https]\n" + "sslVersion = all\n" + "accept = 127.0.0.1:8126\n"
 						+ "connect = " + host + ":" + port + "\n";
 				fs.write(conf.getBytes());
 				fs.flush();
@@ -274,30 +280,17 @@ public class ProxyDroidService extends Service {
 			}
 
 			if (proxyType.equals("http") && isAuth && isNTLM) {
-				Utils.runRootCommand(BASE
-						+ "proxy.sh start http 127.0.0.1 8025 false\n"
-						+ BASE
-						+ "cntlm -P "
-						+ BASE
-						+ "cntlm.pid -l 8025 -u "
-						+ user
-						+ (!domain.equals("") ? "@" + domain : "@local")
-						+ " -p "
-						+ password
-						+ " "
-						+ proxyHost
-						+ ":"
-						+ proxyPort
-						+ "\n"
-						+ BASE
+				Utils.runRootCommand(BASE + "proxy.sh start http 127.0.0.1 8025 false\n" + BASE
+						+ "cntlm -P " + BASE + "cntlm.pid -l 8025 -u " + user
+						+ (!domain.equals("") ? "@" + domain : "@local") + " -p " + password + " "
+						+ proxyHost + ":" + proxyPort + "\n" + BASE
 						+ "tproxy -P /data/data/org.proxydroid/tproxy.pid -s 8125 127.0.0.1 8025\n");
 			} else {
 				final String u = Utils.preserve(user);
 				final String p = Utils.preserve(password);
 
-				Utils.runRootCommand(BASE + "proxy.sh start" + " " + proxyType
-						+ " " + proxyHost + " " + proxyPort + " " + auth
-						+ " \"" + u + "\" \"" + p + "\"");
+				Utils.runRootCommand(BASE + "proxy.sh start" + " " + proxyType + " " + proxyHost
+						+ " " + proxyPort + " " + auth + " \"" + u + "\" \"" + p + "\"");
 			}
 
 			StringBuffer cmd = new StringBuffer();
@@ -330,9 +323,12 @@ public class ProxyDroidService extends Service {
 			String redirectCmd = CMD_IPTABLES_REDIRECT_ADD_HTTP;
 			String dnatCmd = CMD_IPTABLES_DNAT_ADD_HTTP;
 
-			if (!proxyType.equals("http")) {
+			if (proxyType.equals("socks4") || proxyType.equals("socks5")) {
 				redirectCmd = CMD_IPTABLES_REDIRECT_ADD_SOCKS;
 				dnatCmd = CMD_IPTABLES_DNAT_ADD_SOCKS;
+			} else if (proxyType.equals("http-tunnel")) {
+				redirectCmd = CMD_IPTABLES_REDIRECT_ADD_HTTP_TUNNEL;
+				dnatCmd = CMD_IPTABLES_DNAT_ADD_HTTP_TUNNEL;
 			}
 
 			if (isBypassApps) {
@@ -342,11 +338,8 @@ public class ProxyDroidService extends Service {
 
 				for (int i = 0; i < apps.length; i++) {
 					if (apps[i] != null && apps[i].isProxyed()) {
-						cmd.append(CMD_IPTABLES_RETURN
-								.replace("-d 0.0.0.0", "").replace(
-										"-t nat",
-										"-t nat -m owner --uid-owner "
-												+ apps[i].getUid()));
+						cmd.append(CMD_IPTABLES_RETURN.replace("-d 0.0.0.0", "").replace("-t nat",
+								"-t nat -m owner --uid-owner " + apps[i].getUid()));
 					}
 				}
 
@@ -361,10 +354,8 @@ public class ProxyDroidService extends Service {
 
 				for (int i = 0; i < apps.length; i++) {
 					if (apps[i] != null && apps[i].isProxyed()) {
-						cmd.append((hasRedirectSupport ? redirectCmd : dnatCmd)
-								.replace("-t nat",
-										"-t nat -m owner --uid-owner "
-												+ apps[i].getUid()));
+						cmd.append((hasRedirectSupport ? redirectCmd : dnatCmd).replace("-t nat",
+								"-t nat -m owner --uid-owner " + apps[i].getUid()));
 					}
 				}
 			}
@@ -400,10 +391,8 @@ public class ProxyDroidService extends Service {
 	}
 
 	private void initSoundVibrateLights(Notification notification) {
-		final String ringtone = settings.getString(
-				"settings_key_notif_ringtone", null);
-		AudioManager audioManager = (AudioManager) this
-				.getSystemService(Context.AUDIO_SERVICE);
+		final String ringtone = settings.getString("settings_key_notif_ringtone", null);
+		AudioManager audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
 		if (audioManager.getStreamVolume(AudioManager.STREAM_RING) == 0) {
 			notification.sound = null;
 		} else if (ringtone != null)
@@ -425,8 +414,8 @@ public class ProxyDroidService extends Service {
 		notification.flags = Notification.FLAG_ONGOING_EVENT;
 		initSoundVibrateLights(notification);
 		// notification.defaults = Notification.DEFAULT_SOUND;
-		notification.setLatestEventInfo(this, getString(R.string.app_name)
-				+ " | " + getProfileName(), info, pendIntent);
+		notification.setLatestEventInfo(this, getString(R.string.app_name) + " | "
+				+ getProfileName(), info, pendIntent);
 		startForegroundCompat(1, notification);
 	}
 
@@ -435,8 +424,8 @@ public class ProxyDroidService extends Service {
 		notification.tickerText = title;
 		notification.flags = flags;
 		initSoundVibrateLights(notification);
-		notification.setLatestEventInfo(this, getString(R.string.app_name)
-				+ " | " + getProfileName(), info, pendIntent);
+		notification.setLatestEventInfo(this, getString(R.string.app_name) + " | "
+				+ getProfileName(), info, pendIntent);
 		notificationManager.notify(0, notification);
 	}
 
@@ -449,8 +438,7 @@ public class ProxyDroidService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
-		notificationManager = (NotificationManager) this
-				.getSystemService(NOTIFICATION_SERVICE);
+		notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
 
 		intent = new Intent(this, ProxyDroid.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -458,18 +446,15 @@ public class ProxyDroidService extends Service {
 		notification = new Notification();
 
 		try {
-			mStartForeground = getClass().getMethod("startForeground",
-					mStartForegroundSignature);
-			mStopForeground = getClass().getMethod("stopForeground",
-					mStopForegroundSignature);
+			mStartForeground = getClass().getMethod("startForeground", mStartForegroundSignature);
+			mStopForeground = getClass().getMethod("stopForeground", mStopForegroundSignature);
 		} catch (NoSuchMethodException e) {
 			// Running on an older platform.
 			mStartForeground = mStopForeground = null;
 		}
 
 		try {
-			mSetForeground = getClass().getMethod("setForeground",
-					mSetForegroundSignature);
+			mSetForeground = getClass().getMethod("setForeground", mSetForegroundSignature);
 		} catch (NoSuchMethodException e) {
 			throw new IllegalStateException(
 					"OS doesn't have Service.startForeground OR Service.setForeground!");
@@ -479,15 +464,14 @@ public class ProxyDroidService extends Service {
 	/** Called when the activity is closed. */
 	@Override
 	public void onDestroy() {
-		
+
 		Utils.setConnecting(true);
 
 		stopForegroundCompat(1);
 
 		FlurryAgent.onEndSession(this);
 
-		notifyAlert(getString(R.string.forward_stop),
-				getString(R.string.service_stopped),
+		notifyAlert(getString(R.string.forward_stop), getString(R.string.service_stopped),
 				Notification.FLAG_AUTO_CANCEL);
 
 		// Make sure the connection is closed, important here
@@ -504,12 +488,12 @@ public class ProxyDroidService extends Service {
 
 		// for widget, maybe exception here
 		try {
-			RemoteViews views = new RemoteViews(getPackageName(),
-					R.layout.proxydroid_appwidget);
+			RemoteViews views = new RemoteViews(getPackageName(), R.layout.proxydroid_appwidget);
 			views.setImageViewResource(R.id.serviceToggle, R.drawable.off);
 			AppWidgetManager awm = AppWidgetManager.getInstance(this);
-			awm.updateAppWidget(awm.getAppWidgetIds(new ComponentName(this,
-					ProxyDroidWidgetProvider.class)), views);
+			awm.updateAppWidget(
+					awm.getAppWidgetIds(new ComponentName(this, ProxyDroidWidgetProvider.class)),
+					views);
 		} catch (Exception ignore) {
 			// Nothing
 		}
@@ -525,9 +509,9 @@ public class ProxyDroidService extends Service {
 		}
 
 		markServiceStopped();
-		
+
 		Utils.setConnecting(false);
-		
+
 		super.onDestroy();
 
 	}
@@ -578,12 +562,12 @@ public class ProxyDroidService extends Service {
 				ed.putBoolean("isRunning", false);
 				break;
 			case MSG_CONNECT_PAC_ERROR:
-				Toast.makeText(ProxyDroidService.this, R.string.msg_pac_error,
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(ProxyDroidService.this, R.string.msg_pac_error, Toast.LENGTH_SHORT)
+						.show();
 				break;
 			case MSG_CONNECT_RESOLVE_ERROR:
-				Toast.makeText(ProxyDroidService.this,
-						R.string.msg_resolve_error, Toast.LENGTH_SHORT).show();
+				Toast.makeText(ProxyDroidService.this, R.string.msg_resolve_error,
+						Toast.LENGTH_SHORT).show();
 				break;
 			}
 			ed.commit();
@@ -594,11 +578,11 @@ public class ProxyDroidService extends Service {
 	// Local Ip address
 	public String getLocalIpAddress() {
 		try {
-			for (Enumeration<NetworkInterface> en = NetworkInterface
-					.getNetworkInterfaces(); en.hasMoreElements();) {
+			for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en
+					.hasMoreElements();) {
 				NetworkInterface intf = en.nextElement();
-				for (Enumeration<InetAddress> enumIpAddr = intf
-						.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+				for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr
+						.hasMoreElements();) {
 					InetAddress inetAddress = enumIpAddr.nextElement();
 					if (!inetAddress.isLoopbackAddress()) {
 						return inetAddress.getHostAddress().toString();
@@ -624,10 +608,8 @@ public class ProxyDroidService extends Service {
 					Proxy p = list.get(0);
 
 					// No proxy means error
-					if (p.equals(Proxy.NO_PROXY) || p.host == null
-							|| p.port == 0 || p.type == null) {
-						handler.sendEmptyMessageDelayed(MSG_CONNECT_PAC_ERROR,
-								3000);
+					if (p.equals(Proxy.NO_PROXY) || p.host == null || p.port == 0 || p.type == null) {
+						handler.sendEmptyMessageDelayed(MSG_CONNECT_PAC_ERROR, 3000);
 						return false;
 					}
 
@@ -663,12 +645,9 @@ public class ProxyDroidService extends Service {
 	}
 
 	private String getProfileName() {
-		SharedPreferences settings = PreferenceManager
-				.getDefaultSharedPreferences(this);
-		return settings.getString(
-				"profile" + settings.getString("profile", "1"),
-				getString(R.string.profile_base) + " "
-						+ settings.getString("profile", "1"));
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+		return settings.getString("profile" + settings.getString("profile", "1"),
+				getString(R.string.profile_base) + " " + settings.getString("profile", "1"));
 	}
 
 	// This is the old onStart method that will be called on the pre-2.0
@@ -724,8 +703,7 @@ public class ProxyDroidService extends Service {
 
 				if (getAddress() && handleCommand()) {
 					// Connection and forward successful
-					notifyAlert(getString(R.string.forward_success) + " | "
-							+ getProfileName(),
+					notifyAlert(getString(R.string.forward_success) + " | " + getProfileName(),
 							getString(R.string.service_running));
 
 					handler.sendEmptyMessage(MSG_CONNECT_SUCCESS);
@@ -734,14 +712,10 @@ public class ProxyDroidService extends Service {
 					try {
 						RemoteViews views = new RemoteViews(getPackageName(),
 								R.layout.proxydroid_appwidget);
-						views.setImageViewResource(R.id.serviceToggle,
-								R.drawable.on);
-						AppWidgetManager awm = AppWidgetManager
-								.getInstance(ProxyDroidService.this);
-						awm.updateAppWidget(awm
-								.getAppWidgetIds(new ComponentName(
-										ProxyDroidService.this,
-										ProxyDroidWidgetProvider.class)), views);
+						views.setImageViewResource(R.id.serviceToggle, R.drawable.on);
+						AppWidgetManager awm = AppWidgetManager.getInstance(ProxyDroidService.this);
+						awm.updateAppWidget(awm.getAppWidgetIds(new ComponentName(
+								ProxyDroidService.this, ProxyDroidWidgetProvider.class)), views);
 					} catch (Exception ignore) {
 						// Nothing
 					}

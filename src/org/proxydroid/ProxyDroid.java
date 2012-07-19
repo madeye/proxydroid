@@ -228,20 +228,29 @@ public class ProxyDroid extends SherlockPreferenceActivity implements
 		WifiManager wm = (WifiManager) this
 				.getSystemService(Context.WIFI_SERVICE);
 		List<WifiConfiguration> wcs = wm.getConfiguredNetworks();
-
+		String[] ssidEntries = null;
 		int n = 3;
 
-		String[] ssidEntries = new String[wcs.size() + n];
-		ssidEntries[0] = Constraints.WIFI_AND_3G;
-		ssidEntries[1] = Constraints.ONLY_WIFI;
-		ssidEntries[2] = Constraints.ONLY_3G;
+        if (wcs == null) {
+            ssidEntries = new String[n];
 
-		for (WifiConfiguration wc : wcs) {
-			if (wc != null && wc.SSID != null)
-				ssidEntries[n++] = wc.SSID.replace("\"", "");
-			else
-				ssidEntries[n++] = "unknown";
-		}
+            ssidEntries[0] = Constraints.WIFI_AND_3G;
+            ssidEntries[1] = Constraints.ONLY_WIFI;
+            ssidEntries[2] = Constraints.ONLY_3G;
+        } else {
+            ssidEntries = new String[wcs.size() + n];
+
+            ssidEntries[0] = Constraints.WIFI_AND_3G;
+            ssidEntries[1] = Constraints.ONLY_WIFI;
+            ssidEntries[2] = Constraints.ONLY_3G;
+
+            for (WifiConfiguration wc : wcs) {
+                if (wc != null && wc.SSID != null)
+                    ssidEntries[n++] = wc.SSID.replace("\"", "");
+                else
+                    ssidEntries[n++] = "unknown";
+            }
+        }
 		ssidList.setEntries(ssidEntries);
 		ssidList.setEntryValues(ssidEntries);
 	}

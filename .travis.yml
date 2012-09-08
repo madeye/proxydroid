@@ -1,0 +1,16 @@
+language: java
+before_install:
+  - wget http://dl.google.com/android/android-sdk_r20.0.3-linux.tgz
+  - tar -zxf android-sdk_r20.0.3-linux.tgz
+  - export ANDROID_HOME=~/builds/madeye/proxydroid/android-sdk-linux
+  - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
+  - android update sdk --filter 1,2,3,27,64,65,66,67,68,69,70 --no-ui --force
+  - git clone https://github.com/mosabua/maven-android-sdk-deployer.git
+  - pushd maven-android-sdk-deployer
+  - mvn install -P 4.1
+  - popd
+install:
+  - sudo pip install python-swiftclient
+script: 
+  - mvn clean install -DTRAVIS=true
+notifications:

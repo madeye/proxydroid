@@ -4,7 +4,7 @@ before_install:
   - tar -zxf android-sdk_r20.0.3-linux.tgz
   - export ANDROID_HOME=~/builds/madeye/proxydroid/android-sdk-linux
   - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
-  - android update sdk --filter 1,2,3,27,64,65,66,67,68,69,70 --no-ui --force
+  - android update sdk --filter tools,platform-tools,android-16,addon-google_apis-google-16,extra-android-support,extra-google-admob_ads_sdk,extra-google-analytics_sdk,extra-google-gcm,extra-google-play_apk_expansion,extra-google-play_billing,extra-google-play_licensing --no-ui --force
   - git clone https://github.com/mosabua/maven-android-sdk-deployer.git
   - pushd maven-android-sdk-deployer
   - mvn install -P 4.1
@@ -13,4 +13,3 @@ install:
   - sudo pip install python-swiftclient
 script: 
   - mvn clean install -DTRAVIS=true
-notifications:

@@ -28,9 +28,9 @@
   <dependencies>
 
     <dependency>
-      <groupId>android</groupId>
+      <groupId>com.google.android</groupId>
       <artifactId>android</artifactId>
-      <version>4.1_r2</version>
+      <version>4.1.1.4</version>
       <scope>provided</scope>
     </dependency>
 
@@ -64,6 +64,7 @@
         <version>4.8.2</version>
         <scope>test</scope>
     </dependency>
+
     <dependency>
         <groupId>org.hamcrest</groupId>
         <artifactId>hamcrest-all</artifactId>
@@ -136,12 +137,11 @@
                     <id>signing</id>
                     <goals>
                         <goal>sign</goal>
-                        <goal>verify</goal>
                     </goals>
                     <phase>package</phase>
+                    <inherited>true</inherited>
                     <configuration>
-                        <removeExistingSignatures>true</removeExistingSignatures>
-                        <archiveDirectory />
+                        <archiveDirectory/>
                         <includes>
                             <include>${project.build.directory}/${project.artifactId}.apk</include>
                         </includes>
@@ -150,6 +150,10 @@
                         <storepass>${sign.storepass}</storepass>
                         <keypass>${sign.keypass}</keypass>
                         <verbose>true</verbose>
+                        <arguments>
+                            <argument>-sigalg</argument><argument>MD5withRSA</argument>
+                            <argument>-digestalg</argument><argument>SHA1</argument>
+                        </arguments>
                     </configuration>
                 </execution>
             </executions>
@@ -160,7 +164,7 @@
             <executions>
                 <execution>
                     <id>alignApk</id>
-                    <phase>install</phase>
+                    <phase>package</phase>
                     <goals>
                         <goal>zipalign</goal>
                     </goals>
@@ -181,28 +185,6 @@
                     <platform>16</platform>
                 </sdk>
             </configuration>
-        </plugin>
-        <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <configuration>
-                <artifacts>
-                    <artifact>
-                        <file>${project.build.directory}/${project.artifactId}-${project.version}.apk</file>
-                        <type>apk</type>
-                        <classifier>signed-aligned</classifier>
-                    </artifact>
-                </artifacts>
-            </configuration>
-            <executions>
-                <execution>
-                    <id>attach-signed-aligned</id>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>attach-artifact</goal>
-                    </goals>
-                </execution>
-            </executions>
         </plugin>
     </plugins>
 </build>

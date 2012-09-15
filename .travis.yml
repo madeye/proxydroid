@@ -9,4 +9,3 @@ install:
   - sudo pip install python-swiftclient
 script: 
   - mvn clean install -DTRAVIS=true
-notifications:

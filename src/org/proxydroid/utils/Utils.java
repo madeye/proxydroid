@@ -450,7 +450,7 @@ public class Utils {
 		return runner.exitcode;
 	}
 
-	public static boolean isWorked() {
+	public static boolean isWorking() {
 		return ProxyDroidService.isServiceStarted();
 	}
 

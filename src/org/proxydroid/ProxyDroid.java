@@ -74,13 +74,9 @@ import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
-import android.preference.TwoStatePreference;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -397,7 +393,7 @@ public class ProxyDroid extends SherlockPreferenceActivity implements
 
 	private boolean serviceStop() {
 
-		if (!Utils.isWorked())
+		if (!Utils.isWorking())
 			return false;
 
 		try {
@@ -411,7 +407,7 @@ public class ProxyDroid extends SherlockPreferenceActivity implements
 	/** Called when connect button is clicked. */
 	private boolean serviceStart() {
 
-		if (Utils.isWorked())
+		if (Utils.isWorking())
 			return false;
 
 		SharedPreferences settings = PreferenceManager
@@ -626,7 +622,7 @@ public class ProxyDroid extends SherlockPreferenceActivity implements
 
 		Editor edit = settings.edit();
 
-		if (Utils.isWorked()) {
+		if (Utils.isWorking()) {
 			if (settings.getBoolean("isConnecting", false))
 				isRunningCheck.setEnabled(false);
 			edit.putBoolean("isRunning", true);

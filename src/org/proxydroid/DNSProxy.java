@@ -117,10 +117,10 @@ public class DNSProxy implements Runnable {
   }
 
   /**
-   * Add a domain name to cache
+   * Add a domain name to cache.
    *
-   * @param questDomainName
-   * @param answer
+   * @param questDomainName domain name
+   * @param answer fake answer
    */
   private synchronized void addToCache(String questDomainName, byte[] answer) {
     DNSResponse response = new DNSResponse(questDomainName);
@@ -170,7 +170,7 @@ public class DNSProxy implements Runnable {
     byte[] response = null;
     int start = 0;
 
-    response = new byte[128];
+    response = new byte[1024];
 
     for (int val : DNS_HEADERS) {
       response[start] = (byte) val;
@@ -203,7 +203,7 @@ public class DNSProxy implements Runnable {
   }
 
   /**
-   * Get request domain from UDP packet
+   * Get request domain from UDP packet.
    *
    * @param request dns udp packet
    * @return domain
@@ -254,10 +254,10 @@ public class DNSProxy implements Runnable {
   }
 
   /**
-   * 解析域名
+   * Parse request for domain name.
    *
-   * @param request
-   * @return
+   * @param request dns request
+   * @return domain name
    */
   private String parseDomain(byte[] request) {
 
@@ -337,13 +337,11 @@ public class DNSProxy implements Runnable {
 
         srvSocket.receive(dnsq);
 
-        // 连接外部DNS进行解析。
-
         byte[] data = dnsq.getData();
         int dnsqLength = dnsq.getLength();
         final byte[] udpreq = new byte[dnsqLength];
         System.arraycopy(data, 0, udpreq, 0, dnsqLength);
-        // 尝试从缓存读取域名解析
+
         final String questDomain = getRequestDomain(udpreq);
 
         Log.d(TAG, "Resolving: " + questDomain);
@@ -495,11 +493,11 @@ public class DNSProxy implements Runnable {
   }
 
   /**
-   * 向来源发送dns应答
+   * Send dns response
    *
-   * @param response  应答包
-   * @param dnsq      请求包
-   * @param srvSocket 侦听Socket
+   * @param response  response packet
+   * @param dnsq      request packet
+   * @param srvSocket server socket
    */
   private void sendDns(byte[] response, DatagramPacket dnsq,
                        DatagramSocket srvSocket) {

@@ -271,7 +271,7 @@ public class ProxyDroid extends SherlockPreferenceActivity implements
 		setContentView(R.layout.main);
 		addPreferencesFromResource(R.xml.proxydroid_preference);
 		// Create the adView
-		adView = new AdView(this, AdSize.BANNER, "a14db2c016cb9b6");
+		adView = new AdView(this, AdSize.SMART_BANNER, "a14db2c016cb9b6");
 		// Lookup your LinearLayout assuming it’s been given
 		// the attribute android:id="@+id/mainLayout"
 		LinearLayout layout = (LinearLayout) findViewById(R.id.ad);

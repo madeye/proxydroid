@@ -166,7 +166,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
           }
         }
 
-        if (autoConnect && curSSID != null) {
+        if (autoConnect) {
           if (!Utils.isWorking()) {
             ProxyDroidReceiver pdr = new ProxyDroidReceiver();
             ed = settings.edit();
@@ -193,9 +193,9 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
       return null;
     if (networkInfo.getType() != ConnectivityManager.TYPE_WIFI) {
       for (String item : ssids) {
-        if (item.equals(Constraints.WIFI_AND_3G))
+        if (Constraints.WIFI_AND_3G.equals(item))
           return item;
-        if (item.equals(Constraints.ONLY_3G))
+        if (Constraints.ONLY_3G.equals(item))
           return item;
       }
       return null;
@@ -203,17 +203,17 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
     WifiManager wm = (WifiManager) context
         .getSystemService(Context.WIFI_SERVICE);
     WifiInfo wInfo = wm.getConnectionInfo();
-    if (wInfo == null)
+    if (wInfo == null || wInfo.getSSID() == null)
       return null;
     String current = wInfo.getSSID().replace("\"", "");
     if (current == null || current.equals(""))
       return null;
     for (String item : ssids) {
-      if (item.equals(Constraints.WIFI_AND_3G))
+      if (Constraints.WIFI_AND_3G.equals(item))
         return item;
-      if (item.equals(Constraints.ONLY_WIFI))
+      if (Constraints.ONLY_WIFI.equals(item))
         return item;
-      if (item.equals(current))
+      if (current.equals(item))
         return item;
     }
     return null;

@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.proxydroid</groupId>
   <artifactId>proxydroid</artifactId>
-  <version>2.6.3</version>
+  <version>2.6.4</version>
   <packaging>apk</packaging>
   <name>ProxyDroid</name>
 
@@ -53,12 +53,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.j256.ormlite</groupId>
-      <artifactId>ormlite-android</artifactId>
-      <version>4.41</version>
-    </dependency>
-
-    <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.8.2</version>
@@ -94,7 +88,7 @@
     <dependency>
         <groupId>org.mozilla</groupId>
         <artifactId>rhino</artifactId>
-        <version>1.7R4</version>
+        <version>1.7R2_android</version>
     </dependency>
 
 </dependencies>

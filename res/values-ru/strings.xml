@@ -38,15 +38,19 @@
 
     <!-- settings function category -->
     <string name="function_cat">Диспетчер службы</string>
-    <string name="disconnect">Отключить</string>
+    <string name="disconnect">Выключить</string>
     <string name="connect">Включить</string>
     <string name="service_controller">Вкл/Выкл</string>
     <string name="service_summary">Изменить состояние прокси</string>
 
     <!-- settings proxy category -->
     <string name="proxy_cat">Настройки прокси</string>
+
     <string name="host">Адрес</string>
     <string name="host_summary">Адрес прокси-сервера</string>
+    <string name="host_pac_summary">URL вашего PAC-файла</string>
+    <string name="pac">Автоматическая настройка</string>
+    <string name="pac_summary">Автоматически получать настройки прокси-сервера из PAC-файла</string>
     <string name="proxy_summary">URL до прокси</string>
     <string name="port">Порт</string>
     <string name="port_summary">Номер порта прокси-сервера</string>
@@ -73,21 +77,18 @@
     <string name="ssid_summary">Связать настройки с указанным адресом 2G/3G сети
         или её SSID</string>
 
-    <string-array name="ssid_default_values"></string-array>
-    <string-array name="ssid_default_entries"></string-array>
-
     <string name="auto_set_proxy">Для всех приложений</string>
     <string name="auto_set_proxy_summary">Включает глобальный режим (требуются права ROOT
 		и поддержка IPTABLES)</string>
-    <string name="dns_proxy">DNS Proxy</string>
     <string name="dns_proxy_summary">Включает проксирование DNS-запросов (только для опытных)</string>
 
     <!-- settings proxyed apps category -->
     <string name="proxyed_apps">Для выбранных приложений</string>
     <string name="proxyed_apps_summary">Включает избирательный режим (требуются права ROOT
-		permission and
 		и поддержка IPTABLES)</string>
-    <string name="proxyed_help">Разрешённые приложения:</string>
+    <string name="bypass_apps">Инверсный режим</string>
+    <string name="bypass_apps_summary">Включите чтобы НЕ проксировать выбранные приложения</string>
+    <string name="proxyed_help">Выбранные приложения:</string>
 
     <!-- menu bar category -->
     <string name="recovery">Сброс</string>
@@ -103,6 +104,7 @@
     <!-- settings notification category -->
     <string name="notif_cat">Уведомления</string>
     <string name="notif_ringtone_title">Выбрать звук</string>
+    <string name="notif_ringtone_summary">Выберите мелодию уведомления</string>
     <string name="notif_vibrate_title">Вибрация</string>
     <string name="notif_vibrate_summary">Также вибрировать при изменении состояния подключения</string>
 
@@ -116,24 +118,41 @@
     <!-- proxy type -->
     <string name="proxy_type">Тип прокси-сервера</string>
     <string name="proxy_type_summary">Выберите тип вашего прокси</string>
-
-    <array name="proxy_type_value">
-        <item>http</item>
-        <item>socks4</item>
-        <item>socks5</item>
-    </array>
-    <array name="proxy_type_entry">
-        <item>HTTP</item>
-        <item>SOCKS4</item>
-        <item>SOCKS5</item>
-    </array>
-
     <!-- bypass list activity -->
     <string name="add_button">Добавить</string>
+    <string name="preset_button">Шаблоны</string>
+    <string name="import_button">Импорт</string>
+    <string name="export_button">Экспорт</string>
     <string name="bypass_edit_title">Диапазон адресов</string>
     <string name="bypass_del_title">Подтверждение</string>
     <string name="bypass_del_text">Удалить этот адрес?</string>
     <string name="ok_button">OK</string>
     <string name="cancel_button">Отмена</string>
+    <string name="err_addr">неизвестное доменное имя или неверный формат IP адреса</string>
+    <string name="reseting">Сброс…</string>
+    <string name="importing">Импорт…</string>
+    <string name="exporting">Экспортировано в:</string>
+
+    <string-array name="presets_list">
+        <item>Пусто</item>
+        <item>Localhost</item>
+        <item>Intranet</item>
+        <item>Маршрут CHN</item>
+    </string-array>
+
+    <!-- file chooser -->
+    <string name="file_chooser">Выберите файл с вашим ключом</string>
+    <string name="key_manager">Диспетчер файлов ключей</string>
+    <string name="current_dir">Текущая директория</string>
+    <string name="parent_dir">Родительская директория</string>
+    <string name="folder">Папка</string>
+    <string name="file_size">Размер файла</string>
+    <string name="file_toast">Импортировать из этого файла: </string>
+    <string name="file_error">Слишком много правил: </string>
+
+    <!-- Connection errors -->
+    <string name="msg_pac_error">Неверный или не поддерживаемый PAC-файл</string>
+    <string name="msg_resolve_error">Неверное имя прокси сервера</string>
+
 
 </resources>

@@ -146,7 +146,8 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
               WifiInfo wInfo = wm.getConnectionInfo();
               if (wInfo != null) {
                 // compare with the current SSID
-                String current = wInfo.getSSID().replace("\"", "");
+                String current = wInfo.getSSID();
+                if (current != null) current = current.replace("\"", "");
                 if (current != null && !current.equals(lastSSID)) {
                   // need to switch profile, so stop service first
                   if (Utils.isWorking())
@@ -205,9 +206,10 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
     WifiInfo wInfo = wm.getConnectionInfo();
     if (wInfo == null || wInfo.getSSID() == null)
       return null;
-    String current = wInfo.getSSID().replace("\"", "");
-    if (current == null || current.equals(""))
+    String current = wInfo.getSSID();
+    if (current == null || current.isEmpty())
       return null;
+    current = current.replace("\"", "");
     for (String item : ssids) {
       if (Constraints.WIFI_AND_3G.equals(item))
         return item;

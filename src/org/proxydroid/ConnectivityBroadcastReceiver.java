@@ -207,7 +207,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
     if (wInfo == null || wInfo.getSSID() == null)
       return null;
     String current = wInfo.getSSID();
-    if (current == null || current.isEmpty())
+    if (current == null || "".equals(current))
       return null;
     current = current.replace("\"", "");
     for (String item : ssids) {

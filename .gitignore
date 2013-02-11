@@ -5,3 +5,6 @@ local.properties
 .idea
 target/
 obj/
+libs/armeabi/redsocks
+libs/armeabi/shadowsocks
+libs/armeabi/shrpx

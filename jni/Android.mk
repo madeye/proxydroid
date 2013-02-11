@@ -76,7 +76,7 @@ LOCAL_STATIC_LIBRARIES := libevent libcrypto
 
 LOCAL_MODULE := spdylay
 LOCAL_SRC_FILES := $(addprefix spdylay/, $(SPDYLAY_SOURCES))
-LOCAL_CFLAGS := -O2 -g -I$(LOCAL_PATH)/spdylay \
+LOCAL_CFLAGS := -DHAVE_CONFIG_H -O2 -g -I$(LOCAL_PATH)/spdylay \
 	-I$(LOCAL_PATH)/spdylay/includes \
 	-I$(LOCAL_PATH)/libevent/include \
 	-I$(LOCAL_PATH)/libevent \

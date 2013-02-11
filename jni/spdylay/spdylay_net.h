@@ -25,20 +25,6 @@
 #ifndef SPDYLAY_NET_H
 #define SPDYLAY_NET_H
 
-# if __BYTE_ORDER == __BIG_ENDIAN
-# define ntohl(x) (x)
-# define ntohs(x) (x)
-# define htonl(x) (x)
-# define htons(x) (x)
-# else
-#  if __BYTE_ORDER == __LITTLE_ENDIAN
-#   define ntohl(x) __bswap_32 (x)
-#   define ntohs(x) __bswap_16 (x)
-#   define htonl(x) __bswap_32 (x)
-#   define htons(x) __bswap_16 (x)
-#  endif
-# endif
-
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif /* HAVE_CONFIG_H */

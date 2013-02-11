@@ -96,7 +96,7 @@
     <string name="proxyed_help">Select apps to use with ProxyDroid:</string>
 
     <!-- menu bar category -->
-    <string name="recovery">Recover</string>
+    <string name="recovery">Reset</string>
     <string name="copy_rights">\n\nProxyDroid is an open source software
 		published
 		under

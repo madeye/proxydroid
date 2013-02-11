@@ -8,3 +8,4 @@ obj/
 libs/armeabi/redsocks
 libs/armeabi/shadowsocks
 libs/armeabi/shrpx
+gen-external-apklibs/

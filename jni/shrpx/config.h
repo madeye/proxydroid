@@ -26,7 +26,7 @@
 /* #undef HAVE_KQUEUE */
 
 /* Define to 1 if you have `libxml2` library. */
-#define HAVE_LIBXML2 1
+#undef HAVE_LIBXML2
 
 /* Define to 1 if your system has a GNU libc compatible `malloc' function, and
    to 0 otherwise. */

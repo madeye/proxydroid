@@ -87,7 +87,7 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 
 SHRPX_SOURCES := util.cc spdylay_ssl.cc \
-	spdylay_config.h shrpx_config.cc \
+	shrpx_config.cc \
 	shrpx_listen_handler.cc \
 	shrpx_client_handler.cc \
 	shrpx_spdy_upstream.cc \

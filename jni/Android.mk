@@ -90,7 +90,7 @@ SHRPX_SOURCES := util.cc spdylay_ssl.cc \
 	spdylay_config.h shrpx_config.cc \
 	shrpx_listen_handler.cc \
 	shrpx_client_handler.cc \
-	shrpx_upstream.h shrpx_spdy_upstream.cc \
+	shrpx_spdy_upstream.cc \
 	shrpx_https_upstream.cc \
 	shrpx_downstream_queue.cc \
 	shrpx_downstream.cc \

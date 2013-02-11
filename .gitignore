@@ -4,3 +4,4 @@ local.properties
 *.iml
 .idea
 target/
+obj/

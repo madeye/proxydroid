@@ -33,7 +33,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <vector>
-#include <string>
 
 #include <openssl/ssl.h>
 

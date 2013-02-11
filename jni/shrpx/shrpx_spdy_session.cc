@@ -310,7 +310,7 @@ void proxy_eventcb(bufferevent *bev, short events, void *ptr)
     }
     req += "\r\n";
     if(LOG_ENABLED(INFO)) {
-      SSLOG(INFO, spdy) << "HTTP proxy request headers\n" << req;
+      SSLOG(INFO, spdy) << "HTTP proxy request headers\n" << req.c_str();
     }
     if(bufferevent_write(bev, req.c_str(), req.size()) != 0) {
       SSLOG(ERROR, spdy) << "bufferevent_write() failed";
@@ -783,7 +783,7 @@ void on_ctrl_recv_callback
       }
       SSLOG(INFO, spdy) << "HTTP response headers. stream_id="
                         << frame->syn_reply.stream_id
-                        << "\n" << ss.str();
+                        << "\n" << ss.str().c_str();
     }
 
     Upstream *upstream = downstream->get_upstream();
@@ -953,7 +953,7 @@ int SpdySession::on_connect()
 
   if(LOG_ENABLED(INFO)) {
     std::string proto(next_proto, next_proto+next_proto_len);
-    SSLOG(INFO, this) << "Negotiated next protocol: " << proto;
+    SSLOG(INFO, this) << "Negotiated next protocol";
   }
   uint16_t version = spdylay_npn_get_version(next_proto, next_proto_len);
   if(!version) {

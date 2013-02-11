@@ -28,7 +28,6 @@
 #include "shrpx.h"
 
 #include <set>
-#include <string>
 
 #include <event.h>
 #include <openssl/ssl.h>

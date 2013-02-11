@@ -153,7 +153,7 @@ int htp_hdrs_completecb(http_parser *htp)
       ss << TTY_HTTP_HD << headers[i].first << TTY_RST << ": "
          << headers[i].second << "\n";
     }
-    ULOG(INFO, upstream) << "HTTP request headers\n" << ss.str();
+    ULOG(INFO, upstream) << "HTTP request headers\n" << ss.str().c_str();
   }
 
   if(get_config()->client_proxy &&

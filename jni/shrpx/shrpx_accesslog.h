@@ -28,7 +28,6 @@
 #include "shrpx.h"
 
 #include <stdint.h>
-#include <string>
 
 namespace shrpx {
 

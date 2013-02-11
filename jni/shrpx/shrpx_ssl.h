@@ -28,7 +28,6 @@
 #include "shrpx.h"
 
 #include <vector>
-#include <string>
 
 #include <openssl/ssl.h>
 #include <openssl/err.h>

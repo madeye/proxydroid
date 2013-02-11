@@ -55,7 +55,7 @@
 
 namespace shrpx {
 
-const char* yes = "yes";
+const char *yes = "yes";
 
 namespace {
 void ssl_acceptcb(evconnlistener *listener, int fd,

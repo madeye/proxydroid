@@ -200,7 +200,7 @@ void on_ctrl_recv_callback
       }
       ULOG(INFO, upstream) << "HTTP request headers. stream_id="
                            << downstream->get_stream_id()
-                           << "\n" << ss.str();
+                           << "\n" << ss.str().c_str();
     }
 
     DownstreamConnection *dconn;
@@ -799,7 +799,7 @@ int SpdyUpstream::on_downstream_header_complete(Downstream *downstream)
     }
     ULOG(INFO, this) << "HTTP response headers. stream_id="
                      << downstream->get_stream_id() << "\n"
-                     << ss.str();
+                     << ss.str().c_str();
   }
   spdylay_data_provider data_prd;
   data_prd.source.ptr = downstream;

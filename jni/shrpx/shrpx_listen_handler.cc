@@ -26,7 +26,6 @@
 
 #include <unistd.h>
 #include <pthread.h>
-#include <string>
 
 #include <cerrno>
 

@@ -100,7 +100,7 @@ int SpdyDownstreamConnection::init_request_body_buf()
 int SpdyDownstreamConnection::attach_downstream(Downstream *downstream)
 {
   if(LOG_ENABLED(INFO)) {
-    DCLOG(INFO, this) << "Attaching to DOWNSTREAM:" << downstream;
+    DCLOG(INFO, this) << "Attaching to DOWNSTREAM";
   }
   if(init_request_body_buf() == -1) {
     return -1;
@@ -118,7 +118,7 @@ int SpdyDownstreamConnection::attach_downstream(Downstream *downstream)
 void SpdyDownstreamConnection::detach_downstream(Downstream *downstream)
 {
   if(LOG_ENABLED(INFO)) {
-    DCLOG(INFO, this) << "Detaching from DOWNSTREAM:" << downstream;
+    DCLOG(INFO, this) << "Detaching from DOWNSTREAM";
   }
   if(submit_rst_stream(downstream) == 0) {
     spdy_->notify();
@@ -140,8 +140,7 @@ int SpdyDownstreamConnection::submit_rst_stream(Downstream *downstream)
       break;
     default:
       if(LOG_ENABLED(INFO)) {
-        DCLOG(INFO, this) << "Submit RST_STREAM for DOWNSTREAM:"
-                          << downstream << ", stream_id="
+        DCLOG(INFO, this) << "Submit RST_STREAM for DOWNSTREAM, stream_id="
                           << downstream->get_downstream_stream_id();
       }
       rv = spdy_->submit_rst_stream(this,
@@ -327,7 +326,7 @@ int SpdyDownstreamConnection::push_request_headers()
     for(size_t i = 0; nv[i]; i += 2) {
       ss << TTY_HTTP_HD << nv[i] << TTY_RST << ": " << nv[i+1] << "\n";
     }
-    DCLOG(INFO, this) << "HTTP request headers\n" << ss.str();
+    DCLOG(INFO, this) << "HTTP request headers\n" << ss.str().c_str();
   }
 
   if(downstream_->get_request_method() == "CONNECT" ||

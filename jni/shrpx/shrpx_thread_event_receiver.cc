@@ -65,7 +65,7 @@ void ThreadEventReceiver::on_read(bufferevent *bev)
     if(client_handler) {
       client_handler->set_spdy_session(spdy_);
       if(LOG_ENABLED(INFO)) {
-        TLOG(INFO, this) << "CLIENT_HANDLER:" << client_handler << " created";
+        TLOG(INFO, this) << "CLIENT_HANDLER created";
       }
     } else {
       if(LOG_ENABLED(INFO)) {

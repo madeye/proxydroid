@@ -27,6 +27,8 @@
 
 #include "shrpx.h"
 
+#include <sstream>
+
 namespace shrpx {
 
 #define ENABLE_LOG 1
@@ -37,34 +39,31 @@ namespace shrpx {
 
 // Listener log
 #define LLOG(SEVERITY, LISTEN)                                       \
-  (Log(SEVERITY, __FILE__, __LINE__) << "[LISTEN:" << LISTEN         \
-   << "] ")
+  (Log(SEVERITY, __FILE__, __LINE__) << "LISTEN:" )
 
 // ThreadEventReceiver log
 #define TLOG(SEVERITY, THREAD_RECV)                                     \
-  (Log(SEVERITY, __FILE__, __LINE__) << "[THREAD_RECV:" << THREAD_RECV  \
-   << "] ")
+  (Log(SEVERITY, __FILE__, __LINE__) << "THREAD_RECV:")
 
 // ClientHandler log
 #define CLOG(SEVERITY, CLIENT_HANDLER)                                  \
-  (Log(SEVERITY, __FILE__, __LINE__) << "[CLIENT_HANDLER:" << CLIENT_HANDLER \
-   << "] ")
+  (Log(SEVERITY, __FILE__, __LINE__) << "CLIENT_HANDLER: ")
 
 // Upstream log
 #define ULOG(SEVERITY, UPSTREAM)                                        \
-  (Log(SEVERITY, __FILE__, __LINE__) << "[UPSTREAM:" << UPSTREAM << "] ")
+  (Log(SEVERITY, __FILE__, __LINE__) << "UPSTREAM: ")
 
 // Downstream log
 #define DLOG(SEVERITY, DOWNSTREAM)                                      \
-  (Log(SEVERITY, __FILE__, __LINE__) << "[DOWNSTREAM:" << DOWNSTREAM << "] ")
+  (Log(SEVERITY, __FILE__, __LINE__) << "DOWNSTREAM: ")
 
 // Downstream connection log
 #define DCLOG(SEVERITY, DCONN)                                          \
-  (Log(SEVERITY, __FILE__, __LINE__) << "[DCONN:" << DCONN << "] ")
+  (Log(SEVERITY, __FILE__, __LINE__) << "DCONN: ")
 
 // Downstream SPDY session log
 #define SSLOG(SEVERITY, SPDY)                                           \
-  (Log(SEVERITY, __FILE__, __LINE__) << "[DSPDY:" << SPDY << "] ")
+  (Log(SEVERITY, __FILE__, __LINE__) << "DSPDY: ")
 
 enum SeverityLevel {
   INFO, WARNING, ERROR, FATAL
@@ -74,8 +73,14 @@ class Log {
 public:
   Log(int severity, const char *filename, int linenum);
   ~Log();
-  template<typename Type> Log& operator<<(Type s)
+  Log& operator<<(const char* s)
   {
+    stream_ << s;
+    return *this;
+  }
+  Log& operator<<(int s)
+  {
+    stream_ << s;
     return *this;
   }
   static void set_severity_level(int severity);
@@ -88,6 +93,7 @@ private:
   int severity_;
   const char *filename_;
   int linenum_;
+  std::stringstream stream_;
   static int severity_thres_;
 };
 

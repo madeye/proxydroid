@@ -202,7 +202,7 @@ int ClientHandler::validate_next_proto()
   if(next_proto) {
     if(LOG_ENABLED(INFO)) {
       std::string proto(next_proto, next_proto+next_proto_len);
-      CLOG(INFO, this) << "The negotiated next protocol: " << proto;
+      CLOG(INFO, this) << "The negotiated next protocol: " << proto.c_str();
     }
     uint16_t version = spdylay_npn_get_version(next_proto, next_proto_len);
     if(version) {
@@ -251,7 +251,7 @@ void ClientHandler::set_should_close_after_write(bool f)
 void ClientHandler::pool_downstream_connection(DownstreamConnection *dconn)
 {
   if(LOG_ENABLED(INFO)) {
-    CLOG(INFO, this) << "Pooling downstream connection DCONN:" << dconn;
+    CLOG(INFO, this) << "Pooling downstream connection DCONN";
   }
   dconn_pool_.insert(dconn);
 }
@@ -259,7 +259,7 @@ void ClientHandler::pool_downstream_connection(DownstreamConnection *dconn)
 void ClientHandler::remove_downstream_connection(DownstreamConnection *dconn)
 {
   if(LOG_ENABLED(INFO)) {
-    CLOG(INFO, this) << "Removing downstream connection DCONN:" << dconn
+    CLOG(INFO, this) << "Removing downstream connection DCONN"
                      << " from pool";
   }
   dconn_pool_.erase(dconn);
@@ -281,7 +281,7 @@ DownstreamConnection* ClientHandler::get_downstream_connection()
     DownstreamConnection *dconn = *dconn_pool_.begin();
     dconn_pool_.erase(dconn);
     if(LOG_ENABLED(INFO)) {
-      CLOG(INFO, this) << "Reuse downstream connection DCONN:" << dconn
+      CLOG(INFO, this) << "Reuse downstream connection DCONN"
                        << " from pool";
     }
     return dconn;

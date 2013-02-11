@@ -67,7 +67,7 @@ HttpDownstreamConnection::~HttpDownstreamConnection()
 int HttpDownstreamConnection::attach_downstream(Downstream *downstream)
 {
   if(LOG_ENABLED(INFO)) {
-    DCLOG(INFO, this) << "Attaching to DOWNSTREAM:" << downstream;
+    DCLOG(INFO, this) << "Attaching to DOWNSTREAM";
   }
   Upstream *upstream = downstream->get_upstream();
   if(!bev_) {
@@ -305,7 +305,7 @@ void idle_eventcb(bufferevent *bev, short events, void *arg)
 void HttpDownstreamConnection::detach_downstream(Downstream *downstream)
 {
   if(LOG_ENABLED(INFO)) {
-    DCLOG(INFO, this) << "Detaching from DOWNSTREAM:" << downstream;
+    DCLOG(INFO, this) << "Detaching from DOWNSTREAM";
   }
   downstream->set_downstream_connection(0);
   downstream_ = 0;

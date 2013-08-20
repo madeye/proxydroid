@@ -20,7 +20,7 @@ here is a list of them:
 ## PREREQUISITES
 
 * JDK 1.6+
-* Maven 3.0.3+
+* Maven 3.0.5
 * Android SDK r17+
 * Android NDK r8+
 

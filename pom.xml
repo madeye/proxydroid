@@ -92,6 +92,7 @@
     </dependency>
 
 </dependencies>
+
 <build>
     <finalName>${project.artifactId}</finalName>
     <sourceDirectory>src</sourceDirectory>
@@ -104,7 +105,7 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.6.1</version>
                 <extensions>true</extensions>
             </plugin>
         </plugins>

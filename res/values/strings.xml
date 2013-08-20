@@ -133,7 +133,7 @@
         <item>http</item>
         <item>https</item>
         <item>http-tunnel</item>
-        <item>spdy</item>
+        <!-- <item>spdy</item> -->
         <item>socks4</item>
         <item>socks5</item>
     </array>
@@ -141,7 +141,7 @@
         <item>HTTP</item>
         <item>HTTPS</item>
         <item>HTTP-Tunnel</item>
-        <item>SPDY</item>
+        <!-- <item>SPDY</item> -->
         <item>SOCKS4</item>
         <item>SOCKS5</item>
     </array>

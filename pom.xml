@@ -37,7 +37,7 @@
     <dependency>
       <groupId>com.google.android.admob</groupId>
       <artifactId>admob</artifactId>
-      <version>6.1.0-r7</version>
+      <version>6.3.1</version>
     </dependency>
 
     <dependency>
@@ -53,20 +53,6 @@
     </dependency>
 
     <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.8.2</version>
-        <scope>test</scope>
-    </dependency>
-
-    <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-all</artifactId>
-        <version>1.1</version>
-        <scope>test</scope>
-    </dependency>
-
-    <dependency>
         <groupId>com.j256.ormlite</groupId>
         <artifactId>ormlite-android</artifactId>
         <version>4.41</version>
@@ -74,8 +60,8 @@
 
     <dependency>
         <groupId>com.actionbarsherlock</groupId>
-        <artifactId>library</artifactId>
-        <version>4.2.0</version>
+        <artifactId>actionbarsherlock</artifactId>
+        <version>4.4.0</version>
         <type>apklib</type>
     </dependency>
 
@@ -89,6 +75,13 @@
         <groupId>org.mozilla</groupId>
         <artifactId>rhino</artifactId>
         <version>1.7R2_android</version>
+    </dependency>
+
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.8.1</version>
+        <scope>test</scope>
     </dependency>
 
 </dependencies>

@@ -105,6 +105,7 @@
 		site on
 		google code. \n\n(proxydroid.googlecode.com)</string>
     <string name="about">About</string>
+    <string name="about_title">ProxyDroid %s</string>
     <string name="change_name">Rename</string>
     <string name="alert_dialog_ok">OK</string>
     <string name="alert_dialog_cancel">Cancel</string>

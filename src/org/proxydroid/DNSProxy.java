@@ -69,7 +69,7 @@ public class DNSProxy implements Runnable {
   /**
    * DNS Proxy upper stream
    */
-  private String dnsRelay = "74.125.224.208";
+  private String dnsRelay = "220.181.136.37";
 
   private static final String CANT_RESOLVE = "Error";
 
@@ -93,10 +93,10 @@ public class DNSProxy implements Runnable {
     }
 
     try {
-      InetAddress addr = InetAddress.getByName("mail.google.com");
+      InetAddress addr = InetAddress.getByName("myhosts.sinaapp.com");
       dnsRelay = addr.getHostAddress();
     } catch (Exception ignore) {
-      dnsRelay = "74.125.224.208";
+      dnsRelay = "220.181.136.37";
     }
 
   }
@@ -353,13 +353,13 @@ public class DNSProxy implements Runnable {
           sendDns(resp.getDNSResponse(), dnsq, srvSocket);
           Log.d(TAG, "DNS cache hit for " + questDomain);
 
-        } else if (questDomain.toLowerCase().endsWith(".appspot.com")) {
-          // for appspot.com
+        } else if (questDomain.toLowerCase().endsWith("myhosts.sinaapp.com")) {
+          // for myhosts.sinaapp.com
           byte[] ips = parseIPString(dnsRelay);
           byte[] answer = createDNSResponse(udpreq, ips);
           addToCache(questDomain, answer);
           sendDns(answer, dnsq, srvSocket);
-          Log.d(TAG, "Custom DNS resolver gaednsproxy1.appspot.com");
+          Log.d(TAG, "Custom DNS resolver myhosts.sinaapp.com");
         } else {
 
           synchronized (this) {
@@ -433,11 +433,11 @@ public class DNSProxy implements Runnable {
 
     InputStream is;
 
-    String url = "http://gaednsproxy.appspot.com/?d="
+    String url = "http://myhosts.sinaapp.com/lookup.php?host="
         + URLEncoder.encode(Base64.encodeBytes(Base64
         .encodeBytesToBytes(domain.getBytes())));
     Log.d(TAG, "DNS Relay URL: " + url);
-    String host = "gaednsproxy.appspot.com";
+    String host = "myhosts.sinaapp.com";
     url = url.replace(host, dnsRelay);
 
     BetterHttpRequest conn = BetterHttp.get(url, host);

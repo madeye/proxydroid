@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.proxydroid</groupId>
   <artifactId>proxydroid</artifactId>
-  <version>2.7.0</version>
+  <version>2.7.1</version>
   <packaging>apk</packaging>
   <name>ProxyDroid</name>
 
@@ -98,7 +98,7 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>3.8.0</version>
                 <extensions>true</extensions>
             </plugin>
         </plugins>
@@ -182,7 +182,7 @@
                         </outputApk>
                     </zipalign>
                     <sdk>
-                        <platform>16</platform>
+                        <platform>19</platform>
                     </sdk>
                     <dex>
                         <coreLibrary>true</coreLibrary>

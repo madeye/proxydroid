@@ -182,7 +182,7 @@
                         </outputApk>
                     </zipalign>
                     <sdk>
-                        <platform>19</platform>
+                        <platform>16</platform>
                     </sdk>
                     <dex>
                         <coreLibrary>true</coreLibrary>

@@ -1139,7 +1139,7 @@ public class ProxyDroid extends SherlockPreferenceActivity
         + "kill -9 `cat /data/data/org.proxydroid/shrpx.pid`\n"
         + "kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n");
 
-    Utils.runRootCommand("chmod 700 /data/data/org.proxydroid/iptables\n"
+    Utils.runCommand("chmod 700 /data/data/org.proxydroid/iptables\n"
         + "chmod 700 /data/data/org.proxydroid/redsocks\n"
         + "chmod 700 /data/data/org.proxydroid/proxy.sh\n"
         + "chmod 700 /data/data/org.proxydroid/cntlm\n"

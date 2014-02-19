@@ -535,6 +535,7 @@ public class ProxyDroidService extends Service {
 
     sb.append(BASE + "proxy.sh stop\n");
     sb.append("kill -9 `cat /data/data/org.proxydroid/*.pid`\n");
+    sb.append("rm /data/data/org.proxydroid/*.pid\n");
 
     new Thread() {
       @Override

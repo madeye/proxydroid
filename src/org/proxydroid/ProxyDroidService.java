@@ -533,20 +533,8 @@ public class ProxyDroidService extends Service {
 
     final StringBuilder sb = new StringBuilder();
 
-    if ("https".equals(proxyType)) {
-      sb.append("kill -9 `cat /data/data/org.proxydroid/stunnel.pid`\n");
-    }
-
-    if ("spdy".equals(proxyType)) {
-      sb.append("kill -9 `cat /data/data/org.proxydroid/shrpx.pid`\n");
-    }
-
-    if (isAuth && isNTLM) {
-      sb.append("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n"
-          + "kill -9 `cat /data/data/org.proxydroid/tproxy.pid`\n");
-    }
-
     sb.append(BASE + "proxy.sh stop\n");
+    sb.append("kill -9 `cat /data/data/org.proxydroid/*.pid`\n");
 
     new Thread() {
       @Override

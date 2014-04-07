@@ -118,6 +118,7 @@ public class ProxyDroidService extends Service {
   private String password;
   private String domain;
   private String proxyType = "http";
+  private String certificate;
   private String auth = "false";
   private boolean isAuth = false;
   private boolean isNTLM = false;
@@ -258,9 +259,20 @@ public class ProxyDroidService extends Service {
           String conf = "debug = 0\n" + "client = yes\n" + "pid = " + BASE + "stunnel.pid\n"
               + "[https]\n" + "sslVersion = all\n" + "accept = 127.0.0.1:8126\n"
               + "connect = " + host + ":" + port + "\n";
+          if (0 != certificate.length())
+              conf = conf + "cert = " + BASE + "client.pem\n";
           fs.write(conf.getBytes());
           fs.flush();
           fs.close();
+
+          // Certificate file for Stunnel
+          if (0 != certificate.length()){
+              fs = new FileOutputStream(BASE + "client.pem");
+              fs.write(certificate.getBytes());
+              fs.flush();
+              fs.close();
+              Utils.runCommand("chmod 0600 " + BASE + "client.pem");
+          }
 
           // Start stunnel here
           Utils.runRootCommand(BASE + "stunnel " + BASE + "stunnel.conf");
@@ -695,6 +707,9 @@ public class ProxyDroidService extends Service {
       domain = bundle.getString("domain");
     else
       domain = "";
+
+    if ("https".equals(proxyType))
+        certificate = bundle.getString("certificate");
 
     new Thread(new Runnable() {
       @Override

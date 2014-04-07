@@ -92,6 +92,12 @@
         android:summary="@string/domain_summary"
         android:title="@string/domain">
     </EditTextPreference>
+
+    <EditTextPreference
+        android:key="certificate"
+        android:summary="@string/certificate_summary"
+        android:title="@string/certificate">
+    </EditTextPreference>
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/fearute_cat">
     <CheckBoxPreference

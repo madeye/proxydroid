@@ -65,6 +65,8 @@
     <string name="ntlm">NTLM Authentication</string>
     <string name="ntlm_summary">Enable to support NTLM / NTLM2 authentication
 		method</string>
+    <string name="certificate">Certificate</string>
+    <string name="certificate_summary">Client Certificate for HTTPS authentication</string>
     <string name="domain">Domain</string>
     <string name="domain_summary">Domain name for NTLM</string>
 

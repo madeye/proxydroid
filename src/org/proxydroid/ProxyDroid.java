@@ -133,6 +133,7 @@ public class ProxyDroid extends SherlockPreferenceActivity
   private EditTextPreference userText;
   private EditTextPreference passwordText;
   private EditTextPreference domainText;
+  private EditTextPreference certificateText;
   private ListPreferenceMultiSelect ssidList;
   private ListPreference proxyTypeList;
   private Preference isRunningCheck;
@@ -318,6 +319,7 @@ public class ProxyDroid extends SherlockPreferenceActivity
     userText = (EditTextPreference) findPreference("user");
     passwordText = (EditTextPreference) findPreference("password");
     domainText = (EditTextPreference) findPreference("domain");
+    certificateText = (EditTextPreference) findPreference("certificate");
     bypassAddrs = findPreference("bypassAddrs");
     ssidList = (ListPreferenceMultiSelect) findPreference("ssid");
     proxyTypeList = (ListPreference) findPreference("proxyType");
@@ -440,6 +442,7 @@ public class ProxyDroid extends SherlockPreferenceActivity
       bundle.putString("bypassAddrs", mProfile.getBypassAddrs());
       bundle.putString("password", mProfile.getPassword());
       bundle.putString("domain", mProfile.getDomain());
+      bundle.putString("certificate", mProfile.getCertificate());
 
       bundle.putString("proxyType", mProfile.getProxyType());
       bundle.putBoolean("isAutoSetProxy", mProfile.isAutoSetProxy());
@@ -483,6 +486,7 @@ public class ProxyDroid extends SherlockPreferenceActivity
     userText.setText(mProfile.getUser());
     passwordText.setText(mProfile.getPassword());
     domainText.setText(mProfile.getDomain());
+    certificateText.setText(mProfile.getCertificate());
     proxyTypeList.setValue(mProfile.getProxyType());
     ssidList.setValue(mProfile.getSsid());
 
@@ -523,6 +527,7 @@ public class ProxyDroid extends SherlockPreferenceActivity
     userText.setEnabled(false);
     passwordText.setEnabled(false);
     domainText.setEnabled(false);
+    certificateText.setEnabled(false);
     ssidList.setEnabled(false);
     proxyTypeList.setEnabled(false);
     proxyedApps.setEnabled(false);
@@ -553,6 +558,9 @@ public class ProxyDroid extends SherlockPreferenceActivity
       passwordText.setEnabled(true);
       isNTLMCheck.setEnabled(true);
       if (isNTLMCheck.isChecked()) domainText.setEnabled(true);
+    }
+    if ("https".equals(proxyTypeList.getValue())){
+        certificateText.setEnabled(true);
     }
     if (!isAutoSetProxyCheck.isChecked()) {
       proxyedApps.setEnabled(true);
@@ -624,6 +632,10 @@ public class ProxyDroid extends SherlockPreferenceActivity
       domainText.setEnabled(false);
     }
 
+    if (!"https".equals(settings.getString("proxyType", ""))){
+      certificateText.setEnabled(false);
+    }
+
     Editor edit = settings.edit();
 
     if (Utils.isWorking()) {
@@ -670,6 +682,9 @@ public class ProxyDroid extends SherlockPreferenceActivity
     }
     if (!settings.getString("user", "").equals("")) {
       userText.setSummary(settings.getString("user", getString(R.string.user_summary)));
+    }
+    if (!settings.getString("certificate", "").equals("")) {
+      certificateText.setSummary(settings.getString("certificate", getString(R.string.certificate_summary)));
     }
     if (!settings.getString("bypassAddrs", "").equals("")) {
       bypassAddrs.setSummary(
@@ -804,6 +819,14 @@ public class ProxyDroid extends SherlockPreferenceActivity
         domainText.setEnabled(true);
       }
     }
+    
+    if (key.equals("proxyType")){
+      if (!"https".equals(settings.getString("proxyType", ""))){
+        certificateText.setEnabled(false);
+      } else {
+        certificateText.setEnabled(true);
+      }
+    }
 
     if (key.equals("isAutoConnect")) {
       if (settings.getBoolean("isAutoConnect", false)) {
@@ -861,6 +884,12 @@ public class ProxyDroid extends SherlockPreferenceActivity
         domainText.setSummary(getString(R.string.domain_summary));
       } else {
         domainText.setSummary(settings.getString("domain", ""));
+      }
+    } else if (key.equals("proxyType")) {
+      if (settings.getString("proxyType", "").equals("")) {
+        certificateText.setSummary(getString(R.string.certificate_summary));
+      } else {
+        certificateText.setSummary(settings.getString("certificate", ""));
       }
     } else if (key.equals("bypassAddrs")) {
       if (settings.getString("bypassAddrs", "").equals("")) {

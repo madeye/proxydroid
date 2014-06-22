@@ -275,9 +275,9 @@ public class ProxyDroidService extends Service {
           }
 
           // Start stunnel here
-          Utils.runRootCommand(BASE + "stunnel " + BASE + "stunnel.conf");
+          Utils.runCommand(BASE + "stunnel " + BASE + "stunnel.conf");
         } else if ("spdy".equals(proxyType)) {
-          Utils.runRootCommand(BASE + "shrpx -D -k -p -f 127.0.0.1,8126 -b " + host + "," + port
+          Utils.runCommand(BASE + "shrpx -D -k -p -f 127.0.0.1,8126 -b " + host + "," + port
               + " --pid-file=" + BASE + "shrpx.pid");
         }
 
@@ -289,7 +289,7 @@ public class ProxyDroidService extends Service {
       }
 
       if (proxyType.equals("http") && isAuth && isNTLM) {
-        Utils.runRootCommand(BASE + "proxy.sh start http 127.0.0.1 8025 false\n" + BASE
+        Utils.runCommand(BASE + "proxy.sh start http 127.0.0.1 8025 false\n" + BASE
             + "cntlm -P " + BASE + "cntlm.pid -l 8025 -u " + user
             + (!domain.equals("") ? "@" + domain : "@local") + " -p " + password + " "
             + proxyHost + ":" + proxyPort + "\n" + BASE
@@ -298,7 +298,7 @@ public class ProxyDroidService extends Service {
         final String u = Utils.preserve(user);
         final String p = Utils.preserve(password);
 
-        Utils.runRootCommand(BASE + "proxy.sh start" + " " + proxyType + " " + proxyHost
+        Utils.runCommand(BASE + "proxy.sh start" + " " + proxyType + " " + proxyHost
             + " " + proxyPort + " " + auth + " \"" + u + "\" \"" + p + "\"");
       }
 
@@ -387,7 +387,7 @@ public class ProxyDroidService extends Service {
    */
   public boolean handleCommand() {
 
-    Utils.runRootCommand("chmod 700 /data/data/org.proxydroid/iptables\n"
+    Utils.runCommand("chmod 700 /data/data/org.proxydroid/iptables\n"
         + "chmod 700 /data/data/org.proxydroid/redsocks\n"
         + "chmod 700 /data/data/org.proxydroid/proxy.sh\n"
         + "chmod 700 /data/data/org.proxydroid/cntlm\n"
@@ -529,29 +529,18 @@ public class ProxyDroidService extends Service {
 
   private void onDisconnect() {
 
+    Utils.runRootCommand(Utils.getIptables() + " -t nat -F OUTPUT\n");
+
     final StringBuilder sb = new StringBuilder();
 
-    sb.append(Utils.getIptables()).append(" -t nat -F OUTPUT\n");
-
-    if ("https".equals(proxyType)) {
-      sb.append("kill -9 `cat /data/data/org.proxydroid/stunnel.pid`\n");
-    }
-
-    if ("spdy".equals(proxyType)) {
-      sb.append("kill -9 `cat /data/data/org.proxydroid/shrpx.pid`\n");
-    }
-
-    if (isAuth && isNTLM) {
-      sb.append("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n"
-          + "kill -9 `cat /data/data/org.proxydroid/tproxy.pid`\n");
-    }
-
     sb.append(BASE + "proxy.sh stop\n");
+    sb.append("kill -9 `cat /data/data/org.proxydroid/*.pid`\n");
+    sb.append("rm /data/data/org.proxydroid/*.pid\n");
 
     new Thread() {
       @Override
       public void run() {
-        Utils.runRootCommand(sb.toString());
+        Utils.runCommand(sb.toString());
       }
     }.start();
 

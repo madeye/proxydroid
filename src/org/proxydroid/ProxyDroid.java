@@ -192,7 +192,10 @@ public class ProxyDroid extends SherlockPreferenceActivity
     AssetManager assetManager = getAssets();
     String[] files = null;
     try {
-      files = assetManager.list("");
+      if (Build.VERSION.SDK_INT >= 16)
+          files = assetManager.list("api-16");
+      else
+          files = assetManager.list("");
     } catch (IOException e) {
       Log.e(TAG, e.getMessage());
     }

@@ -292,8 +292,7 @@ public class ProxyDroidService extends Service {
         Utils.runRootCommand(BASE + "proxy.sh start http 127.0.0.1 8025 false\n" + BASE
             + "cntlm -P " + BASE + "cntlm.pid -l 8025 -u " + user
             + (!domain.equals("") ? "@" + domain : "@local") + " -p " + password + " "
-            + proxyHost + ":" + proxyPort + "\n" + BASE
-            + "tproxy -P /data/data/org.proxydroid/tproxy.pid -s 8125 127.0.0.1 8025\n");
+            + proxyHost + ":" + proxyPort + "\n");
       } else {
         final String u = Utils.preserve(user);
         final String p = Utils.preserve(password);
@@ -369,9 +368,6 @@ public class ProxyDroidService extends Service {
 
       String rules = cmd.toString();
 
-      if (proxyType.equals("http") && isAuth && isNTLM)
-        rules = rules.replace("8123", "8125");
-
       rules = rules.replace("iptables", Utils.getIptables());
 
       Utils.runRootCommand(rules);
@@ -391,7 +387,6 @@ public class ProxyDroidService extends Service {
         + "chmod 700 /data/data/org.proxydroid/redsocks\n"
         + "chmod 700 /data/data/org.proxydroid/proxy.sh\n"
         + "chmod 700 /data/data/org.proxydroid/cntlm\n"
-        + "chmod 700 /data/data/org.proxydroid/tproxy\n"
         + "chmod 700 /data/data/org.proxydroid/stunnel\n"
         + "chmod 700 /data/data/org.proxydroid/shrpx\n");
 
@@ -537,13 +532,8 @@ public class ProxyDroidService extends Service {
       sb.append("kill -9 `cat /data/data/org.proxydroid/stunnel.pid`\n");
     }
 
-    if ("spdy".equals(proxyType)) {
-      sb.append("kill -9 `cat /data/data/org.proxydroid/shrpx.pid`\n");
-    }
-
     if (isAuth && isNTLM) {
-      sb.append("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n"
-          + "kill -9 `cat /data/data/org.proxydroid/tproxy.pid`\n");
+      sb.append("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n");
     }
 
     sb.append(BASE + "proxy.sh stop\n");

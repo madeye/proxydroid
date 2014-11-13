@@ -205,7 +205,10 @@ public class ProxyDroid extends SherlockPreferenceActivity
         OutputStream out = null;
         try {
 
-          in = assetManager.open(file);
+          if (Build.VERSION.SDK_INT >= 16)
+            in = assetManager.open("api-16/" + file);
+          else
+            in = assetManager.open(file);
           out = new FileOutputStream("/data/data/org.proxydroid/" + file);
           copyFile(in, out);
           in.close();

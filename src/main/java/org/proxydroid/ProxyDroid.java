@@ -1140,7 +1140,6 @@ public class ProxyDroid extends SherlockPreferenceActivity
         + " -t nat -F OUTPUT\n"
         + ProxyDroidService.BASE
         + "proxy.sh stop\n"
-        + "kill -9 `cat /data/data/org.proxydroid/tproxy.pid`\n"
         + "kill -9 `cat /data/data/org.proxydroid/stunnel.pid`\n"
         + "kill -9 `cat /data/data/org.proxydroid/shrpx.pid`\n"
         + "kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n");
@@ -1149,7 +1148,6 @@ public class ProxyDroid extends SherlockPreferenceActivity
         + "chmod 700 /data/data/org.proxydroid/redsocks\n"
         + "chmod 700 /data/data/org.proxydroid/proxy.sh\n"
         + "chmod 700 /data/data/org.proxydroid/cntlm\n"
-        + "chmod 700 /data/data/org.proxydroid/tproxy\n"
         + "chmod 700 /data/data/org.proxydroid/stunnel\n"
         + "chmod 700 /data/data/org.proxydroid/shrpx\n");
   }

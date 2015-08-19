@@ -73,6 +73,8 @@ import java.net.*;
 import java.util.Enumeration;
 import java.util.List;
 
+import go.client.Client;
+
 public class ProxyDroidService extends Service {
 
   private Notification notification;
@@ -124,6 +126,7 @@ public class ProxyDroidService extends Service {
   private boolean isNTLM = false;
   private boolean isDNSProxy = false;
   private boolean isPAC = false;
+  private boolean lantern = false;
 
   private DNSProxy dnsServer = null;
   private int dnsPort = 0;
@@ -286,6 +289,23 @@ public class ProxyDroidService extends Service {
         proxyPort = 8126;
         proxyType = "http";
 
+      }
+
+      if (proxyType.equals("lantern")) {
+          Client.RunClientProxy("127.0.0.1:9192",
+                  "org.getlantern.FireTweet", 
+                  new Client.GoCallback.Stub() {
+                      public void Do() {
+                          // Ignore
+                      }
+                  });
+
+        // Reset host / port
+        proxyHost = "127.0.0.1";
+        proxyPort = 9192;
+        proxyType = "http";
+
+        lantern = true;
       }
 
       if (proxyType.equals("http") && isAuth && isNTLM) {
@@ -482,6 +502,15 @@ public class ProxyDroidService extends Service {
 
     // Make sure the connection is closed, important here
     onDisconnect();
+
+    if (proxyType.equals("lantern") && lantern) {
+        try {
+            Client.StopClientProxy();
+            lantern = false;
+        } catch (Exception ex) {
+            // Ignore
+        }
+    }
 
     try {
       if (dnsServer != null) {

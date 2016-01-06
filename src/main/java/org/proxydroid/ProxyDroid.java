@@ -312,6 +312,9 @@ public class ProxyDroid extends SherlockPreferenceActivity
     // the attribute android:id="@+id/mainLayout"
     ViewParent parent = getListView().getParent();
     LinearLayout layout = getLayout(parent);
+
+    // disable adds
+    /*
     if (layout != null) {
       // Add the adView to it
       layout.addView(adView, 0);
@@ -319,6 +322,7 @@ public class ProxyDroid extends SherlockPreferenceActivity
       AdRequest aq = new AdRequest();
       adView.loadAd(aq);
     }
+    */
 
     hostText = (EditTextPreference) findPreference("host");
     portText = (EditTextPreference) findPreference("port");

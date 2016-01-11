@@ -893,8 +893,10 @@ public class ProxyDroid extends SherlockPreferenceActivity
       }
     } else if (key.equals("proxyType")) {
       if (settings.getString("proxyType", "").equals("")) {
+      	proxyTypeList.setSummary(getString(R.string.proxy_type_summary));
         certificateText.setSummary(getString(R.string.certificate_summary));
       } else {
+      	proxyTypeList.setSummary(settings.getString("proxyType", "").toUpperCase());
         certificateText.setSummary(settings.getString("certificate", ""));
       }
     } else if (key.equals("bypassAddrs")) {
@@ -916,12 +918,6 @@ public class ProxyDroid extends SherlockPreferenceActivity
             : R.string.host_summary);
       } else {
         hostText.setSummary(settings.getString("host", ""));
-      }
-    } else if (key.equals("proxyType")) {
-      if (settings.getString("proxyType", "").equals("")) {
-        proxyTypeList.setSummary(getString(R.string.proxy_type_summary));
-      } else {
-        proxyTypeList.setSummary(settings.getString("proxyType", "").toUpperCase());
       }
     } else if (key.equals("password")) {
       if (!settings.getString("password", "").equals("")) {

@@ -52,8 +52,7 @@ public class EasySSLSocketFactory implements SocketFactory,
 	private static SSLContext createEasySSLContext() throws IOException {
 		try {
 			SSLContext context = SSLContext.getInstance("TLS");
-			context.init(null,
-					new TrustManager[] { new TrivialTrustManager() }, null);
+			context.init(null, null, null);
 			return context;
 		} catch (Exception e) {
 			throw new IOException(e.getMessage());

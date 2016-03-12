@@ -1,5 +1,7 @@
 #!/system/bin/sh
 
+ulimit -HSn 4096
+
 DIR=/data/data/org.proxydroid
 type=$2
 host=$3

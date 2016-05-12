@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * 
+ *
+ *
  *                            ___====-_  _-====___
  *                      _--^^^#####//      \\#####^^^--_
  *                   _-^##########// (    ) \\##########^-_
@@ -403,13 +403,13 @@ public class ProxyDroidService extends Service {
     } else if (ringtone != null)
       notification.sound = Uri.parse(ringtone);
     else
-      notification.defaults |= Notification.DEFAULT_SOUND;
+      notification.defaults |= Notification.DEFAULT_VIBRATE;
 
     if (settings.getBoolean("settings_key_notif_vibrate", false)) {
       notification.vibrate = new long[]{0, 1000, 500, 1000, 500, 1000};
     }
 
-    notification.defaults |= Notification.DEFAULT_LIGHTS;
+//    notification.defaults |= Notification.DEFAULT_LIGHTS;
   }
 
   private void notifyAlert(String title, String info) {

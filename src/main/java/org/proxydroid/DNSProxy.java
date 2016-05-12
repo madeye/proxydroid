@@ -213,7 +213,7 @@ public class DNSProxy implements Runnable {
 
     byte[] result = new byte[start];
     System.arraycopy(response, 0, result, 0, start);
-    Log.d(TAG, "DNS Response package size: " + start);
+    // Log.d(TAG, "DNS Response package size: " + start);
 
     return result;
   }
@@ -309,7 +309,7 @@ public class DNSProxy implements Runnable {
 
     ips = ip.split("\\.");
 
-    Log.d(TAG, "Start parse ip string: " + ip + ", Sectons: " + ips.length);
+    // Log.d(TAG, "Start parse ip string: " + ip + ", Sectons: " + ips.length);
 
     if (ips.length != IP_SECTION_LEN) {
       Log.e(TAG, "Malformed IP string number of sections is: "
@@ -394,15 +394,15 @@ public class DNSProxy implements Runnable {
                 if (answer != null && answer.length != 0) {
                   addToCache(questDomain, answer);
                   sendDns(answer, dnsq, srvSocket);
-                  Log.d(TAG,
-                      "Success to get DNS response for "
-                          + questDomain
-                          + "，length: "
-                          + answer.length
-                          + " "
-                          + (System
-                          .currentTimeMillis() - startTime)
-                          / 1000 + "s");
+                  // Log.d(TAG,
+                  //     "Success to get DNS response for "
+                  //         + questDomain
+                  //         + "，length: "
+                  //         + answer.length
+                  //         + " "
+                  //         + (System
+                  //         .currentTimeMillis() - startTime)
+                  //         / 1000 + "s");
                 } else {
                   Log.e(TAG,
                       "The size of DNS packet returned is 0");
@@ -449,25 +449,25 @@ public class DNSProxy implements Runnable {
 
     InputStream is;
 
-    String url = "http://dotnul.com/api/dns/"
+    String url = "http://80.92.90.248/api/dns/8.8.8.8/IN/"
         + domain + "/A";
     Log.d(TAG, "DNS Relay URL: " + url);
     String host = "dotnul.com";
-    
+
     try{
       JSONObject json = readJsonFromUrl(url);
       // Log.d(TAG, "json response: " + json.toString());
 
       JSONObject dig = (JSONObject)json.get("dig");
-      // Log.d(TAG, "json dig: " + dig.toString());      
-      
+      // Log.d(TAG, "json dig: " + dig.toString());
+
       JSONArray answerArray = (JSONArray)dig.get("answer");
       // Log.d(TAG, "json answerArray: " + answerArray.toString());
 
       for (int i = 0, size = answerArray.length(); i < size; i++){
         JSONObject answer = answerArray.getJSONObject(i);
         // Log.d(TAG, "json answer: " + answer.toString());
-        
+
 
         if(answer.get("type").toString().equals("A")){
           ip = (String)answer.get("rdata");

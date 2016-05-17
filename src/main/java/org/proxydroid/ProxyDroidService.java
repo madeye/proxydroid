@@ -259,14 +259,14 @@ public class ProxyDroidService extends Service {
           String conf = "debug = 0\n" + "client = yes\n" + "pid = " + BASE + "stunnel.pid\n"
               + "[https]\n" + "sslVersion = all\n" + "accept = 127.0.0.1:8126\n"
               + "connect = " + host + ":" + port + "\n";
-          if (0 != certificate.length())
+          if (null != certificate && 0 != certificate.length())
               conf = conf + "cert = " + BASE + "client.pem\n";
           fs.write(conf.getBytes());
           fs.flush();
           fs.close();
 
           // Certificate file for Stunnel
-          if (0 != certificate.length()){
+          if (null != certificate && 0 != certificate.length()){
               fs = new FileOutputStream(BASE + "client.pem");
               fs.write(certificate.getBytes());
               fs.flush();

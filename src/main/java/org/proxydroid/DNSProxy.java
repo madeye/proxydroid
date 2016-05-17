@@ -8,13 +8,30 @@ import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.SocketException;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.io.*;
+import java.net.*;
+
+import java.io.Reader;
+import java.nio.charset.Charset;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONArray;
+
 
 import org.proxydroid.db.DNSResponse;
 import org.proxydroid.db.DatabaseHelper;
@@ -69,12 +86,11 @@ public class DNSProxy implements Runnable {
   /**
    * DNS Proxy upper stream
    */
-  private String dnsRelay = "74.125.224.208";
+  private String dnsRelay = "80.92.90.248";
 
   private static final String CANT_RESOLVE = "Error";
 
   private DatabaseHelper helper;
-
 
   public DNSProxy(Context ctx, int port) {
 
@@ -96,7 +112,7 @@ public class DNSProxy implements Runnable {
       InetAddress addr = InetAddress.getByName("mail.google.com");
       dnsRelay = addr.getHostAddress();
     } catch (Exception ignore) {
-      dnsRelay = "74.125.224.208";
+      dnsRelay = "80.92.90.248";
     }
 
   }
@@ -197,7 +213,7 @@ public class DNSProxy implements Runnable {
 
     byte[] result = new byte[start];
     System.arraycopy(response, 0, result, 0, start);
-    Log.d(TAG, "DNS Response package size: " + start);
+    // Log.d(TAG, "DNS Response package size: " + start);
 
     return result;
   }
@@ -293,7 +309,7 @@ public class DNSProxy implements Runnable {
 
     ips = ip.split("\\.");
 
-    Log.d(TAG, "Start parse ip string: " + ip + ", Sectons: " + ips.length);
+    // Log.d(TAG, "Start parse ip string: " + ip + ", Sectons: " + ips.length);
 
     if (ips.length != IP_SECTION_LEN) {
       Log.e(TAG, "Malformed IP string number of sections is: "
@@ -353,13 +369,13 @@ public class DNSProxy implements Runnable {
           sendDns(resp.getDNSResponse(), dnsq, srvSocket);
           Log.d(TAG, "DNS cache hit for " + questDomain);
 
-        } else if (questDomain.toLowerCase().endsWith(".appspot.com")) {
-          // for appspot.com
+        } else if (questDomain.toLowerCase().endsWith("dotnul.com")) {
+          // for dotnul.com
           byte[] ips = parseIPString(dnsRelay);
           byte[] answer = createDNSResponse(udpreq, ips);
           addToCache(questDomain, answer);
           sendDns(answer, dnsq, srvSocket);
-          Log.d(TAG, "Custom DNS resolver gaednsproxy1.appspot.com");
+          Log.d(TAG, "Custom DNS resolver dotnul.com");
         } else {
 
           synchronized (this) {
@@ -378,15 +394,15 @@ public class DNSProxy implements Runnable {
                 if (answer != null && answer.length != 0) {
                   addToCache(questDomain, answer);
                   sendDns(answer, dnsq, srvSocket);
-                  Log.d(TAG,
-                      "Success to get DNS response for "
-                          + questDomain
-                          + "，length: "
-                          + answer.length
-                          + " "
-                          + (System
-                          .currentTimeMillis() - startTime)
-                          / 1000 + "s");
+                  // Log.d(TAG,
+                  //     "Success to get DNS response for "
+                  //         + questDomain
+                  //         + "，length: "
+                  //         + answer.length
+                  //         + " "
+                  //         + (System
+                  //         .currentTimeMillis() - startTime)
+                  //         / 1000 + "s");
                 } else {
                   Log.e(TAG,
                       "The size of DNS packet returned is 0");
@@ -429,31 +445,65 @@ public class DNSProxy implements Runnable {
     * http://dnsproxy.cloudfoundry.com/(domain name encoded)
     */
   private String resolveDomainName(String domain) {
-    String ip = null;
+    String ip = null, line;
 
     InputStream is;
 
-    String url = "http://gaednsproxy.appspot.com/?d="
-        + URLEncoder.encode(Base64.encodeBytes(Base64
-        .encodeBytesToBytes(domain.getBytes())));
+    String url = "http://80.92.90.248/api/dns/8.8.8.8/IN/"
+        + domain + "/A";
     Log.d(TAG, "DNS Relay URL: " + url);
-    String host = "gaednsproxy.appspot.com";
-    url = url.replace(host, dnsRelay);
+    String host = "dotnul.com";
 
-    BetterHttpRequest conn = BetterHttp.get(url, host);
+    try{
+      JSONObject json = readJsonFromUrl(url);
+      // Log.d(TAG, "json response: " + json.toString());
 
-    try {
-      BetterHttpResponse resp = conn.send();
-      is = resp.getResponseBody();
-      BufferedReader br = new BufferedReader(new InputStreamReader(is));
-      ip = br.readLine();
-    } catch (ConnectException e) {
-      Log.e(TAG, "Failed to request URI: " + url, e);
+      JSONObject dig = (JSONObject)json.get("dig");
+      // Log.d(TAG, "json dig: " + dig.toString());
+
+      JSONArray answerArray = (JSONArray)dig.get("answer");
+      // Log.d(TAG, "json answerArray: " + answerArray.toString());
+
+      for (int i = 0, size = answerArray.length(); i < size; i++){
+        JSONObject answer = answerArray.getJSONObject(i);
+        // Log.d(TAG, "json answer: " + answer.toString());
+
+
+        if(answer.get("type").toString().equals("A")){
+          ip = (String)answer.get("rdata");
+          // Log.d(TAG, "json ip: " + ip);
+          break;
+        }
+      }
+
     } catch (IOException e) {
       Log.e(TAG, "Failed to request URI: " + url, e);
+    } catch(JSONException e){
+      Log.e(TAG, "", e);
     }
 
     return ip;
+  }
+
+  private static String readAll(Reader rd) throws IOException {
+    StringBuilder sb = new StringBuilder();
+    int cp;
+    while ((cp = rd.read()) != -1) {
+      sb.append((char) cp);
+    }
+    return sb.toString();
+  }
+
+  public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+    InputStream is = new URL(url).openStream();
+    try {
+      BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+      String jsonText = readAll(rd);
+      JSONObject json = new JSONObject(jsonText);
+      return json;
+    } finally {
+      is.close();
+    }
   }
 
   /*

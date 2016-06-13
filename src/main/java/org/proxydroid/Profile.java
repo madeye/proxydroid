@@ -54,6 +54,7 @@ public class Profile implements Serializable {
 
 	private String domain;
 	private String ssid;
+	private String excludedSsid;
 
 	public Profile() {
 		init();
@@ -67,6 +68,7 @@ public class Profile implements Serializable {
 		user = settings.getString("user", "");
 		password = settings.getString("password", "");
 		ssid = settings.getString("ssid", "");
+		excludedSsid = settings.getString("excludedSsid", "");
 		bypassAddrs = settings.getString("bypassAddrs", "");
 		proxyedApps = settings.getString("Proxyed", "");
 		domain = settings.getString("domain", "");
@@ -113,6 +115,7 @@ public class Profile implements Serializable {
 		ed.putBoolean("isPAC", isPAC);
 		ed.putBoolean("isDNSProxy", isDNSProxy);
 		ed.putString("ssid", ssid);
+		ed.putString("excludedSsid", excludedSsid);
 		ed.commit();
 	}
 
@@ -128,6 +131,7 @@ public class Profile implements Serializable {
 		proxyType = "http";
 		isAutoConnect = false;
 		ssid = "";
+		excludedSsid = "";
 		isNTLM = false;
 		bypassAddrs = "";
 		proxyedApps = "";
@@ -145,6 +149,7 @@ public class Profile implements Serializable {
 		JSONObject obj = new JSONObject();
 		obj.put("name", name);
 		obj.put("ssid", ssid);
+		obj.put("excludedSsid", excludedSsid);
 		obj.put("host", host);
 		obj.put("proxyType", proxyType);
 		obj.put("user", user);
@@ -215,6 +220,7 @@ public class Profile implements Serializable {
 
 		name = jd.getString("name", "");
 		ssid = jd.getString("ssid", "");
+		excludedSsid = jd.getString("excludedSsid", "");
 		host = jd.getString("host", "");
 		proxyType = jd.getString("proxyType", "http");
 		user = jd.getString("user", "");
@@ -320,11 +326,26 @@ public class Profile implements Serializable {
 	}
 
 	/**
+	 * @return the excluded ssid
+	 */
+	public String getExcludedSsid() {
+		return excludedSsid;
+	}
+
+	/**
 	 * @param ssid
 	 *            the ssid to set
 	 */
 	public void setSsid(String ssid) {
 		this.ssid = ssid;
+	}
+
+	/**
+	 * @param ssid
+	 *            the excluded ssid to set
+	 */
+	public void setExcludedSsid(String ssid) {
+		this.excludedSsid = ssid;
 	}
 
 	/**

@@ -77,9 +77,13 @@
     <string name="ssid">Bound Network</string>
     <string name="ssid_summary">Bind your proxy setting to 2G/3G Network or
 		specified SSID</string>
+    <string name="excluded_ssid">Never Bound these WiFi SSID</string>
+    <string name="excluded_ssid_summary">Never bind the proxy setting to specified SSID</string>
 
     <string-array name="ssid_default_values"></string-array>
     <string-array name="ssid_default_entries"></string-array>
+    <string-array name="excluded_ssid_default_values"></string-array>
+    <string-array name="excluded_ssid_default_entries"></string-array>
 
     <string name="auto_set_proxy">Global Proxy</string>
     <string name="auto_set_proxy_summary">Enable the global proxy (needs ROOT permission

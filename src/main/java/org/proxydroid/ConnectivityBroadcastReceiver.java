@@ -107,7 +107,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
         for (String profile : profileValues) {
           String profileString = settings.getString(profile, "");
           mProfile.decodeJson(profileString);
-          curSSID = onlineSSID(context, mProfile.getSsid());
+          curSSID = onlineSSID(context, mProfile.getSsid(), mProfile.getExcludedSsid());
           if (mProfile.isAutoConnect() && curSSID != null) {
             // Enable auto connect
             autoConnect = true;
@@ -181,8 +181,9 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
     });
   }
 
-  public String onlineSSID(Context context, String ssid) {
+  public String onlineSSID(Context context, String ssid, String excludedSsid) {
     String ssids[] = ListPreferenceMultiSelect.parseStoredValue(ssid);
+    String excludedSsids[] = ListPreferenceMultiSelect.parseStoredValue(excludedSsid);
     if (ssids == null)
       return null;
     if (ssids.length < 1)
@@ -210,6 +211,15 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
     if (current == null || "".equals(current))
       return null;
     current = current.replace("\"", "");
+
+    if (excludedSsids != null) {
+        for (String item : excludedSsids) {
+            if (current.equals(item)) {
+                return null; // Never connect proxy on excluded ssid
+            }
+        }
+    }
+
     for (String item : ssids) {
       if (Constraints.WIFI_AND_3G.equals(item))
         return item;

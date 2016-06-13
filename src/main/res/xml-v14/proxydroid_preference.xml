@@ -56,6 +56,15 @@
         android:summary="@string/ssid_summary"
         android:title="@string/ssid"/>
 
+    <com.ksmaze.android.preference.ListPreferenceMultiSelect
+        android:defaultValue=""
+        android:dialogTitle="@string/excluded_ssid"
+        android:entries="@array/excluded_ssid_default_entries"
+        android:entryValues="@array/excluded_ssid_default_values"
+        android:key="excludedSsid"
+        android:summary="@string/excluded_ssid_summary"
+        android:title="@string/excluded_ssid"/>
+
     <Preference
         android:key="bypassAddrs"
         android:summary="@string/set_bypass_summary"

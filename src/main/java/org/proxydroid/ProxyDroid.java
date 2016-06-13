@@ -92,6 +92,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Arrays;
 import org.proxydroid.db.DNSResponse;
 import org.proxydroid.db.DatabaseHelper;
 import org.proxydroid.utils.Constraints;
@@ -135,6 +136,7 @@ public class ProxyDroid extends SherlockPreferenceActivity
   private EditTextPreference domainText;
   private EditTextPreference certificateText;
   private ListPreferenceMultiSelect ssidList;
+  private ListPreferenceMultiSelect excludedSsidList;
   private ListPreference proxyTypeList;
   private Preference isRunningCheck;
   private CheckBoxPreference isBypassAppsCheck;
@@ -252,7 +254,9 @@ public class ProxyDroid extends SherlockPreferenceActivity
     WifiManager wm = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
     List<WifiConfiguration> wcs = wm.getConfiguredNetworks();
     String[] ssidEntries = null;
+    String[] pureSsid = null;
     int n = 3;
+    int wifiIndex = n;
 
     if (wcs == null) {
       ssidEntries = new String[n];
@@ -277,6 +281,10 @@ public class ProxyDroid extends SherlockPreferenceActivity
     }
     ssidList.setEntries(ssidEntries);
     ssidList.setEntryValues(ssidEntries);
+
+    pureSsid = Arrays.copyOfRange(ssidEntries, wifiIndex, ssidEntries.length);
+    excludedSsidList.setEntries(pureSsid);
+    excludedSsidList.setEntryValues(pureSsid);
   }
 
   @Override
@@ -332,6 +340,7 @@ public class ProxyDroid extends SherlockPreferenceActivity
     certificateText = (EditTextPreference) findPreference("certificate");
     bypassAddrs = findPreference("bypassAddrs");
     ssidList = (ListPreferenceMultiSelect) findPreference("ssid");
+    excludedSsidList = (ListPreferenceMultiSelect) findPreference("excludedSsid");
     proxyTypeList = (ListPreference) findPreference("proxyType");
     proxyedApps = findPreference("proxyedApps");
     profileList = (ListPreference) findPreference("profile");
@@ -499,6 +508,7 @@ public class ProxyDroid extends SherlockPreferenceActivity
     certificateText.setText(mProfile.getCertificate());
     proxyTypeList.setValue(mProfile.getProxyType());
     ssidList.setValue(mProfile.getSsid());
+    excludedSsidList.setValue(mProfile.getExcludedSsid());
 
     isAuthCheck.setChecked(mProfile.isAuth());
     isNTLMCheck.setChecked(mProfile.isNTLM());
@@ -539,6 +549,7 @@ public class ProxyDroid extends SherlockPreferenceActivity
     domainText.setEnabled(false);
     certificateText.setEnabled(false);
     ssidList.setEnabled(false);
+    excludedSsidList.setEnabled(false);
     proxyTypeList.setEnabled(false);
     proxyedApps.setEnabled(false);
     profileList.setEnabled(false);
@@ -576,7 +587,10 @@ public class ProxyDroid extends SherlockPreferenceActivity
       proxyedApps.setEnabled(true);
       isBypassAppsCheck.setEnabled(true);
     }
-    if (isAutoConnectCheck.isChecked()) ssidList.setEnabled(true);
+    if (isAutoConnectCheck.isChecked()) {
+        ssidList.setEnabled(true);
+        excludedSsidList.setEnabled(true);
+    }
 
     isDNSProxyCheck.setEnabled(true);
     profileList.setEnabled(true);
@@ -621,8 +635,10 @@ public class ProxyDroid extends SherlockPreferenceActivity
 
     if (settings.getBoolean("isAutoConnect", false)) {
       ssidList.setEnabled(true);
+      excludedSsidList.setEnabled(true);
     } else {
       ssidList.setEnabled(false);
+      excludedSsidList.setEnabled(false);
     }
 
     if (settings.getBoolean("isPAC", false)) {
@@ -689,6 +705,9 @@ public class ProxyDroid extends SherlockPreferenceActivity
 
     if (!settings.getString("ssid", "").equals("")) {
       ssidList.setSummary(settings.getString("ssid", ""));
+    }
+    if (!settings.getString("excludedSsid", "").equals("")) {
+      excludedSsidList.setSummary(settings.getString("excludedSsid", ""));
     }
     if (!settings.getString("user", "").equals("")) {
       userText.setSummary(settings.getString("user", getString(R.string.user_summary)));
@@ -842,8 +861,10 @@ public class ProxyDroid extends SherlockPreferenceActivity
       if (settings.getBoolean("isAutoConnect", false)) {
         loadNetworkList();
         ssidList.setEnabled(true);
+        excludedSsidList.setEnabled(true);
       } else {
         ssidList.setEnabled(false);
+        excludedSsidList.setEnabled(false);
       }
     }
 
@@ -882,6 +903,12 @@ public class ProxyDroid extends SherlockPreferenceActivity
         ssidList.setSummary(getString(R.string.ssid_summary));
       } else {
         ssidList.setSummary(settings.getString("ssid", ""));
+      }
+    } else if (key.equals("excludedSsid")) {
+      if (settings.getString("excludedSsid", "").equals("")) {
+        excludedSsidList.setSummary(getString(R.string.excluded_ssid_summary));
+      } else {
+        excludedSsidList.setSummary(settings.getString("excludedSsid", ""));
       }
     } else if (key.equals("user")) {
       if (settings.getString("user", "").equals("")) {

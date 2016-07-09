@@ -19,8 +19,7 @@ public class Utils {
 
   public final static String TAG = "ProxyDroid";
   public final static String DEFAULT_SHELL = "/system/bin/sh";
-  public final static String DEFAULT_ROOT = "/system/bin/su";
-  public final static String ALTERNATIVE_ROOT = "/system/xbin/su";
+  public final static String DEFAULT_ROOTS[] = {"/system/bin/su", "/system/xbin/su", "/su/bin/su", "/su/xbin/su"};
   public final static String DEFAULT_IPTABLES = "/data/data/org.proxydroid/iptables";
   public final static String ALTERNATIVE_IPTABLES = "/system/bin/iptables";
   public final static int TIME_OUT = -99;
@@ -190,12 +189,12 @@ public class Utils {
       return isRoot == 1;
 
     // switch between binaries
-    if (new File(DEFAULT_ROOT).exists()) {
-      root_shell = DEFAULT_ROOT;
-    } else if (new File(ALTERNATIVE_ROOT).exists()) {
-      root_shell = ALTERNATIVE_ROOT;
-    } else {
-      root_shell = "su";
+    root_shell = "su";
+    for (int i = 0; i < DEFAULT_ROOTS.length; i++) {
+        if (new File(DEFAULT_ROOTS[i]).exists()) {
+            root_shell = DEFAULT_ROOTS[i];
+            break;
+        }
     }
 
     String lines = null;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.proxydroid"
-    android:versionCode="58"
+    android:versionCode="59"
     android:versionName="2.7.5" >
 
     <uses-sdk

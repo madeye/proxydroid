@@ -79,9 +79,9 @@ import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.flurry.android.FlurryAgent;
-import com.google.ads.AdRequest;
-import com.google.ads.AdSize;
-import com.google.ads.AdView;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.ksmaze.android.preference.ListPreferenceMultiSelect;
@@ -315,22 +315,20 @@ public class ProxyDroid extends SherlockPreferenceActivity
     addPreferencesFromResource(R.xml.proxydroid_preference);
 
     // Create the adView
-    adView = new AdView(this, AdSize.SMART_BANNER, "a14db2c016cb9b6");
+    adView = new AdView(this);
+    adView.setAdUnitId("ca-app-pub-9097031975646651/4806879927");
+    adView.setAdSize(AdSize.SMART_BANNER);
     // Lookup your LinearLayout assuming it’s been given
     // the attribute android:id="@+id/mainLayout"
     ViewParent parent = getListView().getParent();
     LinearLayout layout = getLayout(parent);
 
     // disable adds
-    /*
     if (layout != null) {
       // Add the adView to it
       layout.addView(adView, 0);
-      // Initiate a generic request to load it with an ad
-      AdRequest aq = new AdRequest();
-      adView.loadAd(aq);
+      adView.loadAd(new AdRequest.Builder().build());
     }
-    */
 
     hostText = (EditTextPreference) findPreference("host");
     portText = (EditTextPreference) findPreference("port");

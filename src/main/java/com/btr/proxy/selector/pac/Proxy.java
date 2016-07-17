@@ -5,6 +5,7 @@ public class Proxy {
 	public final static Proxy NO_PROXY = new Proxy(null, 0, null);
 
 	public final static String TYPE_HTTP = "http";
+	public final static String TYPE_HTTPS = "https";
 	public final static String TYPE_SOCKS4 = "socks4";
 	public final static String TYPE_SOCKS5 = "socks5";
 

@@ -16,6 +16,7 @@ public class PacProxySelector {
 	// private static final String PAC_PROXY = "PROXY";
 	private static final String PAC_SOCKS = "SOCKS";
 	private static final String PAC_DIRECT = "DIRECT";
+	private static final String PAC_HTTPS = "HTTPS";
 
 	private final static String TAG = "ProxyDroid.PAC";
 
@@ -121,9 +122,15 @@ public class PacProxySelector {
 		if (proxyDef.toUpperCase().startsWith(PAC_SOCKS)) {
 			type = Proxy.TYPE_SOCKS5;
 		}
+		if (proxyDef.toUpperCase().startsWith(PAC_HTTPS)) {
+			type = Proxy.TYPE_HTTPS;
+		}
 
 		String host = proxyDef.substring(6);
 		Integer port = 80;
+		if (type.equals(Proxy.TYPE_HTTPS)) {
+			port = 443;
+		}
 
 		// Split port from host
 		int indexOfPort = host.indexOf(':');

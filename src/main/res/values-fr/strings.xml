@@ -16,7 +16,7 @@
     <string name="port_alert">Le numero de port devrait être plus grand que 1024</string>
     <string name="crash_alert">Vous avez subit un crash. \n\nmerci de signaler votre problème sur la page du projet. \n\n(proxydroid.googlecode.com)</string>
     <string name="require_root_alert">MERCI DE ROOTER VOTRE TELEPHONE AVANT !!!</string>
-    <string name="update_finished">Programs and configurations have been updated</string>
+    <string name="update_finished">Les programmes et configurations ont été mis à jour</string>
 
     <!-- status string -->
     <string name="service_running">Fonctionne en arrière plan</string>
@@ -38,7 +38,7 @@
     <string name="function_cat">Contrôle du Service</string>
     <string name="disconnect">Déconnecter</string>
     <string name="connect">Connecter</string>
-    <string name="service_controller">Interrupteur du Proxy</string>
+    <string name="service_controller">Activation du Proxy</string>
     <string name="service_summary">Activer / Désactiver le Proxy</string>
 
     <!-- settings proxy category -->

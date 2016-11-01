@@ -125,12 +125,12 @@
     <string name="notif_vibrate_summary">Vibrer également quand la connectivité change</string>
 
     <!-- profile switcher -->
-    <string name="profile">Profiles</string>
-    <string name="profile_default">Profile 1</string>
-    <string name="profile_new">Nouveau Profile</string>
-    <string name="profile_base">Profile</string>
+    <string name="profile">Profils</string>
+    <string name="profile_default">Profil 1</string>
+    <string name="profile_new">Nouveau Profil</string>
+    <string name="profile_base">Profil</string>
     <string name="profile_del">Supprimer</string>
-    <string name="profile_del_confirm">Supprimer ce profile ?</string>
+    <string name="profile_del_confirm">Supprimer ce profil ?</string>
 
     <!-- proxy type -->
     <string name="proxy_type">Type de Proxy</string>

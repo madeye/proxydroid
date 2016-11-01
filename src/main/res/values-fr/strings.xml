@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- app string -->
+    <string name="app_name">ProxyDroid</string>
+    <string name="ok_iknow">OK, Je sais</string>
+    <string name="feedback">Commentaire @ofmax</string>
+
+    <!-- alert string -->
+    <string name="port_empty">Le port ne devrait pas être vide</string>
+    <string name="host_empty">L\'hôte ne devrait pas être vide</string>
+    <string name="local_port_empty">Le port local ne devrait pas être vide</string>
+    <string name="remote_port_empty">Le port distant ne devrait pas être vide</string>
+    <string name="number_alert">Merci de contrôler votre numéro de port</string>
+    <string name="user_empty">Le nom d\'utilisateur ne devrait pas être vide</string>
+    <string name="port_alert">Le numero de port devrait être plus grand que 1024</string>
+    <string name="crash_alert">Vous avez subit un crash. \n\nmerci de signaler votre problème sur la page du projet. \n\n(proxydroid.googlecode.com)</string>
+    <string name="require_root_alert">MERCI DE ROOTER VOTRE TELEPHONE AVANT !!!</string>
+    <string name="update_finished">Programs and configurations have been updated</string>
+
+    <!-- status string -->
+    <string name="service_running">Fonctionne en arrière plan</string>
+    <string name="forward_success">Connecté</string>
+    <string name="forward_fail">Connexion échouée</string>
+    <string name="service_stopped">Service ProxyDroid arrêté</string>
+    <string name="auto_reconnected">Reconnexion</string>
+    <string name="reconnect_success">Reconnecté</string>
+    <string name="already_stopped">Le service est déjà arrêté</string>
+    <string name="already_running">Le service est déjà démarré</string>
+    <string name="forward_stop">Déconnecté</string>
+    <string name="service_failed">Merci de vérifier vos informations de réseau et d\'identification</string>
+    <string name="reconnect_fail">Reconnexion impossible, service arrêté</string>
+    <string name="connecting">Connexion en cours</string>
+    <string name="auto_connecting">Connexion en cours...</string>
+    <string name="loading">Chargement de la liste des applications...</string>
+
+    <!-- settings function category -->
+    <string name="function_cat">Contrôle du Service</string>
+    <string name="disconnect">Déconnecter</string>
+    <string name="connect">Connecter</string>
+    <string name="service_controller">Interrupteur du Proxy</string>
+    <string name="service_summary">Activer / Désactiver le Proxy</string>
+
+    <!-- settings proxy category -->
+    <string name="proxy_cat">Réglages Proxy</string>
+    <string name="host">Hôte</string>
+    <string name="host_summary">Le nom de l\'hôte de votre service proxy</string>
+    <string name="host_pac">PAC</string>
+    <string name="host_pac_summary">L\'URL de votre fichier PAC</string>
+    <string name="pac">Réglage Auto</string>
+    <string name="pac_summary">Récupérer les réglages proxy depuis le fichier PAC automatiquement</string>
+    <string name="proxy_summary">URL du Proxy</string>
+    <string name="port">Port</string>
+    <string name="port_summary">Le numéro de port de votre service Proxy</string>
+    <string name="set_bypass">Adresses de Contournement</string>
+    <string name="set_bypass_summary">Définir les adresses de contournement</string>
+
+    <!-- settings account category -->
+    <string name="auth">Activer l\'Authentication</string>
+    <string name="user_cat">Information du compte</string>
+    <string name="user">Utilisateur</string>
+    <string name="user_summary">Identifiant</string>
+    <string name="password">Mot de passe</string>
+    <string name="password_summary">Mot de passe du Proxy</string>
+    <string name="ntlm">Authentication NTLM</string>
+    <string name="ntlm_summary">Activer le support de la méthode d\'authentification 
+		NTLM / NTLM2</string>
+    <string name="certificate">Certificat</string>
+    <string name="certificate_summary">Certificat Client pour l\'authentification HTTPS</string>
+    <string name="domain">Domaine</string>
+    <string name="domain_summary">Nom de domaine pour NTLM</string>
+
+    <!-- settings feature category -->
+    <string name="fearute_cat">Paramètres des Fonctions</string>
+    <string name="auto_connect">Connexion Auto</string>
+    <string name="auto_connect_summary">Démarrer le Proxy quand le réseau défini est disponible</string>
+    <string name="ssid">Réseau lié</string>
+    <string name="ssid_summary">Relier votre réglage proxy à un réseau 2G/3G où au
+		SSID défini</string>
+    <string name="excluded_ssid">Ne jamais relier ces SSID WiFi</string>
+    <string name="excluded_ssid_summary">Ne jamais relier le réglage proxy au SSID défini</string>
+
+    <string-array name="ssid_default_values"></string-array>
+    <string-array name="ssid_default_entries"></string-array>
+    <string-array name="excluded_ssid_default_values"></string-array>
+    <string-array name="excluded_ssid_default_entries"></string-array>
+
+    <string name="auto_set_proxy">Proxy Global</string>
+    <string name="auto_set_proxy_summary">Activer le proxy global (nécessite les droits ROOT
+		et le support IPTABLES)</string>
+    <string name="dns_proxy">Proxy DNS</string>
+    <string name="dns_proxy_summary">Activer le Proxy DNS pour certains utilisateurs LAN. Ne l\'activez
+ 		que si vous savez ce que c\'est</string>
+
+    <!-- settings proxyed apps category -->
+    <string name="proxyed_apps">Proxy Individuel</string>
+    <string name="proxyed_apps_summary">Selectionner les applications à proxyfier où à contourner (nécessite les droits ROOT
+		et
+		le support IPTABLES)</string>
+    <string name="bypass_apps">Mode de Contournement</string>
+    <string name="bypass_apps_summary">Activer cette option pour contourner les applications sélectionnées au lieu de les proxyfier</string>
+    <string name="proxyed_help">Selectionner les applications à utiliser avec ProxyDroid :</string>
+
+    <!-- menu bar category -->
+    <string name="recovery">Réinitialiser</string>
+    <string name="copy_rights">\n\nProxyDroid est un logiciel open source
+		publié sous
+		licence
+		GPLv3. \n\nSi vous avez des questions, merci de visiter
+		notre site
+		du projet sur
+		google code. \n\n(proxydroid.googlecode.com)</string>
+    <string name="about">A propos</string>
+    <string name="about_title">ProxyDroid %s</string>
+    <string name="change_name">Renommer</string>
+    <string name="alert_dialog_ok">OK</string>
+    <string name="alert_dialog_cancel">Annuler</string>
+    <string name="use_system_iptables">Utiliser iptables système</string>
+
+    <!-- settings notification category -->
+    <string name="notif_cat">Réglage de Notification</string>
+    <string name="notif_ringtone_title">Sonnerie</string>
+    <string name="notif_ringtone_summary">Selectionner la sonnerie de notification</string>
+    <string name="notif_vibrate_title">Vibration</string>
+    <string name="notif_vibrate_summary">Vibrer également quand la connectivité change</string>
+
+    <!-- profile switcher -->
+    <string name="profile">Profils</string>
+    <string name="profile_default">Profil 1</string>
+    <string name="profile_new">Nouveau Profil</string>
+    <string name="profile_base">Profil</string>
+    <string name="profile_del">Supprimer</string>
+    <string name="profile_del_confirm">Supprimer ce profil ?</string>
+
+    <!-- proxy type -->
+    <string name="proxy_type">Type de Proxy</string>
+    <string name="proxy_type_summary">Sélectionner votre type de proxy</string>
+
+    <array name="proxy_type_value">
+        <item>http</item>
+        <item>https</item>
+        <item>http-tunnel</item>
+        <!-- <item>spdy</item> -->
+        <item>socks4</item>
+        <item>socks5</item>
+    </array>
+    <array name="proxy_type_entry">
+        <item>HTTP</item>
+        <item>HTTPS</item>
+        <item>HTTP-Tunnel</item>
+        <!-- <item>SPDY</item> -->
+        <item>SOCKS4</item>
+        <item>SOCKS5</item>
+    </array>
+
+    <!-- bypass list activity -->
+    <string name="add_button">Ajouter</string>
+    <string name="preset_button">Preréglages</string>
+    <string name="import_button">Importer</string>
+    <string name="export_button">Exporter</string>
+    <string name="bypass_edit_title">Liste d\'Addresses</string>
+    <string name="bypass_del_title">Confirmer</string>
+    <string name="bypass_del_text">Supprimer cette addresse ?</string>
+    <string name="ok_button">OK</string>
+    <string name="cancel_button">Annuler</string>
+    <string name="err_addr">Nom de domaine inconnu ou format de l\'adresse IP incorrect</string>
+    <string name="reseting">Réinitialisation…</string>
+    <string name="importing">Import en cours…</string>
+    <string name="exporting">Exporté vers :</string>
+
+    <string-array name="presets_list">
+        <item>Vide</item>
+        <item>Localhost</item>
+        <item>Intranet</item>
+        <item>CHN Route</item>
+    </string-array>
+
+    <!-- file chooser -->
+    <string name="file_chooser">Sélectionner votre fichier clé</string>
+    <string name="key_manager">Gestionnaire de fichier Clé</string>
+    <string name="current_dir">Répertoire Actuel</string>
+    <string name="parent_dir">Répertoire Parent</string>
+    <string name="folder">Répertoire</string>
+    <string name="file_size">Taille du Fichier</string>
+    <string name="file_toast">Importer depuis ce fichier : </string>
+    <string name="file_error">Trop de règles : </string>
+
+    <!-- Connection errors -->
+    <string name="msg_pac_error">Fichier PAC Incorrect ou non supporté</string>
+    <string name="msg_resolve_error">Nom d\'hôte du proxy Incorrect ou inconnu</string>
+
+</resources>

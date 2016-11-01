@@ -19,7 +19,7 @@
     <string name="update_finished">Programs and configurations have been updated</string>
 
     <!-- status string -->
-    <string name="service_running">Running in the background</string>
+    <string name="service_running">Fonctionne en arrière plan</string>
     <string name="forward_success">Connecté</string>
     <string name="forward_fail">Connexion échouée</string>
     <string name="service_stopped">Service ProxyDroid arrêté</string>

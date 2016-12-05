@@ -59,7 +59,7 @@
 
         <dependency>
             <groupId>com.google.android.gms</groupId>
-            <artifactId>play-services-ads</artifactId>
+            <artifactId>play-services-ads-lite</artifactId>
             <version>9.2.0</version>
             <type>aar</type>
             <exclusions>

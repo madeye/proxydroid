@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.proxydroid</groupId>
     <artifactId>proxydroid</artifactId>
-    <version>2.7.5</version>
+    <version>2.7.7</version>
     <packaging>apk</packaging>
     <name>ProxyDroid</name>
 
@@ -59,7 +59,7 @@
 
         <dependency>
             <groupId>com.google.android.gms</groupId>
-            <artifactId>play-services-ads-lite</artifactId>
+            <artifactId>play-services-ads</artifactId>
             <version>9.2.0</version>
             <type>aar</type>
             <exclusions>

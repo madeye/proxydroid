@@ -72,6 +72,7 @@ import java.lang.reflect.Method;
 import java.net.*;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.ArrayList;
 
 public class ProxyDroidService extends Service {
 
@@ -320,6 +321,13 @@ public class ProxyDroidService extends Service {
 
       cmd.append(CMD_IPTABLES_RETURN.replace("0.0.0.0", host));
 
+      // Bypass all local nets
+      String[] localNets = getLocalNets();
+      for (String localNet : localNets) {
+        cmd.append(CMD_IPTABLES_RETURN.replace("0.0.0.0", localNet));
+      }
+
+      // Bypass addresses in bypass list
       if (bypassAddrs != null && !bypassAddrs.equals("")) {
         String[] addrs = Profile.decodeAddrs(bypassAddrs);
         for (String addr : addrs)
@@ -598,6 +606,28 @@ public class ProxyDroidService extends Service {
       Log.e(TAG, ex.toString());
     }
     return null;
+  }
+
+  // Return all subnets of local nets
+  // Format: x.x.x.x/yy
+  // Sometimes both WiFi and 4G have live connections and give two local nets
+  private String[] getLocalNets() {
+    List<String> localNets = new ArrayList();
+    try {
+      for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+        NetworkInterface intf = en.nextElement();
+        if (!intf.isLoopback()) {
+          for (InterfaceAddress ia : intf.getInterfaceAddresses()) {
+            InetAddress address = ia.getAddress();
+              if (address.isSiteLocalAddress())
+                localNets.add(address.getHostAddress() + "/" + ia.getNetworkPrefixLength());
+          }
+        }
+      }
+    } catch (SocketException ex) {
+      Log.e(TAG, ex.toString());
+    }
+    return localNets.toArray(new String[0]);
   }
 
   private boolean getAddress() {

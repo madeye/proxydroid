@@ -131,22 +131,22 @@ redsocks {
  esac
 
  $DIR/redsocks -p $DIR/redsocks.pid -c $DIR/redsocks.conf
- iptables -A INPUT -i ap+ -p tcp --dport 8123 -j ACCEPT
- iptables -A INPUT -i ap+ -p tcp --dport 8124 -j ACCEPT
+ iptables -A INPUT -i wlan0 -p tcp --dport 8123 -j ACCEPT
+ iptables -A INPUT -i wlan0 -p tcp --dport 8124 -j ACCEPT
  iptables -A INPUT -i lo -p tcp --dport 8123 -j ACCEPT
  iptables -A INPUT -i lo -p tcp --dport 8124 -j ACCEPT
  iptables -A INPUT -p tcp --dport 8123 -j DROP
  iptables -A INPUT -p tcp --dport 8124 -j DROP
- iptables -t nat -A PREROUTING -i ap+ -p tcp -d 192.168.43.1/24 -j RETURN
- iptables -t nat -A PREROUTING -i ap+ -p tcp -j REDIRECT --to $proxy_port
+ iptables -t nat -A PREROUTING -i wlan0 -p tcp -d 192.168.43.1/24 -j RETURN
+ iptables -t nat -A PREROUTING -i wlan0 -p tcp -j REDIRECT --to $proxy_port
  ;;
 stop)
 
- iptables -t nat -D PREROUTING -i ap+ -p tcp -d 192.168.43.1/24 -j RETURN
- iptables -t nat -D PREROUTING -i ap+ -p tcp -j REDIRECT --to 8123
- iptables -t nat -D PREROUTING -i ap+ -p tcp -j REDIRECT --to 8124
- iptables -D INPUT -i ap+ -p tcp --dport 8123 -j ACCEPT
- iptables -D INPUT -i ap+ -p tcp --dport 8124 -j ACCEPT
+ iptables -t nat -D PREROUTING -i wlan0 -p tcp -d 192.168.43.1/24 -j RETURN
+ iptables -t nat -D PREROUTING -i wlan0 -p tcp -j REDIRECT --to 8123
+ iptables -t nat -D PREROUTING -i wlan0 -p tcp -j REDIRECT --to 8124
+ iptables -D INPUT -i wlan0 -p tcp --dport 8123 -j ACCEPT
+ iptables -D INPUT -i wlan0 -p tcp --dport 8124 -j ACCEPT
  iptables -D INPUT -i lo -p tcp --dport 8123 -j ACCEPT
  iptables -D INPUT -i lo -p tcp --dport 8124 -j ACCEPT
  iptables -D INPUT -p tcp --dport 8123 -j DROP

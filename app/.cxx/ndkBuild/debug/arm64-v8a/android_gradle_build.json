@@ -1,0 +1,34 @@
+{
+  "buildFiles": [
+    "D:\\Workspace\\proxydroid2\\app\\src\\main\\jni\\Android.mk",
+    "D:\\Workspace\\proxydroid2\\app\\src\\main\\jni\\Application.mk"
+  ],
+  "cleanCommands": [
+    "D:\\Android\\ndk\\20.0.5594570\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dD:\\Workspace\\proxydroid2\\app\\src\\main\\jni\\Android.mk NDK_APPLICATION_MK\u003dD:\\Workspace\\proxydroid2\\app\\src\\main\\jni\\Application.mk APP_ABI\u003darm64-v8a NDK_ALL_ABIS\u003darm64-v8a NDK_DEBUG\u003d1 APP_PLATFORM\u003dandroid-16 NDK_OUT\u003dD:/Workspace/proxydroid2/app/build/intermediates/ndkBuild/debug/obj NDK_LIBS_OUT\u003dD:\\Workspace\\proxydroid2\\app\\build\\intermediates\\ndkBuild\\debug\\lib clean"
+  ],
+  "buildTargetsCommand": "D:\\Android\\ndk\\20.0.5594570\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dD:\\Workspace\\proxydroid2\\app\\src\\main\\jni\\Android.mk NDK_APPLICATION_MK\u003dD:\\Workspace\\proxydroid2\\app\\src\\main\\jni\\Application.mk APP_ABI\u003darm64-v8a NDK_ALL_ABIS\u003darm64-v8a NDK_DEBUG\u003d1 APP_PLATFORM\u003dandroid-16 NDK_OUT\u003dD:/Workspace/proxydroid2/app/build/intermediates/ndkBuild/debug/obj NDK_LIBS_OUT\u003dD:\\Workspace\\proxydroid2\\app\\build\\intermediates\\ndkBuild\\debug\\lib {LIST_OF_TARGETS_TO_BUILD}",
+  "libraries": {
+    "exec-debug-arm64-v8a": {
+      "buildCommand": "D:\\Android\\ndk\\20.0.5594570\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dD:\\Workspace\\proxydroid2\\app\\src\\main\\jni\\Android.mk NDK_APPLICATION_MK\u003dD:\\Workspace\\proxydroid2\\app\\src\\main\\jni\\Application.mk APP_ABI\u003darm64-v8a NDK_ALL_ABIS\u003darm64-v8a NDK_DEBUG\u003d1 APP_PLATFORM\u003dandroid-16 NDK_OUT\u003dD:/Workspace/proxydroid2/app/build/intermediates/ndkBuild/debug/obj NDK_LIBS_OUT\u003dD:\\Workspace\\proxydroid2\\app\\build\\intermediates\\ndkBuild\\debug\\lib D:/Workspace/proxydroid2/app/build/intermediates/ndkBuild/debug/obj/local/arm64-v8a/libexec.so",
+      "toolchain": "toolchain-arm64-v8a",
+      "abi": "arm64-v8a",
+      "artifactName": "exec",
+      "files": [
+        {
+          "src": "D:\\Workspace\\proxydroid2\\app\\src\\main\\jni\\termExec.cpp",
+          "flags": "-target aarch64-none-linux-android21 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot D:/Android/ndk/20.0.5594570/build//../toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fno-exceptions -fno-rtti -fpic -O0 -UNDEBUG -fno-limit-debug-info -ID:/Android/ndk/20.0.5594570/build//../sources/cxx-stl/llvm-libc++/include -ID:/Android/ndk/20.0.5594570/build//../sources/cxx-stl/llvm-libc++abi/include -ID:/Workspace/proxydroid2/app/src/main/jni -std\u003dc++11 -DANDROID -nostdinc++ -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
+        }
+      ],
+      "output": "D:\\Workspace\\proxydroid2\\app\\build\\intermediates\\ndkBuild\\debug\\obj\\local\\arm64-v8a\\libexec.so"
+    }
+  },
+  "toolchains": {
+    "toolchain-arm64-v8a": {
+      "cppCompilerExecutable": "D:\\Android\\ndk\\20.0.5594570\\build\\..\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang++.exe"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}

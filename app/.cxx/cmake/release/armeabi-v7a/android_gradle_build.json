@@ -1,0 +1,42 @@
+{
+  "stringTable": {
+    "0": "D:/Workspace/proxydroid2/app/.cxx/cmake/release/armeabi-v7a",
+    "1": "--target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/ndk/20.0.5594570/toolchains/llvm/prebuilt/windows-x86_64 --sysroot=D:/Android/ndk/20.0.5594570/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dexec_EXPORTS -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -fno-addrsig -march=armv7-a -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -Oz -DNDEBUG -fPIC"
+  },
+  "buildFiles": [
+    "D:\\Android\\ndk\\20.0.5594570\\build\\cmake\\platforms.cmake",
+    "D:\\Workspace\\proxydroid2\\app\\src\\main\\cpp\\CMakeLists.txt",
+    "D:\\Android\\ndk\\20.0.5594570\\build\\cmake\\android.toolchain.cmake"
+  ],
+  "cleanCommands": [
+    "D:\\Android\\cmake\\3.10.2.4988404\\bin\\ninja.exe -C \"D:\\Workspace\\proxydroid2\\app\\.cxx\\cmake\\release\\armeabi-v7a\" clean"
+  ],
+  "buildTargetsCommand": "D:\\Android\\cmake\\3.10.2.4988404\\bin\\ninja.exe -C \"D:\\Workspace\\proxydroid2\\app\\.cxx\\cmake\\release\\armeabi-v7a\" {LIST_OF_TARGETS_TO_BUILD}",
+  "libraries": {
+    "exec-Release-armeabi-v7a": {
+      "buildCommand": "D:\\Android\\cmake\\3.10.2.4988404\\bin\\ninja.exe -C \"D:\\Workspace\\proxydroid2\\app\\.cxx\\cmake\\release\\armeabi-v7a\" exec",
+      "buildType": "release",
+      "toolchain": "513234042",
+      "abi": "armeabi-v7a",
+      "artifactName": "exec",
+      "files": [
+        {
+          "src": "D:\\Workspace\\proxydroid2\\app\\src\\main\\cpp\\termExec.cpp",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        }
+      ],
+      "headers": [],
+      "output": "D:\\Workspace\\proxydroid2\\app\\build\\intermediates\\cmake\\release\\obj\\armeabi-v7a\\libexec.so"
+    }
+  },
+  "toolchains": {
+    "513234042": {
+      "cppCompilerExecutable": "D:\\Android\\ndk\\20.0.5594570\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang++.exe"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}

@@ -1,0 +1,5 @@
+# ninja log v5
+0	918	598951617	CMakeFiles/exec.dir/termExec.cpp.o	a554a96dd03f824e
+920	1184	598951617	D:/Workspace/proxydroid2/app/build/intermediates/cmake/debug/obj/x86/libexec.so	628599a2a84ba3bc
+20	421	598951638	CMakeFiles/exec.dir/termExec.cpp.o	a554a96dd03f824e
+421	662	598951639	D:/Workspace/proxydroid2/app/build/intermediates/cmake/debug/obj/x86/libexec.so	628599a2a84ba3bc

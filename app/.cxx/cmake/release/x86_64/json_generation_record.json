@@ -1,0 +1,46 @@
+[
+  {
+    "level": "INFO",
+    "message": "Start JSON generation. Platform version: 16 min SDK version: x86_64"
+  },
+  {
+    "level": "INFO",
+    "message": "rebuilding JSON D:\\Workspace\\proxydroid2\\app\\.cxx\\cmake\\release\\x86_64\\android_gradle_build.json due to:"
+  },
+  {
+    "level": "INFO",
+    "message": "- expected json D:\\Workspace\\proxydroid2\\app\\.cxx\\cmake\\release\\x86_64\\android_gradle_build.json file is not present, will remove stale json folder"
+  },
+  {
+    "level": "INFO",
+    "message": "- missing previous command file D:\\Workspace\\proxydroid2\\app\\.cxx\\cmake\\release\\x86_64\\build_command.txt, will remove stale json folder"
+  },
+  {
+    "level": "INFO",
+    "message": "- command changed from previous, will remove stale json folder"
+  },
+  {
+    "level": "INFO",
+    "message": "created folder \u0027D:\\Workspace\\proxydroid2\\app\\.cxx\\cmake\\release\\x86_64\u0027"
+  },
+  {
+    "level": "INFO",
+    "message": "executing cmake Executable : D:\\Android\\cmake\\3.10.2.4988404\\bin\\cmake.exe\narguments : \n-HD:\\Workspace\\proxydroid2\\app\\src\\main\\cpp\n-BD:\\Workspace\\proxydroid2\\app\\.cxx\\cmake\\release\\x86_64\n-DANDROID_ABI\u003dx86_64\n-DANDROID_PLATFORM\u003dandroid-16\n-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003dD:\\Workspace\\proxydroid2\\app\\build\\intermediates\\cmake\\release\\obj\\x86_64\n-DCMAKE_BUILD_TYPE\u003dRelease\n-DANDROID_NDK\u003dD:\\Android\\ndk\\20.0.5594570\n-DCMAKE_SYSTEM_NAME\u003dAndroid\n-DCMAKE_ANDROID_ARCH_ABI\u003dx86_64\n-DCMAKE_SYSTEM_VERSION\u003d16\n-DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON\n-DCMAKE_ANDROID_NDK\u003dD:\\Android\\ndk\\20.0.5594570\n-DCMAKE_TOOLCHAIN_FILE\u003dD:\\Android\\ndk\\20.0.5594570\\build\\cmake\\android.toolchain.cmake\n-G Ninja\n-DCMAKE_MAKE_PROGRAM\u003dD:\\Android\\cmake\\3.10.2.4988404\\bin\\ninja.exe\njvmArgs : \n\n"
+  },
+  {
+    "level": "INFO",
+    "message": "done executing cmake"
+  },
+  {
+    "level": "INFO",
+    "message": "write build output D:\\Workspace\\proxydroid2\\app\\.cxx\\cmake\\release\\x86_64\\build_output.txt"
+  },
+  {
+    "level": "INFO",
+    "message": "write command file D:\\Workspace\\proxydroid2\\app\\.cxx\\cmake\\release\\x86_64\\build_command.txt"
+  },
+  {
+    "level": "INFO",
+    "message": "JSON generation completed without problems"
+  }
+]

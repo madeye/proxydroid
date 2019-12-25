@@ -1,0 +1,60 @@
+{
+  "variant": {
+    "module": {
+      "rootBuildGradleFolder": "D:\\Workspace\\proxydroid2",
+      "sdkFolder": "D:\\Android",
+      "isNativeCompilerSettingsCacheEnabled": false,
+      "isBuildOnlyTargetAbiEnabled": true,
+      "splitsAbiFilterSet": [],
+      "intermediatesFolder": "D:\\Workspace\\proxydroid2\\app\\build\\intermediates",
+      "gradleModulePathName": ":app",
+      "moduleRootFolder": "D:\\Workspace\\proxydroid2\\app",
+      "makeFile": "D:\\Workspace\\proxydroid2\\app\\src\\main\\jni\\Android.mk",
+      "buildSystem": "NDK_BUILD",
+      "compilerSettingsCacheFolder": "D:\\Workspace\\proxydroid2\\.cxx",
+      "cxxFolder": "D:\\Workspace\\proxydroid2\\app\\.cxx",
+      "ndkFolder": "D:\\Android\\ndk\\20.0.5594570",
+      "ndkVersion": "20.0.5594570",
+      "ndkSupportedAbiList": [
+        "ARMEABI_V7A",
+        "ARM64_V8A",
+        "X86",
+        "X86_64"
+      ],
+      "ndkDefaultAbiList": [
+        "ARMEABI_V7A",
+        "ARM64_V8A",
+        "X86",
+        "X86_64"
+      ],
+      "cmakeToolchainFile": "."
+    },
+    "buildSystemArgumentList": [],
+    "cFlagList": [],
+    "cppFlagsList": [],
+    "variantName": "debug",
+    "soFolder": "D:\\Workspace\\proxydroid2\\app\\build\\intermediates\\ndkBuild\\debug\\lib",
+    "objFolder": "D:\\Workspace\\proxydroid2\\app\\build\\intermediates\\ndkBuild\\debug\\obj\\local",
+    "jsonFolder": "D:\\Workspace\\proxydroid2\\app\\.cxx\\ndkBuild\\debug",
+    "gradleBuildOutputFolder": "D:\\Workspace\\proxydroid2\\app\\.cxx\\cxx\\debug",
+    "isDebuggableEnabled": true,
+    "validAbiList": [
+      "ARMEABI_V7A",
+      "ARM64_V8A",
+      "X86",
+      "X86_64"
+    ],
+    "buildTargetSet": []
+  },
+  "abi": "ARMEABI_V7A",
+  "abiPlatformVersion": 16,
+  "cxxBuildFolder": "D:\\Workspace\\proxydroid2\\app\\.cxx\\ndkBuild\\debug\\armeabi-v7a",
+  "jsonFile": "D:\\Workspace\\proxydroid2\\app\\.cxx\\ndkBuild\\debug\\armeabi-v7a\\android_gradle_build.json",
+  "gradleBuildOutputFolder": "D:\\Workspace\\proxydroid2\\app\\.cxx\\cxx\\debug\\armeabi-v7a",
+  "objFolder": "D:\\Workspace\\proxydroid2\\app\\build\\intermediates\\ndkBuild\\debug\\obj\\local\\armeabi-v7a",
+  "buildCommandFile": "D:\\Workspace\\proxydroid2\\app\\.cxx\\ndkBuild\\debug\\armeabi-v7a\\build_command.txt",
+  "buildOutputFile": "D:\\Workspace\\proxydroid2\\app\\.cxx\\ndkBuild\\debug\\armeabi-v7a\\build_output.txt",
+  "modelOutputFile": "D:\\Workspace\\proxydroid2\\app\\.cxx\\ndkBuild\\debug\\armeabi-v7a\\build_model.json",
+  "jsonGenerationLoggingRecordFile": "D:\\Workspace\\proxydroid2\\app\\.cxx\\ndkBuild\\debug\\armeabi-v7a\\json_generation_record.json",
+  "compileCommandsJsonFile": "D:\\Workspace\\proxydroid2\\app\\.cxx\\ndkBuild\\debug\\armeabi-v7a\\compile_commands.json"
+}

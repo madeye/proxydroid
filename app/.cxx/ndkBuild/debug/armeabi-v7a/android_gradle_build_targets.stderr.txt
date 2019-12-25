@@ -1,0 +1,6 @@
+In file included from D:/Workspace/proxydroid2/app/src/main/jni/openssl/crypto/cryptlib.c:117:
+D:/Workspace/proxydroid2/app/src/main/jni/openssl/crypto/cryptlib.h:65:10: fatal error: 'e_os.h' file not found
+#include "e_os.h"
+         ^~~~~~~~
+1 error generated.
+make: *** [D:/Workspace/proxydroid2/app/build/intermediates/ndkBuild/debug/obj/local/armeabi-v7a/objs-debug/crypto/cryptlib.o] Error 1

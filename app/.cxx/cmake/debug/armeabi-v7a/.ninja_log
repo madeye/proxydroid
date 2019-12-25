@@ -1,0 +1,8 @@
+# ninja log v5
+1	537	598951437	CMakeFiles/exec.dir/termExec.cpp.o	e2c92b6693d90de0
+540	892	598951437	D:/Workspace/proxydroid2/app/build/intermediates/cmake/debug/obj/armeabi-v7a/libexec.so	c5e93e169747fa32
+2	246	598951485	D:/Workspace/proxydroid2/app/build/intermediates/cmake/debug/obj/armeabi-v7a/libexec.so	73eae5a73f7c3934
+3	416	598951614	CMakeFiles/exec.dir/termExec.cpp.o	e2c92b6693d90de0
+416	696	598951614	D:/Workspace/proxydroid2/app/build/intermediates/cmake/debug/obj/armeabi-v7a/libexec.so	73eae5a73f7c3934
+2	395	598951636	CMakeFiles/exec.dir/termExec.cpp.o	e2c92b6693d90de0
+395	618	598951637	D:/Workspace/proxydroid2/app/build/intermediates/cmake/debug/obj/armeabi-v7a/libexec.so	73eae5a73f7c3934

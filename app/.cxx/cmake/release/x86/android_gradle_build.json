@@ -1,0 +1,42 @@
+{
+  "stringTable": {
+    "0": "D:/Workspace/proxydroid2/app/.cxx/cmake/release/x86",
+    "1": "--target=i686-none-linux-android16 --gcc-toolchain=D:/Android/ndk/20.0.5594570/toolchains/llvm/prebuilt/windows-x86_64 --sysroot=D:/Android/ndk/20.0.5594570/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dexec_EXPORTS -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -fno-addrsig -Wa,--noexecstack -Wformat -Werror=format-security -O2 -DNDEBUG -fPIC"
+  },
+  "buildFiles": [
+    "D:\\Android\\ndk\\20.0.5594570\\build\\cmake\\platforms.cmake",
+    "D:\\Workspace\\proxydroid2\\app\\src\\main\\cpp\\CMakeLists.txt",
+    "D:\\Android\\ndk\\20.0.5594570\\build\\cmake\\android.toolchain.cmake"
+  ],
+  "cleanCommands": [
+    "D:\\Android\\cmake\\3.10.2.4988404\\bin\\ninja.exe -C \"D:\\Workspace\\proxydroid2\\app\\.cxx\\cmake\\release\\x86\" clean"
+  ],
+  "buildTargetsCommand": "D:\\Android\\cmake\\3.10.2.4988404\\bin\\ninja.exe -C \"D:\\Workspace\\proxydroid2\\app\\.cxx\\cmake\\release\\x86\" {LIST_OF_TARGETS_TO_BUILD}",
+  "libraries": {
+    "exec-Release-x86": {
+      "buildCommand": "D:\\Android\\cmake\\3.10.2.4988404\\bin\\ninja.exe -C \"D:\\Workspace\\proxydroid2\\app\\.cxx\\cmake\\release\\x86\" exec",
+      "buildType": "release",
+      "toolchain": "513234042",
+      "abi": "x86",
+      "artifactName": "exec",
+      "files": [
+        {
+          "src": "D:\\Workspace\\proxydroid2\\app\\src\\main\\cpp\\termExec.cpp",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        }
+      ],
+      "headers": [],
+      "output": "D:\\Workspace\\proxydroid2\\app\\build\\intermediates\\cmake\\release\\obj\\x86\\libexec.so"
+    }
+  },
+  "toolchains": {
+    "513234042": {
+      "cppCompilerExecutable": "D:\\Android\\ndk\\20.0.5594570\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang++.exe"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}

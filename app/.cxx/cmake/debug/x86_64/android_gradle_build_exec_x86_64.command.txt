@@ -1,0 +1,7 @@
+Executable : D:\Android\cmake\3.10.2.4988404\bin\ninja.exe
+arguments : 
+-C
+D:\Workspace\proxydroid2\app\.cxx\cmake\debug\x86_64
+exec
+jvmArgs : 
+

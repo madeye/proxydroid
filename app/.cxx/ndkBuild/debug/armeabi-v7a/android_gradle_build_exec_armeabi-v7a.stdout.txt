@@ -1,0 +1,2 @@
+[armeabi-v7a] Compile++ thumb: exec <= termExec.cpp
+[armeabi-v7a] SharedLibrary  : libexec.so

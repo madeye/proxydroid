@@ -1,0 +1,3 @@
+D:/Workspace/proxydroid2/app/.cxx/cmake/release/x86_64/CMakeFiles/exec.dir
+D:/Workspace/proxydroid2/app/.cxx/cmake/release/x86_64/CMakeFiles/edit_cache.dir
+D:/Workspace/proxydroid2/app/.cxx/cmake/release/x86_64/CMakeFiles/rebuild_cache.dir

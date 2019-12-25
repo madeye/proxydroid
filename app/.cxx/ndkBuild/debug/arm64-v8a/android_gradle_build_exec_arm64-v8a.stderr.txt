@@ -1,0 +1,14 @@
+D:/Workspace/proxydroid2/app/src/main/jni/termExec.cpp:118:39: error: use of undeclared identifier 'strerror'
+        LOGE("- fork failed: %s -\n", strerror(errno));
+                                      ^
+D:/Workspace/proxydroid2/app/src/main/jni/termExec.cpp:158:33: error: use of undeclared identifier 'strlen'
+        write(pfds[1], scripts, strlen(scripts)+1);
+                                ^
+D:/Workspace/proxydroid2/app/src/main/jni/termExec.cpp:205:23: error: use of undeclared identifier 'strdup'
+            argv[i] = strdup(tmp_8.string());
+                      ^
+D:/Workspace/proxydroid2/app/src/main/jni/termExec.cpp:227:23: error: use of undeclared identifier 'strdup'
+            envp[i] = strdup(tmp_8.string());
+                      ^
+4 errors generated.
+make: *** [D:/Workspace/proxydroid2/app/build/intermediates/ndkBuild/debug/obj/local/arm64-v8a/objs-debug/exec/termExec.o] Error 1

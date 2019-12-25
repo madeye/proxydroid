@@ -3,6 +3,7 @@ gen/
 local.properties
 *.iml
 .idea
+.cxx
 target/
 obj/
 libs/armeabi/redsocks

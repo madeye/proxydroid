@@ -1,4 +1,0 @@
-Android NDK: WARNING:D:/Workspace/proxydroid2/app/src/main/jni/openssl/crypto/Android.mk:crypto: LOCAL_LDLIBS is always ignored for static libraries    
-make: Nothing to be done for `exec'.
-make: Nothing to be done for `redsocks'.
-[armeabi-v7a] Compile thumb  : crypto <= cryptlib.c

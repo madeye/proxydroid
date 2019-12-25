@@ -1,2 +1,0 @@
-ninja: Entering directory `D:\Workspace\proxydroid2\app\.cxx\cmake\debug\armeabi-v7a'
-ninja: no work to do.

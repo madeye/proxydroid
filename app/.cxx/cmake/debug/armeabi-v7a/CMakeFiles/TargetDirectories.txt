@@ -1,3 +1,0 @@
-D:/Workspace/proxydroid2/app/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/exec.dir
-D:/Workspace/proxydroid2/app/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/edit_cache.dir
-D:/Workspace/proxydroid2/app/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/rebuild_cache.dir

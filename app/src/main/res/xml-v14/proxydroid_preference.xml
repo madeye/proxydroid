@@ -129,11 +129,6 @@
         android:title="@string/bypass_apps">
     </CheckBoxPreference>
 
-    <CheckBoxPreference
-        android:key="isDNSProxy"
-        android:summary="@string/dns_proxy_summary"
-        android:title="@string/dns_proxy">
-    </CheckBoxPreference>
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/notif_cat">
     <RingtonePreference

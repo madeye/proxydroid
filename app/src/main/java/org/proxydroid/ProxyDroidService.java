@@ -357,25 +357,7 @@ public class ProxyDroidService extends Service {
         builder.setPriority(NotificationCompat.PRIORITY_LOW);
         builder.setOngoing(true);
 
-        notificationManager.notify(1, builder.build());
-    }
-
-    private void notifyAlert(String title, String info, int flags) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "Service");
-
-        initSoundVibrateLights(builder);
-
-        builder.setAutoCancel(false);
-        builder.setTicker(title);
-        builder.setContentTitle(getString(R.string.app_name) + " | "
-                + getProfileName());
-        builder.setContentText(info);
-        builder.setSmallIcon(R.drawable.ic_stat_proxydroid);
-        builder.setContentIntent(pendIntent);
-        builder.setPriority(NotificationCompat.PRIORITY_LOW);
-        builder.build();
-
-        notificationManager.notify(0, builder.build());
+        startForeground(1, builder.build());
     }
 
     @Override
@@ -404,6 +386,7 @@ public class ProxyDroidService extends Service {
         Utils.setConnecting(true);
 
         notificationManager.cancelAll();
+        stopForeground(true);
 
         // Make sure the connection is closed, important here
         onDisconnect();

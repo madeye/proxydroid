@@ -335,6 +335,7 @@ public class ProxyDroid extends PreferenceActivity
             layout.addView(adView, 0);
             adView.loadAd(new AdRequest.Builder()
                     .addTestDevice("F58907F28184A828DD0DB6F8E38189C6")
+                    .addTestDevice("236666026C17FEFB1B547C4A3B2322CD")
                     .build());
         }
 

@@ -182,7 +182,11 @@ public class ProxyDroidService extends Service {
         try {
             if ("https".equals(proxyType)) {
                 String src = "-L=http://127.0.0.1:8126";
-                String dst = "-F=https://" + user + ":" + password + "@" + hostName + ":" + port;
+                String auth = "";
+                if (!user.isEmpty() && !password.isEmpty()) {
+                    auth = user + ":" + password + "@";
+                }
+                String dst = "-F=https://"  + auth + hostName + ":" + port +"?ip=" + host;
 
                 // Start gost here
                 Utils.runRootCommand(basePath + "gost.sh "  + basePath + " " + src + " " + dst);

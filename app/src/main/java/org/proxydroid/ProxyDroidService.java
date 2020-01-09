@@ -181,28 +181,16 @@ public class ProxyDroidService extends Service {
 
         try {
             if ("https".equals(proxyType)) {
+                String src = "-L=http://127.0.0.1:8126";
+                String dst = "-F=https://" + user + ":" + password + "@" + hostName + ":" + port;
 
-                // Configure file for Stunnel
-                FileOutputStream fs = new FileOutputStream(basePath + "Caddyfile");
-                String conf = "127.0.0.1:8126\n"
-                        + "forwardproxy {\n"
-                        + "hide_ip\n"
-                        + "hide_via\n"
-                        + "upstream " + "https://" + user + ":" + password + "@" + hostName + ":" + port + "\n"
-                        + "}\n";
-
-                fs.write(conf.getBytes());
-                fs.flush();
-                fs.close();
-
-                // Start caddy here
-                Utils.runRootCommand(basePath + "caddy.sh");
+                // Start gost here
+                Utils.runRootCommand(basePath + "gost.sh "  + basePath + " " + src + " " + dst);
 
                 // Reset host / port
                 proxyHost = "127.0.0.1";
                 proxyPort = 8126;
                 proxyType = "http";
-
             }
 
             if (proxyType.equals("http") && isAuth && isNTLM) {
@@ -290,9 +278,9 @@ public class ProxyDroidService extends Service {
         Utils.runRootCommand(
                 "chmod 700 " + filePath + "/redsocks\n"
                         + "chmod 700 " + filePath + "/proxy.sh\n"
-                        + "chmod 700 " + filePath + "/caddy.sh\n"
+                        + "chmod 700 " + filePath + "/gost.sh\n"
                         + "chmod 700 " + filePath + "/cntlm\n"
-                        + "chmod 700 " + filePath + "/caddy\n");
+                        + "chmod 700 " + filePath + "/gost\n");
 
         enableProxy();
 
@@ -419,7 +407,7 @@ public class ProxyDroidService extends Service {
         sb.append(Utils.getIptables()).append(" -t nat -F OUTPUT\n");
 
         if ("https".equals(proxyType)) {
-            sb.append("kill -9 `cat " + basePath + "caddy.pid`\n");
+            sb.append("kill -9 `cat " + basePath + "gost.pid`\n");
         }
 
         if (isAuth && isNTLM) {

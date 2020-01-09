@@ -1145,9 +1145,9 @@ public class ProxyDroid extends PreferenceActivity
         Utils.runRootCommand(
                 "chmod 700 " + filePath + "/redsocks\n"
                 + "chmod 700 " + filePath + "/proxy.sh\n"
-                + "chmod 700 " + filePath + "/caddy.sh\n"
+                + "chmod 700 " + filePath + "/gost.sh\n"
                 + "chmod 700 " + filePath + "/cntlm\n"
-                + "chmod 700 " + filePath + "/caddy\n");
+                + "chmod 700 " + filePath + "/gost\n");
     }
 
     @Override

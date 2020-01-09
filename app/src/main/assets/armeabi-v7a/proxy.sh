@@ -153,7 +153,7 @@ stop)
 
   killall -9 redsocks
   killall -9 cntlm
-  killall -9 caddy
+  killall -9 gost
 
   kill -9 `cat $DIR/redsocks.pid`
 

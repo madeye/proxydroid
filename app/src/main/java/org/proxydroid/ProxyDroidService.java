@@ -83,7 +83,6 @@ public class ProxyDroidService extends Service {
     private NotificationManager notificationManager;
     private PendingIntent pendIntent;
 
-    public static final String BASE = "/data/data/org.proxydroid/";
     private static final int MSG_CONNECT_START = 0;
     private static final int MSG_CONNECT_FINISH = 1;
     private static final int MSG_CONNECT_SUCCESS = 2;
@@ -122,15 +121,12 @@ public class ProxyDroidService extends Service {
     private String password;
     private String domain;
     private String proxyType = "http";
-    private String certificate;
     private String auth = "false";
     private boolean isAuth = false;
     private boolean isNTLM = false;
     private boolean isPAC = false;
 
-    private int dnsPort = 0;
-
-    Process NTLMProcess;
+    public String basePath = "/data/data/org.proxydroid/";
 
     private SharedPreferences settings = null;
 
@@ -138,7 +134,7 @@ public class ProxyDroidService extends Service {
     private boolean isAutoSetProxy = false;
     private boolean isBypassApps = false;
 
-    private ProxyedApp apps[];
+    private ProxyedApp[] apps;
 
     /*
      * This is a hack see
@@ -181,36 +177,23 @@ public class ProxyDroidService extends Service {
         int proxyPort = port;
 
         try {
+            if ("https".equals(proxyType)) {
 
-            if ("https".equals(proxyType) || "spdy".equals(proxyType)) {
+                // Configure file for Stunnel
+                FileOutputStream fs = new FileOutputStream(basePath + "Caddyfile");
+                String conf = "127.0.0.1:8126\n"
+                        + "forwardproxy {\n"
+                        + "hide_ip\n"
+                        + "hide_via\n"
+                        + "upstream " + user + ":" + password + "@" + domain + ":" + port + "\n"
+                        + "}\n";
 
-                if ("https".equals(proxyType)) {
-                    // Configure file for Stunnel
-                    FileOutputStream fs = new FileOutputStream(BASE + "stunnel.conf");
-                    String conf = "debug = 0\n" + "client = yes\n" + "pid = " + BASE + "stunnel.pid\n"
-                            + "[https]\n" + "sslVersion = all\n" + "accept = 127.0.0.1:8126\n"
-                            + "connect = " + host + ":" + port + "\n";
-                    if (null != certificate && 0 != certificate.length())
-                        conf = conf + "cert = " + BASE + "client.pem\n";
-                    fs.write(conf.getBytes());
-                    fs.flush();
-                    fs.close();
+                fs.write(conf.getBytes());
+                fs.flush();
+                fs.close();
 
-                    // Certificate file for Stunnel
-                    if (null != certificate && 0 != certificate.length()) {
-                        fs = new FileOutputStream(BASE + "client.pem");
-                        fs.write(certificate.getBytes());
-                        fs.flush();
-                        fs.close();
-                        Utils.runCommand("chmod 0600 " + BASE + "client.pem");
-                    }
-
-                    // Start stunnel here
-                    Utils.runRootCommand(BASE + "stunnel " + BASE + "stunnel.conf");
-                } else if ("spdy".equals(proxyType)) {
-                    Utils.runRootCommand(BASE + "shrpx -D -k -p -f 127.0.0.1,8126 -b " + host + "," + port
-                            + " --pid-file=" + BASE + "shrpx.pid");
-                }
+                // Start caddy here
+                Utils.runRootCommand(basePath + "caddy.sh");
 
                 // Reset host / port
                 proxyHost = "127.0.0.1";
@@ -220,15 +203,15 @@ public class ProxyDroidService extends Service {
             }
 
             if (proxyType.equals("http") && isAuth && isNTLM) {
-                Utils.runRootCommand(BASE + "proxy.sh start http 127.0.0.1 8025 false\n" + BASE
-                        + "cntlm -P " + BASE + "cntlm.pid -l 8025 -u " + user
+                Utils.runRootCommand(basePath + "proxy.sh " + basePath + " start http 127.0.0.1 8025 false\n"
+                        + basePath + "cntlm -P " + basePath + "cntlm.pid -l 8025 -u " + user
                         + (!domain.equals("") ? "@" + domain : "@local") + " -p " + password + " "
                         + proxyHost + ":" + proxyPort + "\n");
             } else {
                 final String u = Utils.preserve(user);
                 final String p = Utils.preserve(password);
 
-                Utils.runRootCommand(BASE + "proxy.sh start" + " " + proxyType + " " + proxyHost
+                Utils.runRootCommand(basePath + "proxy.sh " + basePath + " start" + " " + proxyType + " " + proxyHost
                         + " " + proxyPort + " " + auth + " \"" + u + "\" \"" + p + "\"");
             }
 
@@ -299,12 +282,14 @@ public class ProxyDroidService extends Service {
      */
     public boolean handleCommand() {
 
-        Utils.runRootCommand("chmod 700 /data/data/org.proxydroid/iptables\n"
-                + "chmod 700 /data/data/org.proxydroid/redsocks\n"
-                + "chmod 700 /data/data/org.proxydroid/proxy.sh\n"
-                + "chmod 700 /data/data/org.proxydroid/cntlm\n"
-                + "chmod 700 /data/data/org.proxydroid/stunnel\n"
-                + "chmod 700 /data/data/org.proxydroid/shrpx\n");
+        String filePath = getFilesDir().getAbsolutePath();
+
+        Utils.runRootCommand(
+                "chmod 700 " + filePath + "/redsocks\n"
+                        + "chmod 700 " + filePath + "/proxy.sh\n"
+                        + "chmod 700 " + filePath + "/caddy.sh\n"
+                        + "chmod 700 " + filePath + "/cntlm\n"
+                        + "chmod 700 " + filePath + "/caddy\n");
 
         enableProxy();
 
@@ -368,6 +353,9 @@ public class ProxyDroidService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        basePath = getFilesDir().getAbsolutePath() + "/";
+
         settings = PreferenceManager.getDefaultSharedPreferences(this);
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         createNotificationChannel();
@@ -428,14 +416,14 @@ public class ProxyDroidService extends Service {
         sb.append(Utils.getIptables()).append(" -t nat -F OUTPUT\n");
 
         if ("https".equals(proxyType)) {
-            sb.append("kill -9 `cat /data/data/org.proxydroid/stunnel.pid`\n");
+            sb.append("kill -9 `cat " + basePath + "caddy.pid`\n");
         }
 
         if (isAuth && isNTLM) {
-            sb.append("kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n");
+            sb.append("kill -9 `cat " + basePath + "cntlm.pid`\n");
         }
 
-        sb.append(BASE + "proxy.sh stop\n");
+        sb.append(basePath + "proxy.sh " + basePath + " stop\n");
 
         new Thread() {
             @Override
@@ -593,9 +581,6 @@ public class ProxyDroidService extends Service {
             domain = bundle.getString("domain");
         else
             domain = "";
-
-        if ("https".equals(proxyType))
-            certificate = bundle.getString("certificate");
 
         new Thread(new Runnable() {
             @Override

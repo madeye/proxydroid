@@ -194,10 +194,7 @@ public class ProxyDroid extends PreferenceActivity
         AssetManager assetManager = getAssets();
         String[] files = null;
         try {
-            if (Build.VERSION.SDK_INT >= 21)
-                files = assetManager.list("api-16");
-            else
-                files = assetManager.list("");
+            files = assetManager.list("");
         } catch (IOException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -206,12 +203,8 @@ public class ProxyDroid extends PreferenceActivity
                 InputStream in = null;
                 OutputStream out = null;
                 try {
-
-                    if (Build.VERSION.SDK_INT >= 21)
-                        in = assetManager.open("api-16/" + file);
-                    else
-                        in = assetManager.open(file);
-                    out = new FileOutputStream("/data/data/org.proxydroid/" + file);
+                    in = assetManager.open(file);
+                    out = new FileOutputStream(getFilesDir().getAbsolutePath() + "/" + file);
                     copyFile(in, out);
                     in.close();
                     in = null;
@@ -966,14 +959,9 @@ public class ProxyDroid extends PreferenceActivity
         }
     }
 
-    // 点击Menu时，系统调用当前Activity的onCreateOptionsMenu方法，并传一个实现了一个Menu接口的menu对象供你使用
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        /*
-         * add()方法的四个参数，依次是： 1、组别，如果不分组的话就写Menu.NONE,
-         * 2、Id，这个很重要，Android根据这个Id来确定不同的菜单 3、顺序，那个菜单现在在前面由这个参数的大小决定
-         * 4、文本，菜单的显示文本
-         */
+
         menu.add(Menu.NONE, Menu.FIRST + 1, 4, getString(R.string.recovery))
                 .setIcon(android.R.drawable.ic_menu_close_clear_cancel)
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
@@ -986,15 +974,10 @@ public class ProxyDroid extends PreferenceActivity
         menu.add(Menu.NONE, Menu.FIRST + 4, 1, getString(R.string.change_name))
                 .setIcon(android.R.drawable.ic_menu_edit)
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-        menu.add(Menu.NONE, Menu.FIRST + 5, 3, getString(R.string.use_system_iptables))
-                .setIcon(android.R.drawable.ic_menu_revert)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
 
-        // return true才会起作用
         return super.onCreateOptionsMenu(menu);
     }
 
-    // 菜单项被选择事件
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -1033,24 +1016,6 @@ public class ProxyDroid extends PreferenceActivity
                 return true;
             case Menu.FIRST + 4:
                 rename();
-                return true;
-            case Menu.FIRST + 5:
-                // Use system's instead
-                File inFile = new File("/system/bin/iptables");
-                if (inFile.exists()) {
-                    try {
-                        InputStream in = new FileInputStream(inFile);
-                        OutputStream out = new FileOutputStream("/data/data/org.proxydroid/iptables");
-                        copyFile(in, out);
-                        in.close();
-                        in = null;
-                        out.flush();
-                        out.close();
-                        out = null;
-                    } catch (Exception e) {
-                        // Ignore
-                    }
-                }
                 return true;
         }
 
@@ -1159,25 +1124,25 @@ public class ProxyDroid extends PreferenceActivity
 
         CopyAssets();
 
+        String filePath = getFilesDir().getAbsolutePath();
+
         Utils.runRootCommand(Utils.getIptables()
                 + " -t nat -F OUTPUT\n"
-                + ProxyDroidService.BASE
-                + "proxy.sh stop\n"
-                + "kill -9 `cat /data/data/org.proxydroid/stunnel.pid`\n"
-                + "kill -9 `cat /data/data/org.proxydroid/shrpx.pid`\n"
-                + "kill -9 `cat /data/data/org.proxydroid/cntlm.pid`\n");
+                + getFilesDir().getAbsolutePath()
+                + "/proxy.sh stop\n"
+                + "kill -9 `cat " + filePath + "cntlm.pid`\n");
 
-        Utils.runRootCommand("chmod 700 /data/data/org.proxydroid/iptables\n"
-                + "chmod 700 /data/data/org.proxydroid/redsocks\n"
-                + "chmod 700 /data/data/org.proxydroid/proxy.sh\n"
-                + "chmod 700 /data/data/org.proxydroid/cntlm\n"
-                + "chmod 700 /data/data/org.proxydroid/stunnel\n"
-                + "chmod 700 /data/data/org.proxydroid/shrpx\n");
+        Utils.runRootCommand(
+                "chmod 700 " + filePath + "/redsocks\n"
+                + "chmod 700 " + filePath + "/proxy.sh\n"
+                + "chmod 700 " + filePath + "/caddy.sh\n"
+                + "chmod 700 " + filePath + "/cntlm\n"
+                + "chmod 700 " + filePath + "/caddy\n");
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) { // 按下的如果是BACK，同时没有重复
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
             try {
                 finish();
             } catch (Exception ignore) {

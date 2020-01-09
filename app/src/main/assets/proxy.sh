@@ -1,18 +1,17 @@
 #!/system/bin/sh
 
-ulimit -HSn 4096
-
-DIR=/data/data/org.proxydroid
-type=$2
-host=$3
-port=$4
-auth=$5
-user=$6
-pass=$7
+DIR=$1
+action=$2
+type=$3
+host=$4
+port=$5
+auth=$6
+user=$7
+pass=$8
 
 PATH=$DIR:$PATH
 
-case $1 in
+case $action in
  start)
 
 echo "
@@ -154,8 +153,7 @@ stop)
 
   killall -9 redsocks
   killall -9 cntlm
-  killall -9 stunnel
-  killall -9 tproxy
+  killall -9 caddy
 
   kill -9 `cat $DIR/redsocks.pid`
 

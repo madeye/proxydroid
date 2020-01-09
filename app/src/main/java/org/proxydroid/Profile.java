@@ -17,17 +17,17 @@
  */
 package org.proxydroid;
 
-import java.io.Serializable;
-import java.net.InetAddress;
-import java.util.Vector;
-import java.util.regex.Pattern;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.util.Vector;
+import java.util.regex.Pattern;
 
 /**
  * @author KsMaze

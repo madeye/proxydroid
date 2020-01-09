@@ -87,17 +87,15 @@ import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.ksmaze.android.preference.ListPreferenceMultiSelect;
 
-import java.io.File;
-import java.io.FileInputStream;
+import org.proxydroid.utils.Constraints;
+import org.proxydroid.utils.Utils;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 import java.util.Arrays;
-
-import org.proxydroid.utils.Constraints;
-import org.proxydroid.utils.Utils;
+import java.util.List;
 
 public class ProxyDroid extends PreferenceActivity
         implements OnSharedPreferenceChangeListener {
@@ -193,8 +191,17 @@ public class ProxyDroid extends PreferenceActivity
     private void CopyAssets() {
         AssetManager assetManager = getAssets();
         String[] files = null;
+        String abi = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            abi = Build.SUPPORTED_ABIS[0];
+        } else {
+            abi = Build.CPU_ABI;
+        }
         try {
-            files = assetManager.list("");
+            if (abi.matches("armeabi-v7a|arm64-v8a"))
+                files = assetManager.list("armeabi-v7a");
+            else
+                files = assetManager.list("x86");
         } catch (IOException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -203,7 +210,10 @@ public class ProxyDroid extends PreferenceActivity
                 InputStream in = null;
                 OutputStream out = null;
                 try {
-                    in = assetManager.open(file);
+                    if (abi.matches("armeabi-v7a|arm64-v8a"))
+                        in = assetManager.open("armeabi-v7a/" + file);
+                    else
+                        in = assetManager.open("x86/" + file);
                     out = new FileOutputStream(getFilesDir().getAbsolutePath() + "/" + file);
                     copyFile(in, out);
                     in.close();

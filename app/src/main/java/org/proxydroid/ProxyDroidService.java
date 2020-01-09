@@ -38,7 +38,6 @@
 
 package org.proxydroid;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -72,9 +71,12 @@ import org.proxydroid.utils.Utils;
 
 import java.io.FileOutputStream;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -115,6 +117,7 @@ public class ProxyDroidService extends Service {
     private static final String TAG = "ProxyDroidService";
 
     private String host;
+    private String hostName;
     private int port;
     private String bypassAddrs = "";
     private String user;
@@ -185,7 +188,7 @@ public class ProxyDroidService extends Service {
                         + "forwardproxy {\n"
                         + "hide_ip\n"
                         + "hide_via\n"
-                        + "upstream " + user + ":" + password + "@" + domain + ":" + port + "\n"
+                        + "upstream " + "https://" + user + ":" + password + "@" + hostName + ":" + port + "\n"
                         + "}\n";
 
                 fs.write(conf.getBytes());
@@ -520,12 +523,12 @@ public class ProxyDroidService extends Service {
             }
         }
 
-        String tmp = host;
+        hostName = host;
 
         try {
             host = InetAddress.getByName(host).getHostAddress();
         } catch (UnknownHostException e) {
-            host = tmp;
+            host = hostName;
             handler.sendEmptyMessageDelayed(MSG_CONNECT_RESOLVE_ERROR, 3000);
             return false;
         }

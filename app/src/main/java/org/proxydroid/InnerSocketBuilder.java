@@ -1,9 +1,9 @@
 package org.proxydroid;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.Socket;
-
-import android.util.Log;
 
 public class InnerSocketBuilder {
 

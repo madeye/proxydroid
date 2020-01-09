@@ -1,0 +1,32 @@
+add_library(event STATIC
+        buffer.c
+        bufferevent.c
+        bufferevent_filter.c
+        bufferevent_pair.c
+        bufferevent_ratelim.c
+        bufferevent_sock.c
+        epoll.c
+        epoll_sub.c
+        evdns.c
+        event.c
+        event_tagging.c
+        evmap.c
+        evrpc.c
+        evthread.c
+        evthread_pthread.c
+        evutil.c
+        evutil_rand.c
+        http.c
+        listener.c
+        log.c
+        poll.c
+        select.c
+        signal.c
+        strlcpy.c
+        )
+
+target_include_directories(event
+        PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        )

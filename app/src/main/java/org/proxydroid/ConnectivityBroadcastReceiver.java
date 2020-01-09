@@ -49,8 +49,9 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
+
 import com.ksmaze.android.preference.ListPreferenceMultiSelect;
+
 import org.proxydroid.utils.Constraints;
 import org.proxydroid.utils.Utils;
 

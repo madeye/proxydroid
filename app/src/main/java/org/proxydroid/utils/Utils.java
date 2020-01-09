@@ -8,11 +8,16 @@ import android.content.pm.Signature;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.util.Log;
+
 import org.proxydroid.Exec;
 import org.proxydroid.ProxyDroidService;
 import org.proxydroid.R;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 public class Utils {

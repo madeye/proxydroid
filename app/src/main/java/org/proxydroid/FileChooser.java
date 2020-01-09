@@ -1,20 +1,20 @@
 package org.proxydroid;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.proxydroid.utils.Constraints;
-import org.proxydroid.utils.Option;
-import org.proxydroid.utils.Utils;
-
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import org.proxydroid.utils.Constraints;
+import org.proxydroid.utils.Option;
+import org.proxydroid.utils.Utils;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class FileChooser extends ListActivity {
 

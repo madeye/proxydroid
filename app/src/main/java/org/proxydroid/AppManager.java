@@ -3,20 +3,9 @@
 
 package org.proxydroid;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.Vector;
-
-import org.proxydroid.utils.ImageLoader;
-import org.proxydroid.utils.ImageLoaderFactory;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
@@ -45,6 +34,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.proxydroid.utils.ImageLoader;
+import org.proxydroid.utils.ImageLoaderFactory;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 public class AppManager extends AppCompatActivity implements OnCheckedChangeListener,
 		OnClickListener {

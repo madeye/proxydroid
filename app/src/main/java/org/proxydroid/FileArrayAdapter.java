@@ -1,15 +1,15 @@
 package org.proxydroid;
 
-import java.util.List;
-
-import org.proxydroid.utils.Option;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import org.proxydroid.utils.Option;
+
+import java.util.List;
 
 public class FileArrayAdapter extends ArrayAdapter<Option> {
 

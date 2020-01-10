@@ -80,6 +80,7 @@ public class FileChooser extends ListActivity {
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		Option o = adapter.getItem(position);
+		if (o == null || o.getPath() == null) return;
 		if (o.getData().equalsIgnoreCase(getString(R.string.folder))
 				|| o.getData().equalsIgnoreCase(getString(R.string.parent_dir))) {
 			currentDir = new File(o.getPath());

@@ -137,6 +137,9 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		((ProxyDroidApplication)getApplication())
+				.firebaseAnalytics.setCurrentScreen(this, "app_manager", null);
 		
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

@@ -12,3 +12,5 @@ libs/armeabi/shrpx
 gen-external-apklibs/
 classes/
 .gradle
+build/
+app/release

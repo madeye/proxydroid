@@ -315,6 +315,9 @@ public class ProxyDroid extends PreferenceActivity
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.proxydroid_preference);
 
+        ((ProxyDroidApplication)getApplication())
+                .firebaseAnalytics.setCurrentScreen(this, "home_screen", null);
+
         // Create the adView
         adView = new AdView(this);
         adView.setAdUnitId("ca-app-pub-9097031975646651/4806879927");

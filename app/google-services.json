@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "1096038627085",
+    "firebase_url": "https://proxydroid-eebb6.firebaseio.com",
+    "project_id": "proxydroid-eebb6",
+    "storage_bucket": "proxydroid-eebb6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1096038627085:android:2626ff7369ac1bc788a244",
+        "android_client_info": {
+          "package_name": "org.proxydroid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1096038627085-rk8st1497vge5t9hlft638b9rcdkpe47.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.proxydroid",
+            "certificate_hash": "a3568c8b31e1b2d1c2d9edd21b4e37c7c13ce26f"
+          }
+        },
+        {
+          "client_id": "1096038627085-de6572k5m9tbsmu2v5hm607vqe313pir.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvllRwaStt15XJNQrBRaCOVwJkUsnTbx8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1096038627085-de6572k5m9tbsmu2v5hm607vqe313pir.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-9097031975646651~9376680322"
+    }
+  ],
+  "configuration_version": "1"
+}

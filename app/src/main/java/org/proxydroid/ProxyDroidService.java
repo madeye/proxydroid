@@ -366,6 +366,9 @@ public class ProxyDroidService extends Service {
     @Override
     public void onDestroy() {
 
+        ((ProxyDroidApplication)getApplication())
+                .firebaseAnalytics.logEvent("service_stop", null);
+
         Utils.setConnecting(true);
 
         notificationManager.cancelAll();
@@ -548,6 +551,9 @@ public class ProxyDroidService extends Service {
         if (intent == null || intent.getExtras() == null) {
             return;
         }
+
+        ((ProxyDroidApplication)getApplication())
+                .firebaseAnalytics.logEvent("service_start", null);
 
         Log.d(TAG, "Service Start");
 

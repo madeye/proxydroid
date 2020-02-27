@@ -218,6 +218,9 @@ static struct evbuffer *httpc_mkconnect(redsocks_client *client)
 					"CONNECT", uri, auth->last_auth_count, cnounce); // method, path, nc, cnounce
 			auth_scheme = "Digest";
 		}
+	} else if (client->instance && client->instance->config.login && client->instance->config.password) {
+		auth_string = basic_authentication_encode(client->instance->config.login, client->instance->config.password);
+		auth_scheme = "Basic";
 	}
 
 	if (auth_string == NULL) {

@@ -275,7 +275,8 @@ public class Utils {
   }
 
   public static boolean isWorking() {
-    return ProxyDroidService.isServiceStarted();
+    return ProxyDroidService.isServiceStarted() ||
+           org.proxydroid.ProxyDroidVpnService.isServiceStarted();
   }
 
   public static void CopyStream(InputStream is, OutputStream os) {

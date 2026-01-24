@@ -38,6 +38,7 @@
 
 package org.proxydroid;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -52,6 +53,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.net.VpnService;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -101,6 +103,7 @@ public class ProxyDroid extends PreferenceActivity
     private static final String TAG = "ProxyDroid";
     private static final int MSG_UPDATE_FINISHED = 0;
     private static final int MSG_NO_ROOT = 1;
+    private static final int VPN_REQUEST_CODE = 100;
     final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -121,6 +124,7 @@ public class ProxyDroid extends PreferenceActivity
     private Profile mProfile = new Profile();
     private CheckBoxPreference isAutoConnectCheck;
     private CheckBoxPreference isAutoSetProxyCheck;
+    private CheckBoxPreference isVpnModeCheck;
     private CheckBoxPreference isAuthCheck;
     private CheckBoxPreference isNTLMCheck;
     private CheckBoxPreference isPACCheck;
@@ -352,6 +356,7 @@ public class ProxyDroid extends PreferenceActivity
 
         isRunningCheck = (Preference) findPreference("isRunning");
         isAutoSetProxyCheck = (CheckBoxPreference) findPreference("isAutoSetProxy");
+        isVpnModeCheck = (CheckBoxPreference) findPreference("isVpnMode");
         isAuthCheck = (CheckBoxPreference) findPreference("isAuth");
         isNTLMCheck = (CheckBoxPreference) findPreference("isNTLM");
         isPACCheck = (CheckBoxPreference) findPreference("isPAC");
@@ -392,7 +397,9 @@ public class ProxyDroid extends PreferenceActivity
                     // Nothing
                 }
 
-                if (!Utils.isRoot()) {
+                // Only check for root if VPN mode is disabled
+                boolean isVpnMode = settings.getBoolean("isVpnMode", true);
+                if (!isVpnMode && !Utils.isRoot()) {
                     handler.sendEmptyMessage(MSG_NO_ROOT);
                 }
 
@@ -441,8 +448,15 @@ public class ProxyDroid extends PreferenceActivity
 
         if (!Utils.isWorking()) return false;
 
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean isVpnMode = settings.getBoolean("isVpnMode", true);
+
         try {
-            stopService(new Intent(ProxyDroid.this, ProxyDroidService.class));
+            if (isVpnMode) {
+                stopService(new Intent(ProxyDroid.this, ProxyDroidVpnService.class));
+            } else {
+                stopService(new Intent(ProxyDroid.this, ProxyDroidService.class));
+            }
         } catch (Exception e) {
             return false;
         }
@@ -457,11 +471,64 @@ public class ProxyDroid extends PreferenceActivity
         if (Utils.isWorking()) return false;
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean isVpnMode = settings.getBoolean("isVpnMode", true);
 
         mProfile.getProfile(settings);
 
-        try {
+        if (isVpnMode) {
+            // Request VPN permission
+            Intent vpnIntent = VpnService.prepare(this);
+            if (vpnIntent != null) {
+                startActivityForResult(vpnIntent, VPN_REQUEST_CODE);
+                return true; // Will continue in onActivityResult
+            } else {
+                // Permission already granted, start VPN service
+                return startVpnService();
+            }
+        } else {
+            // Use root-based service
+            return startRootService();
+        }
+    }
 
+    private boolean startVpnService() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        mProfile.getProfile(settings);
+
+        try {
+            Intent it = new Intent(ProxyDroid.this, ProxyDroidVpnService.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("host", mProfile.getHost());
+            bundle.putString("user", mProfile.getUser());
+            bundle.putString("bypassAddrs", mProfile.getBypassAddrs());
+            bundle.putString("password", mProfile.getPassword());
+            bundle.putString("domain", mProfile.getDomain());
+            bundle.putString("certificate", mProfile.getCertificate());
+
+            bundle.putString("proxyType", mProfile.getProxyType());
+            bundle.putBoolean("isAutoSetProxy", mProfile.isAutoSetProxy());
+            bundle.putBoolean("isBypassApps", mProfile.isBypassApps());
+            bundle.putBoolean("isAuth", mProfile.isAuth());
+            bundle.putBoolean("isNTLM", mProfile.isNTLM());
+            bundle.putBoolean("isDNSProxy", mProfile.isDNSProxy());
+            bundle.putBoolean("isPAC", mProfile.isPAC());
+
+            bundle.putInt("port", mProfile.getPort());
+
+            it.putExtras(bundle);
+            startService(it);
+        } catch (Exception ignore) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean startRootService() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        mProfile.getProfile(settings);
+
+        try {
             Intent it = new Intent(ProxyDroid.this, ProxyDroidService.class);
             Bundle bundle = new Bundle();
             bundle.putString("host", mProfile.getHost());
@@ -484,11 +551,29 @@ public class ProxyDroid extends PreferenceActivity
             it.putExtras(bundle);
             startService(it);
         } catch (Exception ignore) {
-            // Nothing
             return false;
         }
 
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == VPN_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                // VPN permission granted, start the VPN service
+                startVpnService();
+            } else {
+                // VPN permission denied
+                Toast.makeText(this, "VPN permission denied", Toast.LENGTH_SHORT).show();
+                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+                Editor ed = settings.edit();
+                ed.putBoolean("isRunning", false);
+                ed.apply();
+            }
+        }
     }
 
     private void onProfileChange(String oldProfileName) {
@@ -568,6 +653,9 @@ public class ProxyDroid extends PreferenceActivity
         isAutoConnectCheck.setEnabled(false);
         isPACCheck.setEnabled(false);
         isBypassAppsCheck.setEnabled(false);
+        if (isVpnModeCheck != null) {
+            isVpnModeCheck.setEnabled(false);
+        }
     }
 
     private void enableAll() {
@@ -603,6 +691,9 @@ public class ProxyDroid extends PreferenceActivity
         isAuthCheck.setEnabled(true);
         isAutoConnectCheck.setEnabled(true);
         isPACCheck.setEnabled(true);
+        if (isVpnModeCheck != null) {
+            isVpnModeCheck.setEnabled(true);
+        }
     }
 
     @Override
@@ -883,6 +974,14 @@ public class ProxyDroid extends PreferenceActivity
             }
         }
 
+        if (key.equals("isVpnMode")) {
+            // When switching modes, update the root requirement message
+            boolean isVpnMode = settings.getBoolean("isVpnMode", true);
+            if (!isVpnMode && !Utils.isRoot()) {
+                showAToast(getString(R.string.require_root_alert));
+            }
+        }
+
         if (key.equals("isRunning")) {
             if (settings.getBoolean("isRunning", false)) {
                 disableAll();
@@ -1121,8 +1220,14 @@ public class ProxyDroid extends PreferenceActivity
     }
 
     private void reset() {
+        // Stop both services
         try {
             stopService(new Intent(ProxyDroid.this, ProxyDroidService.class));
+        } catch (Exception e) {
+            // Nothing
+        }
+        try {
+            stopService(new Intent(ProxyDroid.this, ProxyDroidVpnService.class));
         } catch (Exception e) {
             // Nothing
         }
@@ -1131,18 +1236,21 @@ public class ProxyDroid extends PreferenceActivity
 
         String filePath = getFilesDir().getAbsolutePath();
 
-        Utils.runRootCommand(Utils.getIptables()
-                + " -t nat -F OUTPUT\n"
-                + getFilesDir().getAbsolutePath()
-                + "/proxy.sh stop\n"
-                + "kill -9 `cat " + filePath + "cntlm.pid`\n");
+        // Only run root commands if root is available
+        if (Utils.isRoot()) {
+            Utils.runRootCommand(Utils.getIptables()
+                    + " -t nat -F OUTPUT\n"
+                    + getFilesDir().getAbsolutePath()
+                    + "/proxy.sh stop\n"
+                    + "kill -9 `cat " + filePath + "cntlm.pid`\n");
 
-        Utils.runRootCommand(
-                "chmod 700 " + filePath + "/redsocks\n"
-                + "chmod 700 " + filePath + "/proxy.sh\n"
-                + "chmod 700 " + filePath + "/gost.sh\n"
-                + "chmod 700 " + filePath + "/cntlm\n"
-                + "chmod 700 " + filePath + "/gost\n");
+            Utils.runRootCommand(
+                    "chmod 700 " + filePath + "/redsocks\n"
+                    + "chmod 700 " + filePath + "/proxy.sh\n"
+                    + "chmod 700 " + filePath + "/gost.sh\n"
+                    + "chmod 700 " + filePath + "/cntlm\n"
+                    + "chmod 700 " + filePath + "/gost\n");
+        }
     }
 
     @Override

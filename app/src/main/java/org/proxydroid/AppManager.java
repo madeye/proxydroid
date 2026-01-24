@@ -319,6 +319,7 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
 			ProxyedApp app = new ProxyedApp();
 
 			app.setUid(aInfo.uid);
+			app.setPackageName(aInfo.packageName);
 
 			app.setUsername(pMgr.getNameForUid(app.getUid()));
 
@@ -390,6 +391,7 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
 
 			tApp.setEnabled(aInfo.enabled);
 			tApp.setUid(aInfo.uid);
+			tApp.setPackageName(aInfo.packageName);
 			tApp.setUsername(pMgr.getNameForUid(tApp.getUid()));
 			tApp.setProcname(aInfo.processName);
 			tApp.setName(pMgr.getApplicationLabel(aInfo).toString());

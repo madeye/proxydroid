@@ -189,4 +189,10 @@
     <string name="msg_pac_error">Incorrect or unsupported PAC file</string>
     <string name="msg_resolve_error">Incorrect or unknown proxy host name</string>
 
+    <!-- VPN Mode -->
+    <string name="vpn_mode">VPN Mode (No Root)</string>
+    <string name="vpn_mode_summary">Use VPN service instead of root. Works without root but may use more battery.</string>
+    <string name="vpn_confirm_title">VPN Connection</string>
+    <string name="vpn_confirm_message">ProxyDroid needs to create a VPN connection to route traffic through the proxy. Continue?</string>
+
 </resources>

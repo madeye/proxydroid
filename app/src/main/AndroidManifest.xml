@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.BIND_VPN_SERVICE" />
 
     <application
         android:name=".ProxyDroidApplication"
@@ -47,6 +48,16 @@
         <service
             android:name=".ProxyDroidService"
             android:enabled="true" />
+
+        <service
+            android:name=".ProxyDroidVpnService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
 
         <receiver android:name=".ConnectivityBroadcastReceiver">
             <intent-filter>

@@ -7,10 +7,10 @@ android {
     buildToolsVersion "29.0.0"
     defaultConfig {
         applicationId "org.proxydroid"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 29
-        versionCode 72
-        versionName "3.2.0"
+        versionCode 73
+        versionName "3.3.0"
 
         ndk {
             // Specifies the ABI configurations of your native

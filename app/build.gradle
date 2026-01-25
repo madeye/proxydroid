@@ -4,11 +4,11 @@ apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     namespace 'org.proxydroid'
-    compileSdk 29
+    compileSdk 33
     defaultConfig {
         applicationId "org.proxydroid"
         minSdk 21
-        targetSdk 29
+        targetSdk 33
         versionCode 73
         versionName "3.3.0"
 

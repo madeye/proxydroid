@@ -23,9 +23,9 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: Install NDK
+    - name: Install NDK and CMake
       run: |
-        sdkmanager --install "ndk;21.4.7075529"
+        sdkmanager --install "ndk;21.4.7075529" "cmake;3.22.1"
         echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/21.4.7075529" >> $GITHUB_ENV
 
     - name: Cache Gradle packages

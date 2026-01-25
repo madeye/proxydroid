@@ -32,10 +32,16 @@ extern "C" {
 #define SOCKS5_ATYP_IPV6 0x04
 #define SOCKS5_REP_SUCCESS 0x00
 
-// IP protocol numbers
+// IP protocol numbers (use system definitions if available)
+#ifndef IPPROTO_ICMP
 #define IPPROTO_ICMP 1
+#endif
+#ifndef IPPROTO_TCP
 #define IPPROTO_TCP 6
+#endif
+#ifndef IPPROTO_UDP
 #define IPPROTO_UDP 17
+#endif
 
 // TCP flags
 #define TCP_FLAG_FIN 0x01

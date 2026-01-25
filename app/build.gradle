@@ -3,12 +3,12 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.0"
+    namespace 'org.proxydroid'
+    compileSdk 29
     defaultConfig {
         applicationId "org.proxydroid"
-        minSdkVersion 21
-        targetSdkVersion 29
+        minSdk 21
+        targetSdk 29
         versionCode 73
         versionName "3.3.0"
 
@@ -38,7 +38,7 @@ android {
 }
 
 configurations {
-    compile.exclude group: "junit", module: "junit"
+    implementation.exclude group: "junit", module: "junit"
 }
 
 dependencies {

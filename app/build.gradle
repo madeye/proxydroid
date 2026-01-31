@@ -52,4 +52,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-ads:18.3.0'
     implementation 'com.google.firebase:firebase-analytics:17.2.1'
     implementation 'com.google.firebase:firebase-crashlytics:18.4.3'
+
+    // Test dependencies
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:4.11.0'
 }

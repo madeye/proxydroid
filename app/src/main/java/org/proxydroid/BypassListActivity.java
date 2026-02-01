@@ -138,19 +138,15 @@ public class BypassListActivity extends AppCompatActivity implements
 
 	@Override
 	public void onClick(View arg0) {
-		switch (arg0.getId()) {
-		case R.id.addBypassAddr:
+		int id = arg0.getId();
+		if (id == R.id.addBypassAddr) {
 			editAddr(MSG_ADD_ADDR, -1);
-			break;
-		case R.id.presetBypassAddr:
+		} else if (id == R.id.presetBypassAddr) {
 			presetAddr();
-			break;
-		case R.id.importBypassAddr:
+		} else if (id == R.id.importBypassAddr) {
 			importAddr();
-			break;
-		case R.id.exportBypassAddr:
+		} else if (id == R.id.exportBypassAddr) {
 			exportAddr();
-			break;
 		}
 	}
 

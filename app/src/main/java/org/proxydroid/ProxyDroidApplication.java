@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * 
+ *
+ *
  *                            ___====-_  _-====___
  *                      _--^^^#####//      \\#####^^^--_
  *                   _-^##########// (    ) \\##########^-_
@@ -40,16 +40,10 @@ package org.proxydroid;
 
 import android.app.Application;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
-
 public class ProxyDroidApplication extends Application {
-
-    public FirebaseAnalytics firebaseAnalytics;
 
     @Override
     public void onCreate() {
-        // Obtain the FirebaseAnalytics instance.
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
         super.onCreate();
     }
 }

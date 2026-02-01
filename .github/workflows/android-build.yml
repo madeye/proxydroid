@@ -342,7 +342,8 @@ jobs:
           sleep 5
 
           echo "=== Configuring proxy settings ==="
-          PREFS_XML='<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+          cat > /tmp/prefs.xml << 'PREFS_EOF'
+          <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
           <map>
               <string name="host">10.0.2.2</string>
               <string name="port">8888</string>
@@ -356,9 +357,9 @@ jobs:
               <boolean name="isBypassApps" value="false" />
               <string name="bypassAddrs"></string>
               <boolean name="isGlobalProxy" value="true" />
-          </map>'
+          </map>
+          PREFS_EOF
 
-          echo "$PREFS_XML" > /tmp/prefs.xml
           adb push /tmp/prefs.xml /data/local/tmp/prefs.xml
 
           echo "=== Checking VPN service declaration ==="

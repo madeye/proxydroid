@@ -9,21 +9,11 @@
 
 package org.proxydroid.utils;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
 
@@ -31,9 +21,6 @@ import static org.junit.Assert.*;
  * Unit tests for LocalProxyServer SOCKS5 implementation.
  */
 public class LocalHttpProxyTest {
-
-    private static final int TEST_PORT = 19800;
-    private static final int MOCK_SOCKS_PORT = 19801;
 
     @Test
     public void testSocks5HandshakeNoAuth() throws Exception {

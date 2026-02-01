@@ -107,6 +107,11 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
+    - name: Install NDK and CMake
+      run: |
+        sdkmanager --install "ndk;25.1.8937393" "cmake;3.22.1"
+        echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.1.8937393" >> $GITHUB_ENV
+
     - name: Cache Gradle packages
       uses: actions/cache@v4
       with:
@@ -121,42 +126,9 @@ jobs:
       run: chmod +x gradlew
 
     - name: Create local.properties
-      run: echo "sdk.dir=$ANDROID_HOME" > local.properties
-
-    - name: Create dummy google-services.json
       run: |
-        mkdir -p app
-        cat > app/google-services.json << 'EOF'
-        {
-          "project_info": {
-            "project_number": "000000000000",
-            "project_id": "dummy-project",
-            "storage_bucket": "dummy-project.appspot.com"
-          },
-          "client": [
-            {
-              "client_info": {
-                "mobilesdk_app_id": "1:000000000000:android:0000000000000000",
-                "android_client_info": {
-                  "package_name": "org.proxydroid"
-                }
-              },
-              "oauth_client": [],
-              "api_key": [
-                {
-                  "current_key": "dummy-api-key"
-                }
-              ],
-              "services": {
-                "appinvite_service": {
-                  "other_platform_oauth_client": []
-                }
-              }
-            }
-          ],
-          "configuration_version": "1"
-        }
-        EOF
+        echo "sdk.dir=$ANDROID_HOME" > local.properties
+        echo "ndk.dir=$ANDROID_NDK_HOME" >> local.properties
 
     - name: Run Lint
       run: ./gradlew lint --stacktrace

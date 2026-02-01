@@ -350,7 +350,7 @@ jobs:
         force-avd-creation: false
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: true
-        script: ./scripts/run_emulator_tests.sh
+        script: bash scripts/run_emulator_tests.sh
 
     - name: Stop HTTP Proxy
       if: always()

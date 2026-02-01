@@ -121,17 +121,12 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case android.R.id.home:
-			// app icon in action bar clicked; go home
-//			Intent intent = new Intent(this, ProxyDroid.class);
-//			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//			startActivity(intent);
+		int id = item.getItemId();
+		if (id == android.R.id.home) {
 			finish();
 			return true;
-		default:
-			return super.onOptionsItemSelected(item);
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -319,6 +314,7 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
 			ProxyedApp app = new ProxyedApp();
 
 			app.setUid(aInfo.uid);
+			app.setPackageName(aInfo.packageName);
 
 			app.setUsername(pMgr.getNameForUid(app.getUid()));
 
@@ -390,6 +386,7 @@ public class AppManager extends AppCompatActivity implements OnCheckedChangeList
 
 			tApp.setEnabled(aInfo.enabled);
 			tApp.setUid(aInfo.uid);
+			tApp.setPackageName(aInfo.packageName);
 			tApp.setUsername(pMgr.getNameForUid(tApp.getUid()));
 			tApp.setProcname(aInfo.processName);
 			tApp.setName(pMgr.getApplicationLabel(aInfo).toString());

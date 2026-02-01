@@ -8,6 +8,7 @@ public class ProxyedApp {
 	private String username;
 	private String procname;
 	private String name;
+	private String packageName;
 
 	private boolean proxyed = false;
 
@@ -99,6 +100,21 @@ public class ProxyedApp {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	/**
+	 * @return the packageName
+	 */
+	public String getPackageName() {
+		return packageName;
+	}
+
+	/**
+	 * @param packageName
+	 *            the packageName to set
+	 */
+	public void setPackageName(String packageName) {
+		this.packageName = packageName;
 	}
 
 }

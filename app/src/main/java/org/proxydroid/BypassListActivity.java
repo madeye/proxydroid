@@ -138,35 +138,26 @@ public class BypassListActivity extends AppCompatActivity implements
 
 	@Override
 	public void onClick(View arg0) {
-		switch (arg0.getId()) {
-		case R.id.addBypassAddr:
+		int id = arg0.getId();
+		if (id == R.id.addBypassAddr) {
 			editAddr(MSG_ADD_ADDR, -1);
-			break;
-		case R.id.presetBypassAddr:
+		} else if (id == R.id.presetBypassAddr) {
 			presetAddr();
-			break;
-		case R.id.importBypassAddr:
+		} else if (id == R.id.importBypassAddr) {
 			importAddr();
-			break;
-		case R.id.exportBypassAddr:
+		} else if (id == R.id.exportBypassAddr) {
 			exportAddr();
-			break;
 		}
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case android.R.id.home:
-			// app icon in action bar clicked; go home
-//			Intent intent = new Intent(this, ProxyDroid.class);
-//			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//			startActivity(intent);
+		int id = item.getItemId();
+		if (id == android.R.id.home) {
 			finish();
 			return true;
-		default:
-			return super.onOptionsItemSelected(item);
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

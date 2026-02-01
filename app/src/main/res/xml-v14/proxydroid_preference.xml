@@ -111,6 +111,13 @@
   <PreferenceCategory android:title="@string/fearute_cat">
     <CheckBoxPreference
         android:defaultValue="true"
+        android:key="isVpnMode"
+        android:summary="@string/vpn_mode_summary"
+        android:title="@string/vpn_mode">
+    </CheckBoxPreference>
+
+    <CheckBoxPreference
+        android:defaultValue="true"
         android:key="isAutoSetProxy"
         android:summary="@string/auto_set_proxy_summary"
         android:title="@string/auto_set_proxy">

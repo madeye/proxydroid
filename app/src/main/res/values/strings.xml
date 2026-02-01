@@ -85,6 +85,8 @@
     <string-array name="excluded_ssid_default_values"></string-array>
     <string-array name="excluded_ssid_default_entries"></string-array>
 
+    <string name="vpn_mode">VPN Mode</string>
+    <string name="vpn_mode_summary">Use VPN-based proxy (no ROOT required). Disable for traditional iptables mode.</string>
     <string name="auto_set_proxy">Global Proxy</string>
     <string name="auto_set_proxy_summary">Enable the global proxy (needs ROOT permission
 		and IPTABLES support)</string>

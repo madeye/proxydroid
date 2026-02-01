@@ -109,6 +109,13 @@
     </EditTextPreference>
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/fearute_cat">
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="isVpnMode"
+        android:summary="@string/vpn_mode_summary"
+        android:title="@string/vpn_mode">
+    </SwitchPreference>
+
     <CheckBoxPreference
         android:defaultValue="true"
         android:key="isAutoSetProxy"

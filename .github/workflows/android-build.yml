@@ -348,7 +348,7 @@ jobs:
         arch: x86_64
         profile: Nexus 6
         force-avd-creation: false
-        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: true
         script: ./scripts/run_emulator_tests.sh
 

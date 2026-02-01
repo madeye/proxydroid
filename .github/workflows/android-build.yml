@@ -321,6 +321,26 @@ jobs:
         sleep 2
         echo "HTTP proxy started on port 8888"
 
+    - name: Create proxy preferences file
+      run: |
+        cat > /tmp/prefs.xml << 'EOF'
+        <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+        <map>
+            <string name="host">10.0.2.2</string>
+            <string name="port">8888</string>
+            <string name="proxyType">http</string>
+            <boolean name="isVpnMode" value="true" />
+            <boolean name="isAutoConnect" value="false" />
+            <boolean name="isAuth" value="false" />
+            <string name="user"></string>
+            <string name="password"></string>
+            <boolean name="isRunning" value="false" />
+            <boolean name="isBypassApps" value="false" />
+            <string name="bypassAddrs"></string>
+            <boolean name="isGlobalProxy" value="true" />
+        </map>
+        EOF
+
     - name: Run Emulator Tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
@@ -342,24 +362,6 @@ jobs:
           sleep 5
 
           echo "=== Configuring proxy settings ==="
-          cat > /tmp/prefs.xml << 'PREFS_EOF'
-          <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-          <map>
-              <string name="host">10.0.2.2</string>
-              <string name="port">8888</string>
-              <string name="proxyType">http</string>
-              <boolean name="isVpnMode" value="true" />
-              <boolean name="isAutoConnect" value="false" />
-              <boolean name="isAuth" value="false" />
-              <string name="user"></string>
-              <string name="password"></string>
-              <boolean name="isRunning" value="false" />
-              <boolean name="isBypassApps" value="false" />
-              <string name="bypassAddrs"></string>
-              <boolean name="isGlobalProxy" value="true" />
-          </map>
-          PREFS_EOF
-
           adb push /tmp/prefs.xml /data/local/tmp/prefs.xml
 
           echo "=== Checking VPN service declaration ==="

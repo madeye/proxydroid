@@ -55,8 +55,6 @@ public class FileChooser extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		((ProxyDroidApplication)getApplication())
-				.firebaseAnalytics.setCurrentScreen(this, "file_chooser", null);
 		currentDir = new File(Utils.getDataPath(this));
 		fill(currentDir);
 	}

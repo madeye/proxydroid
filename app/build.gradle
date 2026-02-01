@@ -47,12 +47,10 @@ android {
     }
 }
 
-configurations {
+configurations.implementation {
     // Exclude JUnit from implementation (json-simple pulls it in as transitive dependency)
     // but keep it available for test configurations
-    implementation {
-        exclude group: "junit", module: "junit"
-    }
+    exclude group: "junit", module: "junit"
 }
 
 dependencies {

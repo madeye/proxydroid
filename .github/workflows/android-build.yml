@@ -186,6 +186,11 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
+    - name: Install NDK and CMake
+      run: |
+        sdkmanager --install "ndk;21.4.7075529" "cmake;3.22.1"
+        echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/21.4.7075529" >> $GITHUB_ENV
+
     - name: Cache Gradle packages
       uses: actions/cache@v4
       with:
@@ -200,7 +205,9 @@ jobs:
       run: chmod +x gradlew
 
     - name: Create local.properties
-      run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+      run: |
+        echo "sdk.dir=$ANDROID_HOME" > local.properties
+        echo "ndk.dir=$ANDROID_NDK_HOME" >> local.properties
 
     - name: Create dummy google-services.json
       run: |
@@ -238,7 +245,7 @@ jobs:
         EOF
 
     - name: Run Unit Tests
-      run: ./gradlew test --stacktrace --info
+      run: ./gradlew testDebugUnitTest --stacktrace
 
     - name: Upload Test Results
       uses: actions/upload-artifact@v4
@@ -254,9 +261,15 @@ jobs:
       if: always()
       run: |
         echo "=== Test Summary ==="
-        if [ -d "app/build/test-results/testDebugUnitTest" ]; then
-          echo "Test results found:"
-          find app/build/test-results -name "*.xml" -exec cat {} \;
+        find app/build -name "TEST-*.xml" -type f 2>/dev/null | while read f; do
+          echo "--- $f ---"
+          cat "$f"
+        done || echo "No test XML results found"
+        echo ""
+        echo "=== Test Report ==="
+        if [ -f "app/build/reports/tests/testDebugUnitTest/index.html" ]; then
+          echo "Test report generated successfully"
         else
-          echo "No test results found"
+          echo "No HTML test report found"
+          find app/build -name "*.html" -type f 2>/dev/null | head -20
         fi

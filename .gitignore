@@ -14,3 +14,5 @@ classes/
 .gradle
 build/
 app/release
+__pycache__/
+*.pyc

@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -35,6 +36,10 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
 
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+
     externalNativeBuild {
         cmake {
             version '3.22.1'
@@ -51,6 +56,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'androidx.core:core-ktx:1.10.1'
     // Exclude JUnit from json-simple (it pulls junit as compile dependency)
     implementation('com.googlecode.json-simple:json-simple:1.1.1') {
         exclude group: 'junit', module: 'junit'

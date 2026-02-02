@@ -19,6 +19,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
 
@@ -85,8 +87,24 @@ public class Utils {
     if (lines.contains("OUTPUT")) {
       compatible = true;
     }
-    if (lines.contains("v1.4.")) {
-      version = true;
+
+    final String regex = "iptables v(\\d+\\.\\d+)";
+
+    final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+    final Matcher matcher = pattern.matcher(lines);
+
+    while (matcher.find()) {
+      for (int i = 1; i <= matcher.groupCount(); i++) {
+        try {
+          if (Float.parseFloat(matcher.group(i)) >= 1.4) {
+            version = true;
+            break;
+          }
+        }
+        catch (Exception e) {
+
+        }
+      }
     }
 
     if (!compatible || !version) {

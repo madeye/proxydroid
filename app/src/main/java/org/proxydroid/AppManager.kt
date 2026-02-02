@@ -37,6 +37,39 @@ class AppManager : AppCompatActivity(), CompoundButton.OnCheckedChangeListener, 
         private const val MSG_LOAD_START = 1
         private const val MSG_LOAD_FINISH = 2
         const val PREFS_KEY_PROXYED = "Proxyed"
+
+        @JvmStatic
+        fun getProxyedApps(context: Context, self: Boolean): Array<ProxyedApp> {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            val tordAppString = prefs.getString(PREFS_KEY_PROXYED, "") ?: ""
+            val st = StringTokenizer(tordAppString, "|")
+            val tordApps = Array(st.countTokens()) { st.nextToken() }
+            Arrays.sort(tordApps)
+
+            val pMgr = context.packageManager
+            val lAppInfo = pMgr.getInstalledApplications(0)
+            val vectorApps = Vector<ProxyedApp>()
+
+            for (aInfo in lAppInfo) {
+                if (aInfo.uid < 10000) continue
+
+                val app = ProxyedApp().apply {
+                    uid = aInfo.uid
+                    username = pMgr.getNameForUid(uid)
+                    isProxyed = when {
+                        aInfo.packageName == "org.proxydroid" -> self
+                        Arrays.binarySearch(tordApps, username) >= 0 -> true
+                        else -> false
+                    }
+                }
+
+                if (app.isProxyed) {
+                    vectorApps.add(app)
+                }
+            }
+
+            return vectorApps.toTypedArray()
+        }
     }
 
     private val handler = object : Handler(Looper.getMainLooper()) {
@@ -242,38 +275,4 @@ class AppManager : AppCompatActivity(), CompoundButton.OnCheckedChangeListener, 
         saveAppSettings(this)
     }
 
-    companion object {
-        @JvmStatic
-        fun getProxyedApps(context: Context, self: Boolean): Array<ProxyedApp> {
-            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-            val tordAppString = prefs.getString(PREFS_KEY_PROXYED, "") ?: ""
-            val st = StringTokenizer(tordAppString, "|")
-            val tordApps = Array(st.countTokens()) { st.nextToken() }
-            Arrays.sort(tordApps)
-
-            val pMgr = context.packageManager
-            val lAppInfo = pMgr.getInstalledApplications(0)
-            val vectorApps = Vector<ProxyedApp>()
-
-            for (aInfo in lAppInfo) {
-                if (aInfo.uid < 10000) continue
-
-                val app = ProxyedApp().apply {
-                    uid = aInfo.uid
-                    username = pMgr.getNameForUid(uid)
-                    isProxyed = when {
-                        aInfo.packageName == "org.proxydroid" -> self
-                        Arrays.binarySearch(tordApps, username) >= 0 -> true
-                        else -> false
-                    }
-                }
-
-                if (app.isProxyed) {
-                    vectorApps.add(app)
-                }
-            }
-
-            return vectorApps.toTypedArray()
-        }
-    }
 }

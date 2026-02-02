@@ -45,6 +45,28 @@ class Profile {
     var isBypassApps: Boolean = false
     var isAutoConnect: Boolean = false
 
+    fun init() {
+        name = ""
+        host = ""
+        port = 0
+        user = ""
+        password = ""
+        domain = ""
+        proxyType = "http"
+        ssid = ""
+        excludedSsid = ""
+        proxyApps = ""
+        bypassAddrs = ""
+        certificate = ""
+        isAuth = false
+        isNTLM = false
+        isDNSProxy = false
+        isPAC = false
+        isAutoSetProxy = false
+        isBypassApps = false
+        isAutoConnect = false
+    }
+
     fun getProfile(settings: SharedPreferences) {
         name = settings.getString("name", "") ?: ""
         host = settings.getString("host", "") ?: ""

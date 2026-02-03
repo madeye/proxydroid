@@ -55,11 +55,10 @@ class AppManager : AppCompatActivity(), CompoundButton.OnCheckedChangeListener, 
 
                 val app = ProxyedApp().apply {
                     uid = aInfo.uid
-                    username = pMgr.getNameForUid(uid)
+                    username = pMgr.getNameForUid(uid) ?: ""
                     isProxyed = when {
                         aInfo.packageName == "org.proxydroid" -> self
-                        Arrays.binarySearch(tordApps, username) >= 0 -> true
-                        else -> false
+                        else -> Arrays.binarySearch(tordApps, username) >= 0
                     }
                 }
 
@@ -85,7 +84,7 @@ class AppManager : AppCompatActivity(), CompoundButton.OnCheckedChangeListener, 
 
                         override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {
                             visible = true
-                            if (scrollState == ListView.OnScrollListener.SCROLL_STATE_IDLE) {
+                            if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
                                 overlay.visibility = View.INVISIBLE
                             }
                         }
@@ -231,9 +230,9 @@ class AppManager : AppCompatActivity(), CompoundButton.OnCheckedChangeListener, 
             if (pMgr.getApplicationIcon(aInfo) == null) continue
 
             val tApp = ProxyedApp().apply {
-                isEnabled = aInfo.enabled
+                enabled = aInfo.enabled
                 uid = aInfo.uid
-                username = pMgr.getNameForUid(uid)
+                username = pMgr.getNameForUid(uid) ?: ""
                 procname = aInfo.processName
                 name = label.toString()
                 isProxyed = Arrays.binarySearch(tordApps, username) >= 0

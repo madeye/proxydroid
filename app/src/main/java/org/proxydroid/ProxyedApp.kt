@@ -25,5 +25,6 @@ data class ProxyedApp(
     var username: String = "",
     var procname: String = "",
     var name: String = "",
-    var icon: Drawable? = null
+    var icon: Drawable? = null,
+    var isProxyed: Boolean = false
 )

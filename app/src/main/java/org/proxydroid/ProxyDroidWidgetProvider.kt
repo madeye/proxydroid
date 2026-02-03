@@ -34,7 +34,7 @@ class ProxyDroidWidgetProvider : AppWidgetProvider() {
     companion object {
         const val PROXY_SWITCH_ACTION = "org.proxydroid.ProxyDroidWidgetProvider.PROXY_SWITCH_ACTION"
         const val SERVICE_NAME = "org.proxydroid.ProxyDroidService"
-        private const val TAG = "ProxyDroidWidgetProvider"
+        private const val TAG = "ProxyDroidWidget"
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {

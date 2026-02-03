@@ -16,7 +16,7 @@ class InnerSocketBuilder(
         private set
 
     companion object {
-        private const val TAG = "CMWRAP->InnerSocketBuilder"
+        private const val TAG = "InnerSocketBuilder"
     }
 
     init {

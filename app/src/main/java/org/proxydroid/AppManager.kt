@@ -18,7 +18,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
+import android.preference.PreferenceManager
 import org.proxydroid.utils.ImageLoader
 import org.proxydroid.utils.ImageLoaderFactory
 import java.util.*

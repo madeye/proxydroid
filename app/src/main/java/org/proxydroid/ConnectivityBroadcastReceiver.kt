@@ -25,7 +25,7 @@ import android.net.NetworkInfo
 import android.net.wifi.WifiManager
 import android.os.Handler
 import android.os.Looper
-import androidx.preference.PreferenceManager
+import android.preference.PreferenceManager
 import com.ksmaze.android.preference.ListPreferenceMultiSelect
 import org.proxydroid.utils.Constraints
 import org.proxydroid.utils.Utils
@@ -66,7 +66,7 @@ class ConnectivityBroadcastReceiver : BroadcastReceiver() {
             settings.edit().putString(oldProfile, profile.toString()).apply()
 
             // Load all profiles
-            val profileValues = settings.getString("profileValues", "")?.split("\\|".toRegex()) ?: emptyList()
+            val profileValues = settings.getString("profileValues", "")?.split("\\|".toRegex()) ?: emptyList<String>()
             var curSSID: String? = null
             val lastSSID = settings.getString("lastSSID", "-1") ?: "-1"
             var autoConnect = false

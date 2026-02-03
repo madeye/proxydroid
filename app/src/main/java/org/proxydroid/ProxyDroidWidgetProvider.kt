@@ -26,7 +26,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.RemoteViews
-import androidx.preference.PreferenceManager
+import android.preference.PreferenceManager
 import org.proxydroid.utils.Utils
 
 class ProxyDroidWidgetProvider : AppWidgetProvider() {

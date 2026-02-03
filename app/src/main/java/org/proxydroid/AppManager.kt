@@ -58,7 +58,7 @@ class AppManager : AppCompatActivity(), CompoundButton.OnCheckedChangeListener, 
                     username = pMgr.getNameForUid(uid)
                     isProxyed = when {
                         aInfo.packageName == "org.proxydroid" -> self
-                        Arrays.binarySearch(tordApps, username) >= 0 -> true
+                        username != null && Arrays.binarySearch(tordApps, username) >= 0 -> true
                         else -> false
                     }
                 }
@@ -85,7 +85,7 @@ class AppManager : AppCompatActivity(), CompoundButton.OnCheckedChangeListener, 
 
                         override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {
                             visible = true
-                            if (scrollState == ListView.OnScrollListener.SCROLL_STATE_IDLE) {
+                            if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
                                 overlay.visibility = View.INVISIBLE
                             }
                         }
@@ -236,7 +236,7 @@ class AppManager : AppCompatActivity(), CompoundButton.OnCheckedChangeListener, 
                 username = pMgr.getNameForUid(uid)
                 procname = aInfo.processName
                 name = label.toString()
-                isProxyed = Arrays.binarySearch(tordApps, username) >= 0
+                isProxyed = username != null && Arrays.binarySearch(tordApps, username) >= 0
             }
             vectorApps.add(tApp)
         }

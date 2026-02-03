@@ -20,10 +20,11 @@ package org.proxydroid
 import android.graphics.drawable.Drawable
 
 data class ProxyedApp(
-    var enabled: Boolean = false,
+    var isEnabled: Boolean = false,
+    var isProxyed: Boolean = false,
     var uid: Int = 0,
-    var username: String = "",
-    var procname: String = "",
-    var name: String = "",
+    var username: String? = null,
+    var procname: String? = null,
+    var name: String? = null,
     var icon: Drawable? = null
 )

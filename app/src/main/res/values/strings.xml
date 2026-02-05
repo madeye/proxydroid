@@ -20,6 +20,7 @@
 
     <!-- status string -->
     <string name="service_running">Running in the background</string>
+    <string name="vpn_running">VPN proxy running</string>
     <string name="forward_success">Connected</string>
     <string name="forward_fail">Fail to connect</string>
     <string name="service_stopped">ProxyDroid service stopped</string>

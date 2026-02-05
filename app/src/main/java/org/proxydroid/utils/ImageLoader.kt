@@ -87,7 +87,7 @@ class ImageLoader(context: Context) {
         val p = PhotoToLoad(uid, imageView)
         synchronized(photosQueue.lock) {
             photosQueue.photosToLoad.push(p)
-            photosQueue.lock.notifyAll()
+            (photosQueue.lock as Object).notifyAll()
         }
 
         if (photoLoaderThread.state == Thread.State.NEW) {

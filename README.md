@@ -57,6 +57,27 @@ app/
 └── build.gradle
 ```
 
+## INTEGRATION TEST (EMULATOR ↔ HOST SOCKS5)
+
+`HostSocks5ProxyIntegrationTest` runs inside an Android emulator and routes an
+HTTP request through a SOCKS5 proxy listening on the host. The host proxy is a
+small stdlib-only Python server in `scripts/socks5_test_server.py`.
+
+The emulator reaches the host loopback via the alias `10.0.2.2`, so a host
+proxy bound to `0.0.0.0:1080` is seen by the device as `10.0.2.2:1080`.
+
+```bash
+# 1. Start the SOCKS5 proxy on the host (terminal 1)
+python3 scripts/socks5_test_server.py --host 0.0.0.0 --port 1080
+
+# 2. Boot any AVD, then run the instrumentation test (terminal 2)
+./gradlew connectedAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.class=org.proxydroid.HostSocks5ProxyIntegrationTest
+```
+
+Override the proxy / target with `-Pandroid.testInstrumentationRunnerArguments.socksHost=...`,
+`socksPort`, `targetHost`, `targetPort`.
+
 ## SUPPORTED ARCHITECTURES
 
 * armeabi-v7a

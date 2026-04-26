@@ -1,12 +1,31 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'org.mozilla.rust-android-gradle.rust-android'
+}
+
+def localProps = new Properties()
+def localPropsFile = rootProject.file('local.properties')
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream { localProps.load(it) }
 }
 
 android {
     namespace 'org.proxydroid'
-    compileSdk 33
+    compileSdk 34
     ndkVersion "25.1.8937393"
+
+    signingConfigs {
+        release {
+            def keystorePath = localProps.getProperty('KEYSTORE_PATH')
+            if (keystorePath) {
+                storeFile file(keystorePath)
+                storePassword localProps.getProperty('KEYSTORE_PASSWORD')
+                keyAlias localProps.getProperty('KEY_ALIAS')
+                keyPassword localProps.getProperty('KEY_PASSWORD')
+            }
+        }
+    }
 
     defaultConfig {
         applicationId "org.proxydroid"
@@ -18,9 +37,9 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
-            // Specifies the ABI configurations of your native
-            // libraries Gradle should build and package with your APK.
-            abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+            // Cargo Rust crate (proxydroid-tun2socks) currently builds for arm64-v8a
+            // only; expand once the other Rust android targets are installed.
+            abiFilters 'arm64-v8a'
         }
     }
 
@@ -28,6 +47,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (localProps.getProperty('KEYSTORE_PATH')) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 
@@ -50,6 +72,35 @@ android {
     lint {
         abortOnError false
     }
+
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.5.3'
+    }
+
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+}
+
+cargo {
+    module = "src/main/rust/proxydroid-tun2socks"
+    libname = "proxydroid_tun2socks"
+    targets = ["arm64"]
+    profile = "release"
+    prebuiltToolchains = true
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'mergeDebugJniLibFolders' || task.name == 'mergeReleaseJniLibFolders' ||
+        task.name == 'javaPreCompileDebug' || task.name == 'javaPreCompileRelease') {
+        task.dependsOn 'cargoBuild'
+    }
 }
 
 dependencies {
@@ -63,6 +114,19 @@ dependencies {
         exclude group: 'junit', module: 'junit'
     }
     implementation 'org.mozilla:rhino:1.7.14'
+
+    // Compose
+    def composeBom = platform('androidx.compose:compose-bom:2023.10.01')
+    implementation composeBom
+    androidTestImplementation composeBom
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.compose.material:material-icons-extended'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+    implementation 'androidx.activity:activity-compose:1.8.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:5.3.1'

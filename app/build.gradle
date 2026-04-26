@@ -37,9 +37,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
-            // Cargo Rust crate (proxydroid-tun2socks) currently builds for arm64-v8a
-            // only; expand once the other Rust android targets are installed.
-            abiFilters 'arm64-v8a'
+            abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
         }
     }
 
@@ -91,7 +89,7 @@ android {
 cargo {
     module = "src/main/rust/proxydroid-tun2socks"
     libname = "proxydroid_tun2socks"
-    targets = ["arm64"]
+    targets = ["arm", "arm64", "x86", "x86_64"]
     profile = "release"
     prebuiltToolchains = true
 }

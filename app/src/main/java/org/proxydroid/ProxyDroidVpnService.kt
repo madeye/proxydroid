@@ -28,7 +28,6 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import org.proxydroid.utils.LocalProxyServer
 import org.proxydroid.utils.Tun2SocksHelper
 import org.proxydroid.utils.Utils
 
@@ -41,13 +40,11 @@ class ProxyDroidVpnService : VpnService() {
         private const val VPN_MTU = 1500
         private const val VPN_ADDRESS = "10.0.0.1"
         private const val VPN_ROUTE = "0.0.0.0"
-        private const val LOCAL_SOCKS_PORT = 1080
+        const val ACTION_STOP = "org.proxydroid.action.STOP_VPN"
     }
 
     private var vpnInterface: ParcelFileDescriptor? = null
     private var tun2SocksHelper: Tun2SocksHelper? = null
-    private var localProxyServer: LocalProxyServer? = null
-
     private var host: String = ""
     private var port: Int = 0
     private var user: String = ""
@@ -63,6 +60,16 @@ class ProxyDroidVpnService : VpnService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent == null) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
+        if (intent.action == ACTION_STOP) {
+            Log.d(TAG, "ACTION_STOP received")
+            stopVpn()
+            Utils.setWorking(false)
+            Utils.setConnecting(false)
+            stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             return START_NOT_STICKY
         }
@@ -135,26 +142,22 @@ class ProxyDroidVpnService : VpnService() {
         Utils.setConnecting(true)
 
         try {
-            // Start local SOCKS proxy if needed (for HTTP proxy)
-            if (proxyType == "http") {
-                localProxyServer = LocalProxyServer(
-                    LOCAL_SOCKS_PORT,
-                    host,
-                    port,
-                    if (user.isNotEmpty()) user else null,
-                    if (password.isNotEmpty()) password else null
-                )
-                localProxyServer?.start()
-            }
-
-            // Configure VPN
+            // Configure VPN. DNS server is in-tunnel; the Rust tun2socks
+            // intercepts UDP/53 and forwards via DoH through the upstream SOCKS5.
             val builder = Builder()
                 .setSession(getString(R.string.app_name))
                 .setMtu(VPN_MTU)
                 .addAddress(VPN_ADDRESS, 24)
                 .addRoute(VPN_ROUTE, 0)
-                .addDnsServer("8.8.8.8")
-                .addDnsServer("8.8.4.4")
+                .addDnsServer("10.0.0.2")
+
+            // Always exclude our own UID so tun2socks / LocalProxyServer can reach
+            // the upstream SOCKS without the packets looping back into our own tun.
+            try {
+                builder.addDisallowedApplication(packageName)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to disallow self: $packageName", e)
+            }
 
             // Add per-app proxy if configured
             if (proxyApps.isNotEmpty()) {
@@ -192,18 +195,18 @@ class ProxyDroidVpnService : VpnService() {
                 return
             }
 
-            // Start tun2socks
+            // Start tun2socks. The Rust crate speaks SOCKS5 directly to the
+            // user-configured upstream — no in-process HTTP/SOCKS bridge needed.
             tun2SocksHelper = Tun2SocksHelper()
-            val socksHost = if (proxyType == "http") "127.0.0.1" else host
-            val socksPort = if (proxyType == "http") LOCAL_SOCKS_PORT else port
-
             val started = tun2SocksHelper?.start(
+                this,
                 vpnInterface!!.fd,
                 VPN_MTU,
-                socksHost,
-                socksPort,
-                if (user.isNotEmpty() && proxyType != "http") user else null,
-                if (password.isNotEmpty() && proxyType != "http") password else null
+                proxyType,
+                host,
+                port,
+                if (user.isNotEmpty()) user else null,
+                if (password.isNotEmpty()) password else null,
             ) ?: false
 
             if (started) {
@@ -226,9 +229,6 @@ class ProxyDroidVpnService : VpnService() {
         try {
             tun2SocksHelper?.stop()
             tun2SocksHelper = null
-
-            localProxyServer?.stop()
-            localProxyServer = null
 
             vpnInterface?.close()
             vpnInterface = null

@@ -52,7 +52,7 @@ class Profile {
         user = ""
         password = ""
         domain = ""
-        proxyType = "http"
+        proxyType = "socks5"
         ssid = ""
         excludedSsid = ""
         proxyApps = ""
@@ -73,7 +73,7 @@ class Profile {
         user = settings.getString("user", "") ?: ""
         password = settings.getString("password", "") ?: ""
         domain = settings.getString("domain", "") ?: ""
-        proxyType = settings.getString("proxyType", "http") ?: "http"
+        proxyType = settings.getString("proxyType", "socks5") ?: "socks5"
         ssid = settings.getString("ssid", "") ?: ""
         excludedSsid = settings.getString("excludedSsid", "") ?: ""
         proxyApps = settings.getString("proxyApps", "") ?: ""
@@ -154,7 +154,7 @@ class Profile {
             user = json["user"] as? String ?: ""
             password = json["password"] as? String ?: ""
             domain = json["domain"] as? String ?: ""
-            proxyType = json["proxyType"] as? String ?: "http"
+            proxyType = json["proxyType"] as? String ?: "socks5"
             ssid = json["ssid"] as? String ?: ""
             excludedSsid = json["excludedSsid"] as? String ?: ""
             proxyApps = json["proxyApps"] as? String ?: ""
@@ -169,6 +169,31 @@ class Profile {
             isAutoConnect = json["isAutoConnect"] as? Boolean ?: false
         } catch (e: Exception) {
             Log.e(TAG, "Error parsing profile JSON", e)
+        }
+    }
+
+    fun copy(): Profile {
+        val src = this
+        return Profile().also { dst ->
+            dst.name = src.name
+            dst.host = src.host
+            dst.port = src.port
+            dst.user = src.user
+            dst.password = src.password
+            dst.domain = src.domain
+            dst.proxyType = src.proxyType
+            dst.ssid = src.ssid
+            dst.excludedSsid = src.excludedSsid
+            dst.proxyApps = src.proxyApps
+            dst.bypassAddrs = src.bypassAddrs
+            dst.certificate = src.certificate
+            dst.isAuth = src.isAuth
+            dst.isNTLM = src.isNTLM
+            dst.isDNSProxy = src.isDNSProxy
+            dst.isPAC = src.isPAC
+            dst.isAutoSetProxy = src.isAutoSetProxy
+            dst.isBypassApps = src.isBypassApps
+            dst.isAutoConnect = src.isAutoConnect
         }
     }
 

@@ -5,14 +5,6 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.proxydroid
@@ -23,17 +15,16 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
+import android.preference.PreferenceManager
 import android.util.Log
 import android.widget.RemoteViews
-import android.preference.PreferenceManager
+import org.proxydroid.utils.ProxyController
 import org.proxydroid.utils.Utils
 
 class ProxyDroidWidgetProvider : AppWidgetProvider() {
 
     companion object {
         const val PROXY_SWITCH_ACTION = "org.proxydroid.ProxyDroidWidgetProvider.PROXY_SWITCH_ACTION"
-        const val SERVICE_NAME = "org.proxydroid.ProxyDroidService"
         private const val TAG = "ProxyDroidWidgetProvider"
     }
 
@@ -52,10 +43,8 @@ class ProxyDroidWidgetProvider : AppWidgetProvider() {
 
             if (Utils.isWorking()) {
                 views.setImageViewResource(R.id.serviceToggle, R.drawable.on)
-                Log.d(TAG, "Service running")
             } else {
                 views.setImageViewResource(R.id.serviceToggle, R.drawable.off)
-                Log.d(TAG, "Service stopped")
             }
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
@@ -64,54 +53,27 @@ class ProxyDroidWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+        if (intent.action != PROXY_SWITCH_ACTION) return
 
-        if (intent.action == PROXY_SWITCH_ACTION) {
-            val views = RemoteViews(context.packageName, R.layout.proxydroid_appwidget)
-            try {
-                views.setImageViewResource(R.id.serviceToggle, R.drawable.ing)
-                val awm = AppWidgetManager.getInstance(context)
-                awm.updateAppWidget(
-                    awm.getAppWidgetIds(ComponentName(context, ProxyDroidWidgetProvider::class.java)),
-                    views
-                )
-            } catch (e: Exception) {
-                // Nothing
-            }
+        val views = RemoteViews(context.packageName, R.layout.proxydroid_appwidget)
+        try {
+            views.setImageViewResource(R.id.serviceToggle, R.drawable.ing)
+            val awm = AppWidgetManager.getInstance(context)
+            awm.updateAppWidget(
+                awm.getAppWidgetIds(ComponentName(context, ProxyDroidWidgetProvider::class.java)),
+                views
+            )
+        } catch (_: Exception) {
+        }
 
-            Log.d(TAG, "Proxy switch action")
+        Log.d(TAG, "Proxy switch action")
 
-            if (Utils.isWorking()) {
-                // Service is working, so stop it
-                try {
-                    context.stopService(Intent(context, ProxyDroidService::class.java))
-                } catch (e: Exception) {
-                    // Nothing
-                }
-            } else {
-                // Service is not working, then start it
-                val settings = PreferenceManager.getDefaultSharedPreferences(context)
-                val profile = Profile()
-                profile.getProfile(settings)
-
-                val serviceIntent = Intent(context, ProxyDroidService::class.java)
-                val bundle = Bundle().apply {
-                    putString("host", profile.host)
-                    putString("user", profile.user)
-                    putString("bypassAddrs", profile.bypassAddrs)
-                    putString("password", profile.password)
-                    putString("domain", profile.domain)
-                    putString("proxyType", profile.proxyType)
-                    putBoolean("isAutoSetProxy", profile.isAutoSetProxy)
-                    putBoolean("isBypassApps", profile.isBypassApps)
-                    putBoolean("isAuth", profile.isAuth)
-                    putBoolean("isNTLM", profile.isNTLM)
-                    putBoolean("isDNSProxy", profile.isDNSProxy)
-                    putBoolean("isPAC", profile.isPAC)
-                    putInt("port", profile.port)
-                }
-                serviceIntent.putExtras(bundle)
-                context.startService(serviceIntent)
-            }
+        if (Utils.isWorking()) {
+            ProxyController.stop(context)
+        } else {
+            val settings = PreferenceManager.getDefaultSharedPreferences(context)
+            val profile = Profile().apply { getProfile(settings) }
+            ProxyController.startWithConsent(context, profile)
         }
     }
 }

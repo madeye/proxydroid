@@ -91,7 +91,7 @@ class ConnectivityBroadcastReceiver : BroadcastReceiver() {
                     lastSSID != Constraints.ONLY_WIFI
                 ) {
                     if (Utils.isWorking()) {
-                        context.stopService(Intent(context, ProxyDroidService::class.java))
+                        org.proxydroid.utils.ProxyController.stop(context)
                     }
                 }
             } else {
@@ -106,7 +106,7 @@ class ConnectivityBroadcastReceiver : BroadcastReceiver() {
                             current = current?.replace("\"", "")
                             if (current != null && current != lastSSID) {
                                 if (Utils.isWorking()) {
-                                    context.stopService(Intent(context, ProxyDroidService::class.java))
+                                    org.proxydroid.utils.ProxyController.stop(context)
                                 }
                             }
                         }
@@ -114,7 +114,7 @@ class ConnectivityBroadcastReceiver : BroadcastReceiver() {
                 } else {
                     if (lastSSID != Constraints.ONLY_3G && lastSSID != Constraints.WIFI_AND_3G) {
                         if (Utils.isWorking()) {
-                            context.stopService(Intent(context, ProxyDroidService::class.java))
+                            org.proxydroid.utils.ProxyController.stop(context)
                         }
                     }
                 }

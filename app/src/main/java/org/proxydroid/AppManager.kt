@@ -1,278 +1,256 @@
-/* Copyright (c) 2009, Nathan Freitas, Orbot / The Guardian Project - http://openideals.com/guardian */
-/* See LICENSE for licensing information */
+/* Per-app proxy selector. Originally based on Orbot/The Guardian Project. */
 
 package org.proxydroid
 
-import android.app.Activity
-import android.app.ProgressDialog
 import android.content.Context
-import android.graphics.PixelFormat
+import android.content.pm.ApplicationInfo
+import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
-import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
 import android.preference.PreferenceManager
-import org.proxydroid.utils.ImageLoader
-import org.proxydroid.utils.ImageLoaderFactory
-import java.util.*
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.proxydroid.ui.theme.ProxyDroidTheme
+import org.proxydroid.ui.toImageBitmap
+import java.util.StringTokenizer
 
-class AppManager : AppCompatActivity(), CompoundButton.OnCheckedChangeListener, View.OnClickListener {
-
-    private var apps: Array<ProxyedApp>? = null
-    private lateinit var listApps: ListView
-    private lateinit var overlay: TextView
-    private var pd: ProgressDialog? = null
-    private var adapter: ListAdapter? = null
-    private lateinit var dm: ImageLoader
-    private var appsLoaded = false
+class AppManager : ComponentActivity() {
 
     companion object {
-        private const val MSG_LOAD_START = 1
-        private const val MSG_LOAD_FINISH = 2
         const val PREFS_KEY_PROXYED = "Proxyed"
 
         @JvmStatic
         fun getProxyedApps(context: Context, self: Boolean): Array<ProxyedApp> {
             val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-            val tordAppString = prefs.getString(PREFS_KEY_PROXYED, "") ?: ""
-            val st = StringTokenizer(tordAppString, "|")
-            val tordApps = Array(st.countTokens()) { st.nextToken() }
-            Arrays.sort(tordApps)
+            val raw = prefs.getString(PREFS_KEY_PROXYED, "") ?: ""
+            val st = StringTokenizer(raw, "|")
+            val tokens = Array(st.countTokens()) { st.nextToken() }.also { it.sort() }
 
             val pMgr = context.packageManager
-            val lAppInfo = pMgr.getInstalledApplications(0)
-            val vectorApps = Vector<ProxyedApp>()
-
-            for (aInfo in lAppInfo) {
-                if (aInfo.uid < 10000) continue
-
+            val out = mutableListOf<ProxyedApp>()
+            for (info in pMgr.getInstalledApplications(0)) {
+                if (info.uid < 10000) continue
                 val app = ProxyedApp().apply {
-                    uid = aInfo.uid
+                    uid = info.uid
                     username = pMgr.getNameForUid(uid)
                     isProxyed = when {
-                        aInfo.packageName == "org.proxydroid" -> self
-                        username != null && Arrays.binarySearch(tordApps, username) >= 0 -> true
+                        info.packageName == "org.proxydroid" -> self
+                        username != null && tokens.binarySearch(username!!) >= 0 -> true
                         else -> false
                     }
                 }
-
-                if (app.isProxyed) {
-                    vectorApps.add(app)
-                }
+                if (app.isProxyed) out.add(app)
             }
-
-            return vectorApps.toTypedArray()
-        }
-    }
-
-    private val handler = object : Handler(Looper.getMainLooper()) {
-        override fun handleMessage(msg: Message) {
-            when (msg.what) {
-                MSG_LOAD_START -> {
-                    pd = ProgressDialog.show(this@AppManager, "", getString(R.string.loading), true, true)
-                }
-                MSG_LOAD_FINISH -> {
-                    listApps.adapter = adapter
-                    listApps.setOnScrollListener(object : AbsListView.OnScrollListener {
-                        var visible = false
-
-                        override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {
-                            visible = true
-                            if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
-                                overlay.visibility = View.INVISIBLE
-                            }
-                        }
-
-                        override fun onScroll(view: AbsListView, firstVisibleItem: Int, visibleItemCount: Int, totalItemCount: Int) {
-                            if (visible && apps != null && firstVisibleItem < apps!!.size) {
-                                val name = apps!![firstVisibleItem].name
-                                overlay.text = if (name != null && name.length > 1) name.substring(0, 1) else "*"
-                                overlay.visibility = View.VISIBLE
-                            }
-                        }
-                    })
-
-                    pd?.dismiss()
-                    pd = null
-                }
-            }
-            super.handleMessage(msg)
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+            return out.toTypedArray()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        setContentView(R.layout.layout_apps)
-
-        dm = ImageLoaderFactory.getImageLoader(this)
-
-        overlay = View.inflate(this, R.layout.overlay, null) as TextView
-        windowManager.addView(
-            overlay,
-            WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                PixelFormat.TRANSLUCENT
-            )
-        )
-    }
-
-    override fun onDestroy() {
-        windowManager.removeView(overlay)
-        super.onDestroy()
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        Thread {
-            handler.sendEmptyMessage(MSG_LOAD_START)
-            listApps = findViewById(R.id.applistview)
-            if (!appsLoaded) loadApps()
-            handler.sendEmptyMessage(MSG_LOAD_FINISH)
-        }.start()
-    }
-
-    private fun loadApps() {
-        getApps(this)
-
-        apps?.sortWith { o1, o2 ->
-            when {
-                o1 == null || o2 == null || o1.name == null || o2.name == null -> 1
-                o1.isProxyed == o2.isProxyed -> o1.name!!.compareTo(o2.name!!)
-                o1.isProxyed -> -1
-                else -> 1
+        enableEdgeToEdge()
+        setContent {
+            ProxyDroidTheme {
+                AppManagerScreen(onBack = { finish() })
             }
         }
-
-        val inflater = layoutInflater
-
-        adapter = object : ArrayAdapter<ProxyedApp>(this, R.layout.layout_apps_item, R.id.itemtext, apps!!) {
-            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val entry: ListEntry
-                val view: View
-
-                if (convertView == null) {
-                    view = inflater.inflate(R.layout.layout_apps_item, parent, false)
-                    entry = ListEntry(
-                        view.findViewById(R.id.itemicon),
-                        view.findViewById(R.id.itemcheck),
-                        view.findViewById(R.id.itemtext)
-                    )
-                    entry.text.setOnClickListener(this@AppManager)
-                    view.tag = entry
-                    entry.box.setOnCheckedChangeListener(this@AppManager)
-                } else {
-                    view = convertView
-                    entry = view.tag as ListEntry
-                }
-
-                val app = apps!![position]
-                entry.icon.tag = app.uid
-                dm.displayImage(app.uid, view.context as Activity, entry.icon)
-                entry.text.text = app.name
-                entry.box.tag = app
-                entry.box.isChecked = app.isProxyed
-                entry.text.tag = entry.box
-
-                return view
-            }
-        }
-
-        appsLoaded = true
     }
-
-    private data class ListEntry(
-        val icon: ImageView,
-        val box: CheckBox,
-        val text: TextView
-    )
-
-    override fun onStop() {
-        super.onStop()
-    }
-
-    private fun getApps(context: Context) {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val tordAppString = prefs.getString(PREFS_KEY_PROXYED, "") ?: ""
-        val st = StringTokenizer(tordAppString, "|")
-        val tordApps = Array(st.countTokens()) { st.nextToken() }
-        Arrays.sort(tordApps)
-
-        val vectorApps = Vector<ProxyedApp>()
-        val pMgr = context.packageManager
-        val lAppInfo = pMgr.getInstalledApplications(0)
-
-        for (aInfo in lAppInfo) {
-            if (aInfo.uid < 10000) continue
-            if (aInfo.processName == null) continue
-            val label = pMgr.getApplicationLabel(aInfo)
-            if (label == null || label.toString().isEmpty()) continue
-            if (pMgr.getApplicationIcon(aInfo) == null) continue
-
-            val tApp = ProxyedApp().apply {
-                isEnabled = aInfo.enabled
-                uid = aInfo.uid
-                username = pMgr.getNameForUid(uid)
-                procname = aInfo.processName
-                name = label.toString()
-                isProxyed = username != null && Arrays.binarySearch(tordApps, username) >= 0
-            }
-            vectorApps.add(tApp)
-        }
-
-        apps = vectorApps.toTypedArray()
-    }
-
-    fun saveAppSettings(context: Context) {
-        val currentApps = apps ?: return
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-
-        val tordApps = StringBuilder()
-        for (app in currentApps) {
-            if (app.isProxyed) {
-                tordApps.append(app.username)
-                tordApps.append("|")
-            }
-        }
-
-        prefs.edit().putString(PREFS_KEY_PROXYED, tordApps.toString()).apply()
-    }
-
-    override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
-        val app = buttonView.tag as? ProxyedApp
-        app?.isProxyed = isChecked
-        saveAppSettings(this)
-    }
-
-    override fun onClick(v: View) {
-        val cbox = v.tag as CheckBox
-        val app = cbox.tag as? ProxyedApp
-        app?.let {
-            it.isProxyed = !it.isProxyed
-            cbox.isChecked = it.isProxyed
-        }
-        saveAppSettings(this)
-    }
-
 }
+
+private data class AppRow(
+    val uid: Int,
+    val username: String?,
+    val name: String,
+    val icon: Drawable?,
+    var proxyed: Boolean,
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AppManagerScreen(onBack: () -> Unit) {
+    val ctx = LocalContext.current
+    val rows = remember { mutableStateListOf<AppRow>() }
+    var loading by remember { mutableStateOf(true) }
+    var query by remember { mutableStateOf("") }
+    var selectedOnly by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        val loaded = withContext(Dispatchers.IO) { loadApps(ctx) }
+        rows.clear()
+        rows.addAll(loaded)
+        loading = false
+    }
+
+    val visible by remember(query, selectedOnly, rows.size) {
+        derivedStateOf {
+            rows.filter { r ->
+                (!selectedOnly || r.proxyed) &&
+                    (query.isBlank() || r.name.contains(query, ignoreCase = true) ||
+                        (r.username?.contains(query, ignoreCase = true) == true))
+            }
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Per-app routing") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+            )
+        },
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize(),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    label = { Text("Search") },
+                    leadingIcon = { Icon(Icons.Default.Search, null) },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                FilterChip(
+                    selected = selectedOnly,
+                    onClick = { selectedOnly = !selectedOnly },
+                    label = { Text("Selected") },
+                )
+            }
+
+            if (loading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else if (visible.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        if (selectedOnly) "No apps selected yet." else "No matches.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(visible.size, key = { i -> visible[i].uid }) { i ->
+                        val row = visible[i]
+                        ListItem(
+                            headlineContent = { Text(row.name) },
+                            supportingContent = {
+                                row.username?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+                            },
+                            leadingContent = {
+                                val icon = row.icon
+                                if (icon != null) {
+                                    Image(
+                                        painter = BitmapPainter(remember(row.uid) { icon.toImageBitmap(96, 96) }),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(40.dp),
+                                    )
+                                } else {
+                                    Box(modifier = Modifier.size(40.dp))
+                                }
+                            },
+                            trailingContent = {
+                                Switch(
+                                    checked = row.proxyed,
+                                    onCheckedChange = { checked ->
+                                        val idx = rows.indexOfFirst { it.uid == row.uid }
+                                        if (idx >= 0) {
+                                            rows[idx] = rows[idx].copy(proxyed = checked)
+                                            saveSelection(ctx, rows)
+                                        }
+                                    },
+                                )
+                            },
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun loadApps(ctx: Context): List<AppRow> {
+    val prefs = PreferenceManager.getDefaultSharedPreferences(ctx)
+    val raw = prefs.getString(AppManager.PREFS_KEY_PROXYED, "") ?: ""
+    val tokens = StringTokenizer(raw, "|").let { st ->
+        Array(st.countTokens()) { st.nextToken() }.also { it.sort() }
+    }
+    val pMgr = ctx.packageManager
+    val list = mutableListOf<AppRow>()
+    for (info: ApplicationInfo in pMgr.getInstalledApplications(0)) {
+        if (info.uid < 10000) continue
+        if (info.processName == null) continue
+        val label = pMgr.getApplicationLabel(info)?.toString().orEmpty()
+        if (label.isBlank()) continue
+        val icon = runCatching { pMgr.getApplicationIcon(info) }.getOrNull()
+        val username = pMgr.getNameForUid(info.uid)
+        val proxyed = username != null && tokens.binarySearch(username) >= 0
+        list.add(AppRow(uid = info.uid, username = username, name = label, icon = icon, proxyed = proxyed))
+    }
+    return list.sortedWith(compareByDescending<AppRow> { it.proxyed }.thenBy { it.name.lowercase() })
+}
+
+private fun saveSelection(ctx: Context, rows: List<AppRow>) {
+    val prefs = PreferenceManager.getDefaultSharedPreferences(ctx)
+    val sb = StringBuilder()
+    for (r in rows) {
+        if (r.proxyed && r.username != null) {
+            sb.append(r.username).append('|')
+        }
+    }
+    prefs.edit().putString(AppManager.PREFS_KEY_PROXYED, sb.toString()).apply()
+}
+

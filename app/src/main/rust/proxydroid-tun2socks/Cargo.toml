@@ -1,0 +1,36 @@
+[package]
+name = "proxydroid-tun2socks"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[lints.rust]
+unsafe_code = "allow"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+needless_return = "allow"
+
+[dependencies]
+socket2 = "0.5"
+tokio = { version = "1", features = ["full"] }
+parking_lot = "0.12"
+tracing = "0.1"
+libc = "0.2"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "socks"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "logging", "std", "tls12"] }
+tokio-rustls = { version = "0.26", default-features = false, features = ["logging", "ring", "tls12"] }
+jni = "0.21"
+android_logger = "0.14"
+log = "0.4"
+futures = "0.3"
+netstack-smoltcp = "0.2"
+base64 = "0.22"
+percent-encoding = "2.3"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = "symbols"

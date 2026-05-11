@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.9.25'
+    ext.kotlin_version = '1.9.10'
     repositories {
         // Use Google's China mirror so the build works from networks where
         // dl.google.com is unreachable. The mirror serves the same artifacts.
@@ -13,7 +13,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.5.0'
+        classpath 'com.android.tools.build:gradle:8.1.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'org.mozilla.rust-android-gradle:plugin:0.9.6'
 

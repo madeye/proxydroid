@@ -12,7 +12,7 @@ if (localPropsFile.exists()) {
 
 android {
     namespace 'org.proxydroid'
-    compileSdk 34
+    compileSdk 35
     ndkVersion "25.1.8937393"
 
     signingConfigs {
@@ -29,8 +29,8 @@ android {
 
     defaultConfig {
         applicationId "org.proxydroid"
-        minSdk 21
-        targetSdk 33
+        minSdk 24
+        targetSdk 35
         versionCode 74
         versionName "3.4.0"
 
@@ -76,7 +76,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion '1.5.3'
+        kotlinCompilerExtensionVersion '1.5.15'
     }
 
     packagingOptions {

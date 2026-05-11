@@ -83,6 +83,13 @@ android {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
+        // rust-android-gradle (0.9.6) registers its build/rustJniLibs/<abi>
+        // outputs into jniLibs.srcDirs, but AGP 8.5+ also sees the same
+        // path via the cargoBuild task output, which makes mergeJniLibFolders
+        // fail with "Duplicate resources". Pick the first copy for our .so.
+        jniLibs {
+            pickFirsts += ['**/libproxydroid_tun2socks.so']
+        }
     }
 }
 

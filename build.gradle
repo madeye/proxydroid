@@ -3,8 +3,13 @@
 buildscript {
     ext.kotlin_version = '1.9.25'
     repositories {
+        // Use Google's China mirror so the build works from networks where
+        // dl.google.com is unreachable. The mirror serves the same artifacts.
+        maven { url 'https://dl.google.cn/dl/android/maven2/' }
         google()
+        maven { url 'https://maven.aliyun.com/repository/central' }
         mavenCentral()
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
         gradlePluginPortal()
     }
     dependencies {
@@ -19,7 +24,9 @@ buildscript {
 
 allprojects {
     repositories {
+        maven { url 'https://dl.google.cn/dl/android/maven2/' }
         google()
+        maven { url 'https://maven.aliyun.com/repository/central' }
         mavenCentral()
     }
 }

@@ -86,15 +86,15 @@ android {
     }
 }
 
-// rust-android-gradle 0.9.6 registers its build/rustJniLibs/<abi> output as a
-// JNI source dir, while AGP 8.5+ also captures the same path via the
-// cargoBuild task outputs, making mergeJniLibFolders see each .so twice and
-// fail with "Duplicate resources". Tell the merge Copy task to silently keep
-// one copy.
-tasks.matching {
-    it.name.startsWith("merge") && it.name.endsWith("JniLibFolders")
-}.configureEach {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+// rust-android-gradle 0.9.6 ends up registering its build/rustJniLibs/<abi>
+// directory in jniLibs.srcDirs twice under AGP 8.5+, causing
+// mergeJniLibFolders to fail with "Duplicate resources" on every ABI's .so.
+// Deduplicate srcDirs at configure time. MergeSourceSetFolders is not a
+// Copy task, so duplicatesStrategy doesn't help here.
+afterEvaluate {
+    android.sourceSets.configureEach { sourceSet ->
+        sourceSet.jniLibs.srcDirs = sourceSet.jniLibs.srcDirs.toSet().toList()
+    }
 }
 
 cargo {

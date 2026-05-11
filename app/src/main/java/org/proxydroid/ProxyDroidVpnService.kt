@@ -151,8 +151,8 @@ class ProxyDroidVpnService : VpnService() {
                 .addRoute(VPN_ROUTE, 0)
                 .addDnsServer("10.0.0.2")
 
-            // Always exclude our own UID so tun2socks / LocalProxyServer can reach
-            // the upstream SOCKS without the packets looping back into our own tun.
+            // Always exclude our own UID so tun2socks can reach the upstream
+            // proxy without the packets looping back into our own tun.
             try {
                 builder.addDisallowedApplication(packageName)
             } catch (e: Exception) {

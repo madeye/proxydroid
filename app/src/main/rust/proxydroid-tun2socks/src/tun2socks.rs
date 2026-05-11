@@ -318,7 +318,8 @@ async fn connect_upstream(cfg: &UpstreamConfig, target: &Target) -> io::Result<A
     match cfg.kind {
         ProxyKind::Socks5 => {
             let s = TcpStream::connect(&proxy_addr).await?;
-            let s = socks5_handshake(s, cfg.user.as_deref(), cfg.password.as_deref(), target).await?;
+            let s =
+                socks5_handshake(s, cfg.user.as_deref(), cfg.password.as_deref(), target).await?;
             Ok(Box::new(s))
         }
         ProxyKind::Socks4 => {
@@ -381,7 +382,12 @@ async fn socks5_handshake<S: AsyncRead + AsyncWrite + Unpin>(
                 return Err(io::Error::other(format!("SOCKS5 auth rejected: {}", ar[1])));
             }
         }
-        m => return Err(io::Error::other(format!("SOCKS5 method not accepted: {}", m))),
+        m => {
+            return Err(io::Error::other(format!(
+                "SOCKS5 method not accepted: {}",
+                m
+            )))
+        }
     }
 
     match target {
@@ -453,12 +459,12 @@ async fn socks4_handshake<S: AsyncRead + AsyncWrite + Unpin>(
     match target {
         Target::Ip(SocketAddr::V4(v4)) => {
             let mut req = Vec::with_capacity(8 + userid.len() + 1);
-            req.push(0x04);                          // VN
-            req.push(0x01);                          // CD = CONNECT
+            req.push(0x04); // VN
+            req.push(0x01); // CD = CONNECT
             req.extend_from_slice(&v4.port().to_be_bytes());
             req.extend_from_slice(&v4.ip().octets());
             req.extend_from_slice(userid);
-            req.push(0x00);                          // userid NUL terminator
+            req.push(0x00); // userid NUL terminator
             s.write_all(&req).await?;
         }
         Target::Ip(SocketAddr::V6(_)) => {
@@ -470,7 +476,7 @@ async fn socks4_handshake<S: AsyncRead + AsyncWrite + Unpin>(
             req.push(0x04);
             req.push(0x01);
             req.extend_from_slice(&port.to_be_bytes());
-            req.extend_from_slice(&[0, 0, 0, 1]);    // 0.0.0.1 = SOCKS4A marker
+            req.extend_from_slice(&[0, 0, 0, 1]); // 0.0.0.1 = SOCKS4A marker
             req.extend_from_slice(userid);
             req.push(0x00);
             req.extend_from_slice(domain.as_bytes());
@@ -482,7 +488,10 @@ async fn socks4_handshake<S: AsyncRead + AsyncWrite + Unpin>(
     let mut resp = [0u8; 8];
     s.read_exact(&mut resp).await?;
     if resp[0] != 0x00 {
-        return Err(io::Error::other(format!("SOCKS4 bad reply VN: {}", resp[0])));
+        return Err(io::Error::other(format!(
+            "SOCKS4 bad reply VN: {}",
+            resp[0]
+        )));
     }
     if resp[1] != 0x5A {
         return Err(io::Error::other(format!(
@@ -712,3 +721,7 @@ async fn handle_dns_query(
         ));
     }
 }
+
+#[cfg(test)]
+#[path = "auth_e2e_tests.rs"]
+mod auth_e2e_tests;

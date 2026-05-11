@@ -83,14 +83,18 @@ android {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
-        // rust-android-gradle (0.9.6) registers its build/rustJniLibs/<abi>
-        // outputs into jniLibs.srcDirs, but AGP 8.5+ also sees the same
-        // path via the cargoBuild task output, which makes mergeJniLibFolders
-        // fail with "Duplicate resources". Pick the first copy for our .so.
-        jniLibs {
-            pickFirsts += ['**/libproxydroid_tun2socks.so']
-        }
     }
+}
+
+// rust-android-gradle 0.9.6 registers its build/rustJniLibs/<abi> output as a
+// JNI source dir, while AGP 8.5+ also captures the same path via the
+// cargoBuild task outputs, making mergeJniLibFolders see each .so twice and
+// fail with "Duplicate resources". Tell the merge Copy task to silently keep
+// one copy.
+tasks.matching {
+    it.name.startsWith("merge") && it.name.endsWith("JniLibFolders")
+}.configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 cargo {

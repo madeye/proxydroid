@@ -2,9 +2,9 @@ name: Android Build
 
 on:
   push:
-    branches: [ master, main, 'claude/**' ]
+    branches: [ master, main, 'claude/**', 'feature/**', 'test/**' ]
   pull_request:
-    branches: [ master, main ]
+    branches: [ master, main, 'feature/**' ]
 
 jobs:
   build:

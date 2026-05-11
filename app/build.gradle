@@ -12,7 +12,7 @@ if (localPropsFile.exists()) {
 
 android {
     namespace 'org.proxydroid'
-    compileSdk 35
+    compileSdk 34
     ndkVersion "25.1.8937393"
 
     signingConfigs {
@@ -76,24 +76,13 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion '1.5.15'
+        kotlinCompilerExtensionVersion '1.5.3'
     }
 
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
-    }
-}
-
-// rust-android-gradle 0.9.6 ends up registering its build/rustJniLibs/<abi>
-// directory in jniLibs.srcDirs twice under AGP 8.5+, causing
-// mergeJniLibFolders to fail with "Duplicate resources" on every ABI's .so.
-// Deduplicate srcDirs at configure time. MergeSourceSetFolders is not a
-// Copy task, so duplicatesStrategy doesn't help here.
-afterEvaluate {
-    android.sourceSets.configureEach { sourceSet ->
-        sourceSet.jniLibs.srcDirs = sourceSet.jniLibs.srcDirs.toSet().toList()
     }
 }
 

@@ -2,6 +2,7 @@
 //! upstream proxy as user traffic, so DNS works on networks where direct UDP/53
 //! is blocked.
 
+use crate::error::Tun2SocksError;
 use crate::logging;
 use crate::tun2socks::{ProxyKind, UpstreamConfig};
 use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
@@ -19,25 +20,31 @@ struct DohClient {
 
 static DOH_CLIENT: OnceLock<DohClient> = OnceLock::new();
 
-pub fn init_doh_client(cfg: &UpstreamConfig) {
-    DOH_CLIENT.get_or_init(|| {
-        let proxy_url = build_proxy_url(cfg);
-        info!("DoH client: proxy={}", proxy_url);
+/// Initialise the process-wide DoH client. Subsequent calls are no-ops — the
+/// first proxy configuration wins, matching the lifetime of the tokio runtime.
+pub fn init_doh_client(cfg: &UpstreamConfig) -> Result<(), Tun2SocksError> {
+    if DOH_CLIENT.get().is_some() {
+        return Ok(());
+    }
+    let proxy_url = build_proxy_url(cfg);
+    info!("DoH client: proxy={}", proxy_url);
 
-        let proxy = reqwest::Proxy::all(&proxy_url).expect("invalid proxy URL");
+    let proxy = reqwest::Proxy::all(&proxy_url).map_err(Tun2SocksError::HttpClient)?;
 
-        let http_client = reqwest::Client::builder()
-            .proxy(proxy)
-            .timeout(std::time::Duration::from_secs(DOH_TIMEOUT_SECS))
-            .danger_accept_invalid_certs(true)
-            .build()
-            .expect("failed to build reqwest client");
+    let http_client = reqwest::Client::builder()
+        .proxy(proxy)
+        .timeout(std::time::Duration::from_secs(DOH_TIMEOUT_SECS))
+        .danger_accept_invalid_certs(true)
+        .build()
+        .map_err(Tun2SocksError::HttpClient)?;
 
-        DohClient {
-            http_client,
-            doh_urls: IP_BASED_DOH_URLS.iter().map(|s| s.to_string()).collect(),
-        }
+    // Ignore the Err result: a race where another thread initialised first is
+    // fine because the configuration is identical for the runtime's lifetime.
+    let _ = DOH_CLIENT.set(DohClient {
+        http_client,
+        doh_urls: IP_BASED_DOH_URLS.iter().map(|s| s.to_string()).collect(),
     });
+    Ok(())
 }
 
 fn build_proxy_url(cfg: &UpstreamConfig) -> String {

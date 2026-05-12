@@ -11,9 +11,11 @@
 
 use crate::dns_table;
 use crate::doh_client;
+use crate::error::Tun2SocksError;
 use crate::logging;
 use base64::Engine;
 use futures::{SinkExt, StreamExt};
+use parking_lot::Mutex as ParkMutex;
 use std::io;
 use std::net::{Ipv4Addr, SocketAddr};
 use std::os::raw::c_void;
@@ -22,7 +24,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 use tokio::net::TcpStream;
-use tokio::sync::mpsc;
+use tokio::sync::{mpsc, oneshot};
 use tracing::{debug, info};
 
 use netstack_smoltcp::{AnyIpPktFrame, StackBuilder};
@@ -66,43 +68,80 @@ pub struct UpstreamConfig {
 
 static TUN2SOCKS_RUNNING: AtomicBool = AtomicBool::new(false);
 
-pub fn start(fd: i32, cfg: UpstreamConfig) -> Result<(), String> {
+/// Sender owned by the JNI caller; firing it asks the runner to shut down
+/// cleanly. Held in a `parking_lot::Mutex` because we swap it in/out from
+/// non-async code (JNI thread).
+static SHUTDOWN_TX: ParkMutex<Option<oneshot::Sender<()>>> = ParkMutex::new(None);
+
+pub fn start(fd: i32, cfg: UpstreamConfig) -> Result<(), Tun2SocksError> {
     if TUN2SOCKS_RUNNING.swap(true, Ordering::SeqCst) {
-        return Err("tun2socks already running".into());
+        return Err(Tun2SocksError::AlreadyRunning);
     }
 
     info!(
         "tun2socks starting: fd={}, kind={:?}, upstream={}:{}",
         fd, cfg.kind, cfg.host, cfg.port
     );
-    doh_client::init_doh_client(&cfg);
 
-    unsafe {
-        let flags = libc::fcntl(fd, libc::F_GETFL);
-        libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK);
+    // Initialise DoH up-front so an invalid proxy URL becomes a synchronous
+    // error that nativeStart can surface to Kotlin.
+    if let Err(e) = doh_client::init_doh_client(&cfg) {
+        TUN2SOCKS_RUNNING.store(false, Ordering::SeqCst);
+        return Err(e);
     }
 
-    let rt = crate::get_runtime();
+    // SAFETY: `fd` is a TUN file descriptor handed to us by Android's
+    // VpnService. fcntl is safe on any valid fd; failure (e.g. fd already
+    // closed) is logged and ignored because subsequent reads will fail and the
+    // loop will tear itself down.
+    unsafe {
+        let flags = libc::fcntl(fd, libc::F_GETFL);
+        if flags < 0 {
+            logging::bridge_log("tun2socks: fcntl(F_GETFL) failed");
+        } else if libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK) < 0 {
+            logging::bridge_log("tun2socks: fcntl(F_SETFL, O_NONBLOCK) failed");
+        }
+    }
+
+    let rt = crate::try_get_runtime().inspect_err(|_| {
+        TUN2SOCKS_RUNNING.store(false, Ordering::SeqCst);
+    })?;
+
+    let (shutdown_tx, shutdown_rx) = oneshot::channel::<()>();
+    *SHUTDOWN_TX.lock() = Some(shutdown_tx);
+
     rt.spawn(async move {
-        if let Err(e) = run_tun2socks(fd, cfg).await {
+        if let Err(e) = run_tun2socks(fd, cfg, shutdown_rx).await {
             logging::bridge_log(&format!("tun2socks error: {}", e));
         }
         TUN2SOCKS_RUNNING.store(false, Ordering::SeqCst);
+        // Drop any leftover sender so a late stop() doesn't think the loop is
+        // alive.
+        *SHUTDOWN_TX.lock() = None;
         info!("tun2socks exited");
     });
 
     Ok(())
 }
 
+/// Request a graceful stop. Idempotent and safe to call from any thread.
 pub fn stop() {
     TUN2SOCKS_RUNNING.store(false, Ordering::SeqCst);
+    if let Some(tx) = SHUTDOWN_TX.lock().take() {
+        // Receiver dropped means the task already exited — nothing to do.
+        let _ = tx.send(());
+    }
 }
 
 // ---------------------------------------------------------------------------
 // Main tun2socks loop
 // ---------------------------------------------------------------------------
 
-async fn run_tun2socks(fd: RawFd, cfg: UpstreamConfig) -> io::Result<()> {
+async fn run_tun2socks(
+    fd: RawFd,
+    cfg: UpstreamConfig,
+    shutdown_rx: oneshot::Receiver<()>,
+) -> io::Result<()> {
     logging::bridge_log("tun2socks: building netstack-smoltcp stack");
 
     let (mut stack, tcp_runner, _udp_socket, tcp_listener) = StackBuilder::default()
@@ -112,8 +151,12 @@ async fn run_tun2socks(fd: RawFd, cfg: UpstreamConfig) -> io::Result<()> {
         .tcp_buffer_size(512)
         .build()?;
 
-    let tcp_runner = tcp_runner.expect("TCP runner");
-    let mut tcp_listener = tcp_listener.expect("TCP listener");
+    // Returned options are `Some` because we enabled TCP above. Treat absence
+    // as a configuration bug rather than panicking across the FFI boundary.
+    let tcp_runner =
+        tcp_runner.ok_or_else(|| io::Error::other("netstack-smoltcp returned no TCP runner"))?;
+    let mut tcp_listener = tcp_listener
+        .ok_or_else(|| io::Error::other("netstack-smoltcp returned no TCP listener"))?;
 
     logging::bridge_log("tun2socks: starting tasks");
 
@@ -235,7 +278,19 @@ async fn run_tun2socks(fd: RawFd, cfg: UpstreamConfig) -> io::Result<()> {
         }
     });
 
-    let _ = tun_reader_handle.await;
+    // Wait for either the TUN reader to drain (fd closed) or an explicit
+    // shutdown request from `stop()`. Whichever fires first, we then tear down
+    // every spawned subtask.
+    tokio::select! {
+        _ = tun_reader_handle => {
+            logging::bridge_log("tun2socks: TUN reader finished");
+        }
+        _ = shutdown_rx => {
+            // Flip the flag so the reader's inner loop will also notice.
+            TUN2SOCKS_RUNNING.store(false, Ordering::SeqCst);
+            logging::bridge_log("tun2socks: shutdown requested");
+        }
+    }
 
     runner_handle.abort();
     stack_handle.abort();

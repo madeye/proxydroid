@@ -2,9 +2,9 @@ name: Android Build
 
 on:
   push:
-    branches: [ master, main, 'claude/**', 'feature/**', 'test/**' ]
+    branches: [ master, main, 'claude/**', 'feature/**', 'test/**', 'refactor/**' ]
   pull_request:
-    branches: [ master, main, 'feature/**' ]
+    branches: [ master, main, 'feature/**', 'refactor/**' ]
 
 jobs:
   build:
@@ -51,7 +51,7 @@ jobs:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'gradle/libs.versions.toml') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
 
@@ -62,41 +62,6 @@ jobs:
       run: |
         echo "sdk.dir=$ANDROID_HOME" > local.properties
         echo "ndk.dir=$ANDROID_NDK_HOME" >> local.properties
-
-    - name: Create dummy google-services.json
-      run: |
-        mkdir -p app
-        cat > app/google-services.json << 'EOF'
-        {
-          "project_info": {
-            "project_number": "000000000000",
-            "project_id": "dummy-project",
-            "storage_bucket": "dummy-project.appspot.com"
-          },
-          "client": [
-            {
-              "client_info": {
-                "mobilesdk_app_id": "1:000000000000:android:0000000000000000",
-                "android_client_info": {
-                  "package_name": "org.proxydroid"
-                }
-              },
-              "oauth_client": [],
-              "api_key": [
-                {
-                  "current_key": "dummy-api-key"
-                }
-              ],
-              "services": {
-                "appinvite_service": {
-                  "other_platform_oauth_client": []
-                }
-              }
-            }
-          ],
-          "configuration_version": "1"
-        }
-        EOF
 
     - name: Build Debug APK
       run: ./gradlew assembleDebug --stacktrace
@@ -152,7 +117,7 @@ jobs:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'gradle/libs.versions.toml') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
 
@@ -220,7 +185,7 @@ jobs:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'gradle/libs.versions.toml') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
 
@@ -231,41 +196,6 @@ jobs:
       run: |
         echo "sdk.dir=$ANDROID_HOME" > local.properties
         echo "ndk.dir=$ANDROID_NDK_HOME" >> local.properties
-
-    - name: Create dummy google-services.json
-      run: |
-        mkdir -p app
-        cat > app/google-services.json << 'EOF'
-        {
-          "project_info": {
-            "project_number": "000000000000",
-            "project_id": "dummy-project",
-            "storage_bucket": "dummy-project.appspot.com"
-          },
-          "client": [
-            {
-              "client_info": {
-                "mobilesdk_app_id": "1:000000000000:android:0000000000000000",
-                "android_client_info": {
-                  "package_name": "org.proxydroid"
-                }
-              },
-              "oauth_client": [],
-              "api_key": [
-                {
-                  "current_key": "dummy-api-key"
-                }
-              ],
-              "services": {
-                "appinvite_service": {
-                  "other_platform_oauth_client": []
-                }
-              }
-            }
-          ],
-          "configuration_version": "1"
-        }
-        EOF
 
     - name: Run Unit Tests
       run: ./gradlew testDebugUnitTest --stacktrace
@@ -325,7 +255,7 @@ jobs:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'gradle/libs.versions.toml') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
 
@@ -336,41 +266,6 @@ jobs:
       run: |
         echo "sdk.dir=$ANDROID_HOME" > local.properties
         echo "ndk.dir=$ANDROID_NDK_HOME" >> local.properties
-
-    - name: Create dummy google-services.json
-      run: |
-        mkdir -p app
-        cat > app/google-services.json << 'EOF'
-        {
-          "project_info": {
-            "project_number": "000000000000",
-            "project_id": "dummy-project",
-            "storage_bucket": "dummy-project.appspot.com"
-          },
-          "client": [
-            {
-              "client_info": {
-                "mobilesdk_app_id": "1:000000000000:android:0000000000000000",
-                "android_client_info": {
-                  "package_name": "org.proxydroid"
-                }
-              },
-              "oauth_client": [],
-              "api_key": [
-                {
-                  "current_key": "dummy-api-key"
-                }
-              ],
-              "services": {
-                "appinvite_service": {
-                  "other_platform_oauth_client": []
-                }
-              }
-            }
-          ],
-          "configuration_version": "1"
-        }
-        EOF
 
     - name: Enable KVM
       run: |

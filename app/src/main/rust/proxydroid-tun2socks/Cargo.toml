@@ -14,7 +14,6 @@ all = { level = "warn", priority = -1 }
 needless_return = "allow"
 
 [dependencies]
-socket2 = "0.5"
 tokio = { version = "1", features = ["full"] }
 parking_lot = "0.12"
 tracing = "0.1"
@@ -29,6 +28,7 @@ futures = "0.3"
 netstack-smoltcp = "0.2"
 base64 = "0.22"
 percent-encoding = "2.3"
+thiserror = "1"
 
 [profile.release]
 lto = "thin"

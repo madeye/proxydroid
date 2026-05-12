@@ -1,0 +1,64 @@
+[versions]
+# Build tools — DO NOT bump AGP. AGP 8.1.2 + rust-android-gradle 0.9.6
+# is a known-good combination. AGP 8.5 retriggers a jniLibs duplicate-resources
+# crash; see commits 0249f91, 8875c74.
+agp = "8.1.2"
+kotlin = "1.9.10"
+rustAndroid = "0.9.6"
+composeCompiler = "1.5.3"
+
+# AndroidX core / app shell
+appcompat = "1.6.1"
+material = "1.9.0"
+coreKtx = "1.10.1"
+
+# Compose
+composeBom = "2023.10.01"
+activityCompose = "1.8.0"
+lifecycle = "2.6.2"
+
+# Third-party
+jsonSimple = "1.1.1"
+rhino = "1.7.14"
+
+# Test
+junit = "4.13.2"
+mockito = "5.3.1"
+androidxTestJunit = "1.1.5"
+androidxTestRunner = "1.5.2"
+androidxTestRules = "1.5.0"
+espresso = "3.5.1"
+
+[libraries]
+# AndroidX core / app shell
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+# Kotlin
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+
+# Compose (BOM-managed — versions intentionally omitted)
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
+
+# Third-party
+json-simple = { group = "com.googlecode.json-simple", name = "json-simple", version.ref = "jsonSimple" }
+rhino = { group = "org.mozilla", name = "rhino", version.ref = "rhino" }
+
+# Unit test
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+
+# Instrumented test
+androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestJunit" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
+androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "androidxTestRules" }
+androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso" }

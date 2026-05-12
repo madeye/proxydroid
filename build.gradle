@@ -1,7 +1,11 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.9.10'
+    // Plugin versions sourced from gradle/libs.versions.toml so the catalog is
+    // the single source of truth. AGP 8.1.2 + rust-android-gradle 0.9.6 is a
+    // known-good combination — do not bump without re-checking the jniLibs
+    // duplicate-resources landmine (see commits 0249f91, 8875c74).
+    ext.kotlin_version = libs.versions.kotlin.get()
     repositories {
         // Use Google's China mirror so the build works from networks where
         // dl.google.com is unreachable. The mirror serves the same artifacts.
@@ -13,9 +17,9 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'org.mozilla.rust-android-gradle:plugin:0.9.6'
+        classpath "com.android.tools.build:gradle:${libs.versions.agp.get()}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}"
+        classpath "org.mozilla.rust-android-gradle:plugin:${libs.versions.rustAndroid.get()}"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files

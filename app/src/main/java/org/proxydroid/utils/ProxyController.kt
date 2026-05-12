@@ -19,7 +19,6 @@ object ProxyController {
         putString("bypassAddrs", profile.bypassAddrs)
         putString("password", profile.password)
         putString("domain", profile.domain)
-        putString("certificate", profile.certificate)
         putString("proxyType", profile.proxyType)
         putString("proxyApps", profile.proxyApps)
         putBoolean("isAutoSetProxy", profile.isAutoSetProxy)

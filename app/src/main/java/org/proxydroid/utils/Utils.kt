@@ -20,13 +20,7 @@ package org.proxydroid.utils
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import android.os.Environment
 import android.util.Log
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 
 object Utils {
     private const val TAG = "ProxyDroid"
@@ -54,56 +48,16 @@ object Utils {
     }
 
     @JvmStatic
-    fun getDataPath(context: Context): String {
-        return if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
-            context.getExternalFilesDir(null)?.absolutePath ?: context.filesDir.absolutePath
-        } else {
-            context.filesDir.absolutePath
-        }
-    }
-
-    @JvmStatic
     fun getAppIcon(context: Context, uid: Int): Drawable? {
         val pm = context.packageManager
-        val packages = pm.getPackagesForUid(uid)
-        if (packages != null && packages.isNotEmpty()) {
-            try {
-                val appInfo = pm.getApplicationInfo(packages[0], 0)
-                return pm.getApplicationIcon(appInfo)
-            } catch (e: PackageManager.NameNotFoundException) {
-                Log.e(TAG, "Error getting app icon", e)
-            }
-        }
-        return null
-    }
-
-    @JvmStatic
-    fun copyAssets(context: Context, filename: String) {
-        val assetManager = context.assets
-        var input: InputStream? = null
-        var output: OutputStream? = null
-
-        try {
-            input = assetManager.open(filename)
-            val outFile = File(context.filesDir, filename)
-            output = FileOutputStream(outFile)
-
-            val buffer = ByteArray(1024)
-            var read: Int
-            while (input.read(buffer).also { read = it } != -1) {
-                output.write(buffer, 0, read)
-            }
-
-            outFile.setExecutable(true, false)
-        } catch (e: IOException) {
-            Log.e(TAG, "Failed to copy asset file: $filename", e)
-        } finally {
-            try {
-                input?.close()
-                output?.close()
-            } catch (e: IOException) {
-                // Ignore
-            }
+        val packages = pm.getPackagesForUid(uid) ?: return null
+        if (packages.isEmpty()) return null
+        return try {
+            val appInfo = pm.getApplicationInfo(packages[0], 0)
+            pm.getApplicationIcon(appInfo)
+        } catch (e: PackageManager.NameNotFoundException) {
+            Log.e(TAG, "Error getting app icon", e)
+            null
         }
     }
 }

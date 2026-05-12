@@ -21,30 +21,41 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.util.Log
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
+/**
+ * VPN-mode runtime state. The pre-VPN root/iptables helpers
+ * (`runRootCommand`, `checkRoot`, `runScript`, `copyAssets`, etc.) were
+ * removed when ProxyDroid went VPN-first.
+ *
+ * State is exposed both as plain getters (for legacy Java / widget callers)
+ * and as [StateFlow] (for Compose / coroutine collectors).
+ */
 object Utils {
     private const val TAG = "ProxyDroid"
 
-    @Volatile
-    private var working = false
+    private val _working = MutableStateFlow(false)
+    val working: StateFlow<Boolean> = _working.asStateFlow()
 
-    @Volatile
-    private var connecting = false
+    private val _connecting = MutableStateFlow(false)
+    val connecting: StateFlow<Boolean> = _connecting.asStateFlow()
 
     @JvmStatic
-    fun isWorking(): Boolean = working
+    fun isWorking(): Boolean = _working.value
 
     @JvmStatic
     fun setWorking(working: Boolean) {
-        this.working = working
+        _working.value = working
     }
 
     @JvmStatic
-    fun isConnecting(): Boolean = connecting
+    fun isConnecting(): Boolean = _connecting.value
 
     @JvmStatic
     fun setConnecting(connecting: Boolean) {
-        this.connecting = connecting
+        _connecting.value = connecting
     }
 
     @JvmStatic

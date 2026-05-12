@@ -19,11 +19,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.proxydroid.ui.MainScreen
 import org.proxydroid.ui.MainViewModel
 import org.proxydroid.ui.theme.ProxyDroidTheme
@@ -65,16 +60,8 @@ class ProxyDroid : ComponentActivity() {
             }
         }
 
-        // Light polling so the connection card reflects service-side flag changes
-        // (VPN service flips Utils.isWorking from a worker thread).
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                while (true) {
-                    viewModel.refreshStatus()
-                    delay(1000)
-                }
-            }
-        }
+        // MainViewModel observes Utils.working / Utils.connecting StateFlows
+        // directly, so the Compose UI auto-refreshes without polling.
 
         if (intent?.getBooleanExtra(ProxyController.EXTRA_AUTO_START, false) == true) {
             startVpn()

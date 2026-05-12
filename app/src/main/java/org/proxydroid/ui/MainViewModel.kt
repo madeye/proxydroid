@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.proxydroid.Profile
@@ -33,16 +34,17 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val _state = MutableStateFlow(MainUiState())
     val state: StateFlow<MainUiState> = _state.asStateFlow()
 
-    private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
-        // Mirror service status flags into UI state on every settings change.
-        _state.value = _state.value.copy(
-            isWorking = Utils.isWorking(),
-            isConnecting = Utils.isConnecting(),
-        )
-    }
+    private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ -> }
 
     init {
         settings.registerOnSharedPreferenceChangeListener(prefListener)
+        // Mirror service-side flags into UI state reactively.
+        viewModelScope.launch {
+            combine(Utils.working, Utils.connecting) { w, c -> w to c }
+                .collect { (w, c) ->
+                    _state.value = _state.value.copy(isWorking = w, isConnecting = c)
+                }
+        }
         reload()
     }
 
@@ -69,13 +71,6 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun refreshStatus() {
-        _state.value = _state.value.copy(
-            isWorking = Utils.isWorking(),
-            isConnecting = Utils.isConnecting(),
-        )
-    }
-
     fun updateProfile(transform: Profile.() -> Unit) {
         val next = _state.value.profile.copy().apply(transform)
         _state.value = _state.value.copy(profile = next)
@@ -93,10 +88,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         if (id == _state.value.currentProfileId) return
         viewModelScope.launch(Dispatchers.IO) {
             // Save current profile JSON under its ID, then load the new one.
-            val cur = _state.value.profile
-            persistCurrentProfileJson(cur)
+            persistCurrentProfileJson(_state.value.profile)
             settings.edit().putString("profile", id).apply()
-            val raw = settings.getString(id, "") ?: ""
+            val raw = settings.getString(id, "").orEmpty()
             val next = Profile().apply {
                 if (raw.isEmpty()) {
                     init()
@@ -150,7 +144,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             // Pick the first remaining profile (or create a fresh one).
             val remaining = loadProfileList().filter { it.id != cur }
             val next = remaining.firstOrNull()?.id ?: "1"
-            val raw = settings.getString(next, "") ?: ""
+            val raw = settings.getString(next, "").orEmpty()
             val p = Profile().apply {
                 if (raw.isEmpty()) {
                     init(); name = profileNameFor(next); proxyType = "socks5"
@@ -161,7 +155,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             _state.value = _state.value.copy(
                 profile = p,
                 currentProfileId = next,
-                profiles = loadProfileList().filter { it.id != cur },
+                profiles = remaining,
             )
         }
     }
@@ -205,8 +199,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         return ids.map { id ->
             val storedName = settings.getString(id, null)?.let { json ->
                 runCatching {
-                    val p = Profile().apply { decodeJson(json) }
-                    p.name.takeIf { it.isNotBlank() }
+                    Profile().apply { decodeJson(json) }.name.takeIf { it.isNotBlank() }
                 }.getOrNull()
             }
             ProfileEntry(id, storedName ?: profileNameFor(id))

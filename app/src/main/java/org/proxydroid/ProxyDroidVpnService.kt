@@ -28,10 +28,20 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import org.proxydroid.utils.Tun2SocksHelper
 import org.proxydroid.utils.Utils
 
 class ProxyDroidVpnService : VpnService() {
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var vpnJob: Job? = null
+
 
     companion object {
         private const val TAG = "ProxyDroidVpnService"
@@ -87,9 +97,8 @@ class ProxyDroidVpnService : VpnService() {
 
         startForeground(NOTIFICATION_ID, createNotification())
 
-        Thread {
-            startVpn()
-        }.start()
+        vpnJob?.cancel()
+        vpnJob = serviceScope.launch { startVpn() }
 
         return START_STICKY
     }
@@ -99,6 +108,7 @@ class ProxyDroidVpnService : VpnService() {
         stopVpn()
         Utils.setWorking(false)
         Utils.setConnecting(false)
+        serviceScope.cancel()
         Log.d(TAG, "VPN Service destroyed")
     }
 
@@ -187,9 +197,9 @@ class ProxyDroidVpnService : VpnService() {
                 }
             }
 
-            vpnInterface = builder.establish()
-
-            if (vpnInterface == null) {
+            val tun = builder.establish()
+            vpnInterface = tun
+            if (tun == null) {
                 Log.e(TAG, "Failed to establish VPN interface")
                 Utils.setConnecting(false)
                 return
@@ -197,17 +207,17 @@ class ProxyDroidVpnService : VpnService() {
 
             // Start tun2socks. The Rust crate speaks SOCKS5 directly to the
             // user-configured upstream — no in-process HTTP/SOCKS bridge needed.
-            tun2SocksHelper = Tun2SocksHelper()
-            val started = tun2SocksHelper?.start(
+            val helper = Tun2SocksHelper().also { tun2SocksHelper = it }
+            val started = helper.start(
                 this,
-                vpnInterface!!.fd,
+                tun.fd,
                 VPN_MTU,
                 proxyType,
                 host,
                 port,
-                if (user.isNotEmpty()) user else null,
-                if (password.isNotEmpty()) password else null,
-            ) ?: false
+                user.takeIf { it.isNotEmpty() },
+                password.takeIf { it.isNotEmpty() },
+            )
 
             if (started) {
                 Utils.setWorking(true)

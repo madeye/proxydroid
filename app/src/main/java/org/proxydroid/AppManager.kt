@@ -8,6 +8,8 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.preference.PreferenceManager
 import androidx.activity.ComponentActivity
+// (Legacy `getProxyedApps` companion + the `ProxyedApp` data class were
+// removed; the in-file Compose `loadApps` is the only enumerator.)
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
@@ -58,31 +60,6 @@ class AppManager : ComponentActivity() {
 
     companion object {
         const val PREFS_KEY_PROXYED = "Proxyed"
-
-        @JvmStatic
-        fun getProxyedApps(context: Context, self: Boolean): Array<ProxyedApp> {
-            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-            val raw = prefs.getString(PREFS_KEY_PROXYED, "") ?: ""
-            val st = StringTokenizer(raw, "|")
-            val tokens = Array(st.countTokens()) { st.nextToken() }.also { it.sort() }
-
-            val pMgr = context.packageManager
-            val out = mutableListOf<ProxyedApp>()
-            for (info in pMgr.getInstalledApplications(0)) {
-                if (info.uid < 10000) continue
-                val app = ProxyedApp().apply {
-                    uid = info.uid
-                    username = pMgr.getNameForUid(uid)
-                    isProxyed = when {
-                        info.packageName == "org.proxydroid" -> self
-                        username != null && tokens.binarySearch(username!!) >= 0 -> true
-                        else -> false
-                    }
-                }
-                if (app.isProxyed) out.add(app)
-            }
-            return out.toTypedArray()
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

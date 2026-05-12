@@ -22,28 +22,20 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Environment
 import android.util.Log
-import org.proxydroid.Exec
-import java.io.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 
 object Utils {
     private const val TAG = "ProxyDroid"
-
-    @Volatile
-    private var isRoot = false
 
     @Volatile
     private var working = false
 
     @Volatile
     private var connecting = false
-
-    @JvmStatic
-    fun isRoot(): Boolean = isRoot
-
-    @JvmStatic
-    fun setRoot(root: Boolean) {
-        isRoot = root
-    }
 
     @JvmStatic
     fun isWorking(): Boolean = working
@@ -86,103 +78,6 @@ object Utils {
     }
 
     @JvmStatic
-    fun runRootCommand(command: String): String {
-        return runRootCommand(command, 10000)
-    }
-
-    @JvmStatic
-    fun runRootCommand(command: String, timeout: Int): String {
-        val result = StringBuilder()
-        var process: Process? = null
-        var output: DataOutputStream? = null
-        var input: BufferedReader? = null
-
-        try {
-            process = Runtime.getRuntime().exec("su")
-            output = DataOutputStream(process.outputStream)
-            input = BufferedReader(InputStreamReader(process.inputStream))
-
-            output.writeBytes("$command\n")
-            output.writeBytes("exit\n")
-            output.flush()
-
-            var line: String?
-            while (input.readLine().also { line = it } != null) {
-                result.append(line).append("\n")
-            }
-
-            process.waitFor()
-
-        } catch (e: Exception) {
-            Log.e(TAG, "Error running root command", e)
-        } finally {
-            try {
-                output?.close()
-                input?.close()
-                process?.destroy()
-            } catch (e: Exception) {
-                // Ignore
-            }
-        }
-
-        return result.toString()
-    }
-
-    @JvmStatic
-    fun runScript(
-        context: Context,
-        script: String,
-        res: IntArray,
-        returnOutput: Boolean
-    ): String {
-        val result = StringBuilder()
-        val processId = IntArray(1)
-
-        try {
-            val fd = Exec.createSubprocess(
-                0, "/system/bin/sh", arrayOf("-"), null, script, processId
-            )
-
-            if (processId[0] > 0) {
-                val exitCode = Exec.waitFor(processId[0])
-                res[0] = exitCode
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error running script", e)
-            res[0] = -1
-        }
-
-        return result.toString()
-    }
-
-    @JvmStatic
-    fun checkRoot(): Boolean {
-        var rooted = false
-        try {
-            val process = Runtime.getRuntime().exec("su")
-            val output = DataOutputStream(process.outputStream)
-            output.writeBytes("id\n")
-            output.writeBytes("exit\n")
-            output.flush()
-
-            val input = BufferedReader(InputStreamReader(process.inputStream))
-            val line = input.readLine()
-            if (line != null && line.contains("uid=0")) {
-                rooted = true
-            }
-
-            process.waitFor()
-            output.close()
-            input.close()
-            process.destroy()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error checking root", e)
-        }
-        isRoot = rooted
-        return rooted
-    }
-
-    @JvmStatic
     fun copyAssets(context: Context, filename: String) {
         val assetManager = context.assets
         var input: InputStream? = null
@@ -210,25 +105,5 @@ object Utils {
                 // Ignore
             }
         }
-    }
-
-    @JvmStatic
-    fun getHasRedirectSupport(): Boolean {
-        val result = runRootCommand("iptables -t nat -L -n")
-        return result.contains("REDIRECT")
-    }
-
-    @JvmStatic
-    fun getIptablesPath(): String {
-        return "iptables"
-    }
-
-    @JvmStatic
-    fun getShellPath(): String {
-        // Prefer /system/bin/sh
-        if (File("/system/bin/sh").exists()) {
-            return "/system/bin/sh"
-        }
-        return "/bin/sh"
     }
 }

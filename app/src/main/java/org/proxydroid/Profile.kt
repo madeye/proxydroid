@@ -23,6 +23,11 @@ import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
 import org.proxydroid.utils.Base64
 
+/**
+ * Persisted proxy profile. Fields exposed here correspond 1:1 to controls in
+ * [org.proxydroid.ui.MainScreen]. The legacy `certificate` field (TLS cert
+ * pinning, never wired into the VPN-first netstack) has been dropped.
+ */
 class Profile {
     var name: String = ""
     var host: String = ""
@@ -30,12 +35,11 @@ class Profile {
     var user: String = ""
     var password: String = ""
     var domain: String = ""
-    var proxyType: String = ""
+    var proxyType: String = "socks5"
     var ssid: String = ""
     var excludedSsid: String = ""
     var proxyApps: String = ""
     var bypassAddrs: String = ""
-    var certificate: String = ""
 
     var isAuth: Boolean = false
     var isNTLM: Boolean = false
@@ -57,7 +61,6 @@ class Profile {
         excludedSsid = ""
         proxyApps = ""
         bypassAddrs = ""
-        certificate = ""
         isAuth = false
         isNTLM = false
         isDNSProxy = false
@@ -68,23 +71,18 @@ class Profile {
     }
 
     fun getProfile(settings: SharedPreferences) {
-        name = settings.getString("name", "") ?: ""
-        host = settings.getString("host", "") ?: ""
-        user = settings.getString("user", "") ?: ""
-        password = settings.getString("password", "") ?: ""
-        domain = settings.getString("domain", "") ?: ""
-        proxyType = settings.getString("proxyType", "socks5") ?: "socks5"
-        ssid = settings.getString("ssid", "") ?: ""
-        excludedSsid = settings.getString("excludedSsid", "") ?: ""
-        proxyApps = settings.getString("proxyApps", "") ?: ""
-        bypassAddrs = settings.getString("bypassAddrs", "") ?: ""
-        certificate = settings.getString("certificate", "") ?: ""
+        name = settings.getString("name", "").orEmpty()
+        host = settings.getString("host", "").orEmpty()
+        user = settings.getString("user", "").orEmpty()
+        password = settings.getString("password", "").orEmpty()
+        domain = settings.getString("domain", "").orEmpty()
+        proxyType = settings.getString("proxyType", "socks5").orEmpty().ifEmpty { "socks5" }
+        ssid = settings.getString("ssid", "").orEmpty()
+        excludedSsid = settings.getString("excludedSsid", "").orEmpty()
+        proxyApps = settings.getString("proxyApps", "").orEmpty()
+        bypassAddrs = settings.getString("bypassAddrs", "").orEmpty()
 
-        port = try {
-            settings.getString("port", "")?.toIntOrNull() ?: 0
-        } catch (e: NumberFormatException) {
-            0
-        }
+        port = settings.getString("port", "")?.toIntOrNull() ?: 0
 
         isAuth = settings.getBoolean("isAuth", false)
         isNTLM = settings.getBoolean("isNTLM", false)
@@ -96,29 +94,30 @@ class Profile {
     }
 
     fun setProfile(settings: SharedPreferences) {
-        val editor = settings.edit()
-        editor.putString("name", name)
-        editor.putString("host", host)
-        editor.putString("port", port.toString())
-        editor.putString("user", user)
-        editor.putString("password", password)
-        editor.putString("domain", domain)
-        editor.putString("proxyType", proxyType)
-        editor.putString("ssid", ssid)
-        editor.putString("excludedSsid", excludedSsid)
-        editor.putString("proxyApps", proxyApps)
-        editor.putString("bypassAddrs", bypassAddrs)
-        editor.putString("certificate", certificate)
-        editor.putBoolean("isAuth", isAuth)
-        editor.putBoolean("isNTLM", isNTLM)
-        editor.putBoolean("isDNSProxy", isDNSProxy)
-        editor.putBoolean("isPAC", isPAC)
-        editor.putBoolean("isAutoSetProxy", isAutoSetProxy)
-        editor.putBoolean("isBypassApps", isBypassApps)
-        editor.putBoolean("isAutoConnect", isAutoConnect)
-        editor.apply()
+        settings.edit().apply {
+            putString("name", name)
+            putString("host", host)
+            putString("port", port.toString())
+            putString("user", user)
+            putString("password", password)
+            putString("domain", domain)
+            putString("proxyType", proxyType)
+            putString("ssid", ssid)
+            putString("excludedSsid", excludedSsid)
+            putString("proxyApps", proxyApps)
+            putString("bypassAddrs", bypassAddrs)
+            putBoolean("isAuth", isAuth)
+            putBoolean("isNTLM", isNTLM)
+            putBoolean("isDNSProxy", isDNSProxy)
+            putBoolean("isPAC", isPAC)
+            putBoolean("isAutoSetProxy", isAutoSetProxy)
+            putBoolean("isBypassApps", isBypassApps)
+            putBoolean("isAutoConnect", isAutoConnect)
+            apply()
+        }
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun toString(): String {
         val json = JSONObject()
         json["name"] = name
@@ -132,7 +131,6 @@ class Profile {
         json["excludedSsid"] = excludedSsid
         json["proxyApps"] = proxyApps
         json["bypassAddrs"] = bypassAddrs
-        json["certificate"] = certificate
         json["isAuth"] = isAuth
         json["isNTLM"] = isNTLM
         json["isDNSProxy"] = isDNSProxy
@@ -146,20 +144,18 @@ class Profile {
     fun decodeJson(encoded: String) {
         if (encoded.isEmpty()) return
         try {
-            val parser = JSONParser()
-            val json = parser.parse(encoded) as JSONObject
+            val json = JSONParser().parse(encoded) as JSONObject
             name = json["name"] as? String ?: ""
             host = json["host"] as? String ?: ""
             port = (json["port"] as? Number)?.toInt() ?: 0
             user = json["user"] as? String ?: ""
             password = json["password"] as? String ?: ""
             domain = json["domain"] as? String ?: ""
-            proxyType = json["proxyType"] as? String ?: "socks5"
+            proxyType = (json["proxyType"] as? String)?.takeIf { it.isNotEmpty() } ?: "socks5"
             ssid = json["ssid"] as? String ?: ""
             excludedSsid = json["excludedSsid"] as? String ?: ""
             proxyApps = json["proxyApps"] as? String ?: ""
             bypassAddrs = json["bypassAddrs"] as? String ?: ""
-            certificate = json["certificate"] as? String ?: ""
             isAuth = json["isAuth"] as? Boolean ?: false
             isNTLM = json["isNTLM"] as? Boolean ?: false
             isDNSProxy = json["isDNSProxy"] as? Boolean ?: false
@@ -172,29 +168,25 @@ class Profile {
         }
     }
 
-    fun copy(): Profile {
-        val src = this
-        return Profile().also { dst ->
-            dst.name = src.name
-            dst.host = src.host
-            dst.port = src.port
-            dst.user = src.user
-            dst.password = src.password
-            dst.domain = src.domain
-            dst.proxyType = src.proxyType
-            dst.ssid = src.ssid
-            dst.excludedSsid = src.excludedSsid
-            dst.proxyApps = src.proxyApps
-            dst.bypassAddrs = src.bypassAddrs
-            dst.certificate = src.certificate
-            dst.isAuth = src.isAuth
-            dst.isNTLM = src.isNTLM
-            dst.isDNSProxy = src.isDNSProxy
-            dst.isPAC = src.isPAC
-            dst.isAutoSetProxy = src.isAutoSetProxy
-            dst.isBypassApps = src.isBypassApps
-            dst.isAutoConnect = src.isAutoConnect
-        }
+    fun copy(): Profile = Profile().also { dst ->
+        dst.name = name
+        dst.host = host
+        dst.port = port
+        dst.user = user
+        dst.password = password
+        dst.domain = domain
+        dst.proxyType = proxyType
+        dst.ssid = ssid
+        dst.excludedSsid = excludedSsid
+        dst.proxyApps = proxyApps
+        dst.bypassAddrs = bypassAddrs
+        dst.isAuth = isAuth
+        dst.isNTLM = isNTLM
+        dst.isDNSProxy = isDNSProxy
+        dst.isPAC = isPAC
+        dst.isAutoSetProxy = isAutoSetProxy
+        dst.isBypassApps = isBypassApps
+        dst.isAutoConnect = isAutoConnect
     }
 
     companion object {
@@ -206,25 +198,18 @@ class Profile {
             val trimmed = addr.trim()
             if (trimmed.isEmpty()) return null
 
-            // Check for CIDR notation
             val parts = trimmed.split("/")
             if (parts.size > 2) return null
 
-            val ipPart = parts[0]
-            val maskPart = if (parts.size == 2) parts[1] else null
-
-            // Validate IP address
-            val ipParts = ipPart.split(".")
+            val ipParts = parts[0].split(".")
             if (ipParts.size != 4) return null
-
             for (part in ipParts) {
                 val num = part.toIntOrNull() ?: return null
                 if (num < 0 || num > 255) return null
             }
 
-            // Validate mask if present
-            if (maskPart != null) {
-                val mask = maskPart.toIntOrNull() ?: return null
+            if (parts.size == 2) {
+                val mask = parts[1].toIntOrNull() ?: return null
                 if (mask < 0 || mask > 32) return null
             }
 
@@ -233,33 +218,26 @@ class Profile {
 
         @JvmStatic
         fun encodeAddrs(addrs: Array<String>?): String {
-            if (addrs == null || addrs.isEmpty()) return ""
-            val sb = StringBuilder()
-            for (addr in addrs) {
-                val encoded = Base64.encodeToString(addr.toByteArray(), Base64.NO_WRAP)
-                sb.append(encoded).append("|")
+            if (addrs.isNullOrEmpty()) return ""
+            return buildString {
+                for (addr in addrs) {
+                    append(Base64.encodeToString(addr.toByteArray(), Base64.NO_WRAP))
+                    append('|')
+                }
             }
-            return sb.toString()
         }
 
         @JvmStatic
         fun decodeAddrs(encoded: String?): Array<String> {
             if (encoded.isNullOrEmpty()) return emptyArray()
-            val parts = encoded.split("|")
-            val result = mutableListOf<String>()
-            for (part in parts) {
-                if (part.isNotEmpty()) {
-                    try {
-                        val decoded = String(Base64.decode(part, Base64.NO_WRAP))
-                        if (decoded.isNotEmpty()) {
-                            result.add(decoded)
-                        }
-                    } catch (e: Exception) {
-                        // Skip invalid entries
-                    }
+            return encoded.split("|")
+                .filter { it.isNotEmpty() }
+                .mapNotNull { part ->
+                    runCatching { String(Base64.decode(part, Base64.NO_WRAP)) }
+                        .getOrNull()
+                        ?.takeIf { it.isNotEmpty() }
                 }
-            }
-            return result.toTypedArray()
+                .toTypedArray()
         }
     }
 }

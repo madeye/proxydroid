@@ -26,8 +26,11 @@ class Tun2SocksHelper {
     /**
      * Starts tun2socks. The Rust side spawns its own tokio runtime and returns
      * once the runtime has been handed the tun fd, so this call is non-blocking.
-     * Returns true on success, false if an instance is already running or the
-     * native side reported failure.
+     * Returns true on success, false if the native side reported failure.
+     *
+     * Calling this while a session is running replaces that session with one
+     * on the new tun fd and upstream; the native side shuts the old one down.
+     * If the replacement fails, the old session is left running.
      */
     @Synchronized
     fun start(
@@ -40,10 +43,6 @@ class Tun2SocksHelper {
         socksUser: String?,
         socksPassword: String?,
     ): Boolean {
-        if (running) {
-            Log.w(TAG, "tun2socks already running")
-            return false
-        }
         val rc = try {
             nativeStart(
                 vpnService,

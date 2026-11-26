@@ -11,6 +11,9 @@ mod logging;
 mod protect;
 mod tun2socks;
 
+#[cfg(all(test, target_os = "linux"))]
+mod tun_e2e_tests;
+
 use jni::objects::{JClass, JObject, JString};
 use jni::sys::jint;
 use jni::JNIEnv;

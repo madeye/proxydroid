@@ -10,7 +10,7 @@
 //! TLS to the proxy).
 
 use crate::dns_table;
-use crate::doh_client;
+use crate::doh_client::DohClient;
 use crate::error::Tun2SocksError;
 use crate::logging;
 use base64::Engine;
@@ -19,12 +19,14 @@ use parking_lot::Mutex as ParkMutex;
 use std::io;
 use std::net::{Ipv4Addr, SocketAddr};
 use std::os::raw::c_void;
-use std::os::unix::io::RawFd;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::os::unix::io::{AsRawFd, FromRawFd, OwnedFd, RawFd};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
+use tokio::io::unix::AsyncFd;
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 use tokio::net::TcpStream;
 use tokio::sync::{mpsc, oneshot};
+use tokio::task::JoinSet;
 use tracing::{debug, info};
 
 use netstack_smoltcp::{AnyIpPktFrame, StackBuilder};
@@ -66,58 +68,61 @@ pub struct UpstreamConfig {
 // Public API
 // ---------------------------------------------------------------------------
 
-static TUN2SOCKS_RUNNING: AtomicBool = AtomicBool::new(false);
+/// Handle to the session that currently owns the tunnel.
+struct Session {
+    id: u64,
+    shutdown: oneshot::Sender<()>,
+}
 
-/// Sender owned by the JNI caller; firing it asks the runner to shut down
-/// cleanly. Held in a `parking_lot::Mutex` because we swap it in/out from
-/// non-async code (JNI thread).
-static SHUTDOWN_TX: ParkMutex<Option<oneshot::Sender<()>>> = ParkMutex::new(None);
+/// The current session, if any. Each `start` installs a new one; state is
+/// per-session rather than a process-wide "running" flag, so a session that
+/// is still winding down can never clobber the one that replaced it.
+static SESSION: ParkMutex<Option<Session>> = ParkMutex::new(None);
+static NEXT_SESSION_ID: AtomicU64 = AtomicU64::new(1);
 
+/// Start a session on the TUN `fd` with the given upstream.
+///
+/// `fd` stays owned by the caller: the session works on its own duplicate, so
+/// the caller may close `fd` at any time without the session ever touching a
+/// recycled descriptor number. If a session is already running it is shut
+/// down and replaced.
 pub fn start(fd: i32, cfg: UpstreamConfig) -> Result<(), Tun2SocksError> {
-    if TUN2SOCKS_RUNNING.swap(true, Ordering::SeqCst) {
-        return Err(Tun2SocksError::AlreadyRunning);
-    }
-
     info!(
         "tun2socks starting: fd={}, kind={:?}, upstream={}:{}",
         fd, cfg.kind, cfg.host, cfg.port
     );
 
-    // Initialise DoH up-front so an invalid proxy URL becomes a synchronous
-    // error that nativeStart can surface to Kotlin.
-    if let Err(e) = doh_client::init_doh_client(&cfg) {
-        TUN2SOCKS_RUNNING.store(false, Ordering::SeqCst);
-        return Err(e);
-    }
-
-    // SAFETY: `fd` is a TUN file descriptor handed to us by Android's
-    // VpnService. fcntl is safe on any valid fd; failure (e.g. fd already
-    // closed) is logged and ignored because subsequent reads will fail and the
-    // loop will tear itself down.
-    unsafe {
-        let flags = libc::fcntl(fd, libc::F_GETFL);
-        if flags < 0 {
-            logging::bridge_log("tun2socks: fcntl(F_GETFL) failed");
-        } else if libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK) < 0 {
-            logging::bridge_log("tun2socks: fcntl(F_SETFL, O_NONBLOCK) failed");
-        }
-    }
-
-    let rt = crate::try_get_runtime().inspect_err(|_| {
-        TUN2SOCKS_RUNNING.store(false, Ordering::SeqCst);
-    })?;
+    // Build everything fallible up-front so a bad configuration becomes a
+    // synchronous error that nativeStart can surface to Kotlin. The DoH
+    // client is per-session: it must follow the proxy of *this* start.
+    let doh = Arc::new(DohClient::new(&cfg)?);
+    let tun = dup_nonblocking(fd)?;
+    let rt = crate::try_get_runtime()?;
 
     let (shutdown_tx, shutdown_rx) = oneshot::channel::<()>();
-    *SHUTDOWN_TX.lock() = Some(shutdown_tx);
+    let id = NEXT_SESSION_ID.fetch_add(1, Ordering::Relaxed);
+    let previous = SESSION.lock().replace(Session {
+        id,
+        shutdown: shutdown_tx,
+    });
+    if let Some(previous) = previous {
+        logging::bridge_log("tun2socks: replacing the running session");
+        // Receiver dropped means that session already exited.
+        let _ = previous.shutdown.send(());
+    }
 
     rt.spawn(async move {
-        if let Err(e) = run_tun2socks(fd, cfg, shutdown_rx).await {
+        if let Err(e) = run_tun2socks(tun, cfg, doh, shutdown_rx).await {
             logging::bridge_log(&format!("tun2socks error: {}", e));
         }
-        TUN2SOCKS_RUNNING.store(false, Ordering::SeqCst);
-        // Drop any leftover sender so a late stop() doesn't think the loop is
-        // alive.
-        *SHUTDOWN_TX.lock() = None;
+        {
+            // Only clear the slot if it is still ours; a newer session may
+            // have taken it over while we were shutting down.
+            let mut session = SESSION.lock();
+            if session.as_ref().is_some_and(|s| s.id == id) {
+                *session = None;
+            }
+        }
         info!("tun2socks exited");
     });
 
@@ -126,10 +131,51 @@ pub fn start(fd: i32, cfg: UpstreamConfig) -> Result<(), Tun2SocksError> {
 
 /// Request a graceful stop. Idempotent and safe to call from any thread.
 pub fn stop() {
-    TUN2SOCKS_RUNNING.store(false, Ordering::SeqCst);
-    if let Some(tx) = SHUTDOWN_TX.lock().take() {
+    if let Some(session) = SESSION.lock().take() {
         // Receiver dropped means the task already exited — nothing to do.
-        let _ = tx.send(());
+        let _ = session.shutdown.send(());
+    }
+}
+
+/// Duplicate `fd` and put the duplicate in non-blocking mode.
+fn dup_nonblocking(fd: RawFd) -> io::Result<OwnedFd> {
+    // SAFETY: fcntl is safe to call on any integer; an invalid fd yields EBADF.
+    let dup = unsafe { libc::fcntl(fd, libc::F_DUPFD_CLOEXEC, 0) };
+    if dup < 0 {
+        return Err(io::Error::last_os_error());
+    }
+    // SAFETY: `dup` was just created above and nothing else owns it.
+    let owned = unsafe { OwnedFd::from_raw_fd(dup) };
+
+    // SAFETY: `dup` is a valid open descriptor owned by `owned`.
+    let flags = unsafe { libc::fcntl(dup, libc::F_GETFL) };
+    if flags < 0 {
+        return Err(io::Error::last_os_error());
+    }
+    // SAFETY: as above.
+    if unsafe { libc::fcntl(dup, libc::F_SETFL, flags | libc::O_NONBLOCK) } < 0 {
+        return Err(io::Error::last_os_error());
+    }
+    Ok(owned)
+}
+
+fn read_fd(fd: RawFd, buf: &mut [u8]) -> io::Result<usize> {
+    // SAFETY: `buf` is a valid writable region of `buf.len()` bytes.
+    let n = unsafe { libc::read(fd, buf.as_mut_ptr() as *mut c_void, buf.len()) };
+    if n < 0 {
+        Err(io::Error::last_os_error())
+    } else {
+        Ok(n as usize)
+    }
+}
+
+fn write_fd(fd: RawFd, buf: &[u8]) -> io::Result<usize> {
+    // SAFETY: `buf` is a valid readable region of `buf.len()` bytes.
+    let n = unsafe { libc::write(fd, buf.as_ptr() as *const c_void, buf.len()) };
+    if n < 0 {
+        Err(io::Error::last_os_error())
+    } else {
+        Ok(n as usize)
     }
 }
 
@@ -138,11 +184,16 @@ pub fn stop() {
 // ---------------------------------------------------------------------------
 
 async fn run_tun2socks(
-    fd: RawFd,
+    tun: OwnedFd,
     cfg: UpstreamConfig,
+    doh: Arc<DohClient>,
     shutdown_rx: oneshot::Receiver<()>,
 ) -> io::Result<()> {
     logging::bridge_log("tun2socks: building netstack-smoltcp stack");
+
+    // Registering the TUN fd with the reactor lets the reader and writer
+    // sleep until the kernel reports readiness instead of polling.
+    let tun = Arc::new(AsyncFd::new(tun)?);
 
     let (mut stack, tcp_runner, _udp_socket, tcp_listener) = StackBuilder::default()
         .enable_tcp(true)
@@ -198,104 +249,149 @@ async fn run_tun2socks(
         }
     });
 
-    let cfg_for_accept = cfg.clone();
     let tcp_accept_handle = tokio::spawn(async move {
-        while let Some((stream, local_addr, remote_addr)) = tcp_listener.next().await {
-            let cfg = cfg_for_accept.clone();
-            logging::bridge_log(&format!("tun2socks: TCP {} -> {}", local_addr, remote_addr));
-            tokio::spawn(async move {
-                handle_tcp_stream(stream, local_addr, remote_addr, cfg).await;
-            });
+        // Relays live in a JoinSet owned by this task, so aborting the task on
+        // shutdown also aborts every connection of this session.
+        let mut relays = JoinSet::new();
+        loop {
+            tokio::select! {
+                accepted = tcp_listener.next() => {
+                    let Some((stream, local_addr, remote_addr)) = accepted else {
+                        break;
+                    };
+                    logging::traffic_log(|| {
+                        format!("tun2socks: TCP {} -> {}", local_addr, remote_addr)
+                    });
+                    relays.spawn(handle_tcp_stream(
+                        stream,
+                        local_addr,
+                        remote_addr,
+                        cfg.clone(),
+                    ));
+                }
+                // Reap finished relays so the set does not grow without bound.
+                Some(_) = relays.join_next(), if !relays.is_empty() => {}
+            }
         }
     });
 
+    let writer_tun = tun.clone();
     let tun_writer_handle = tokio::spawn(async move {
         while let Some(pkt) = egress_rx.recv().await {
-            let mut retries = 0u32;
             loop {
-                let written = unsafe { libc::write(fd, pkt.as_ptr() as *const c_void, pkt.len()) };
-                if written >= 0 {
-                    break;
+                let mut guard = match writer_tun.writable().await {
+                    Ok(guard) => guard,
+                    Err(e) => {
+                        logging::bridge_log(&format!("tun2socks: TUN poll error: {}", e));
+                        return;
+                    }
+                };
+                match guard.try_io(|tun| write_fd(tun.get_ref().as_raw_fd(), &pkt)) {
+                    Ok(Ok(_)) => break,
+                    Ok(Err(e)) if e.kind() == io::ErrorKind::Interrupted => continue,
+                    Ok(Err(e)) => {
+                        // The kernel rejected this packet; TCP will
+                        // retransmit. A dead interface is noticed by the
+                        // reader, which ends the session.
+                        debug!("TUN write error: {}", e);
+                        break;
+                    }
+                    // Not writable after all: readiness was cleared, wait again.
+                    Err(_would_block) => continue,
                 }
-                let errno = std::io::Error::last_os_error().raw_os_error().unwrap_or(0);
-                if errno == libc::EAGAIN && retries < 3 {
-                    retries += 1;
-                    tokio::task::yield_now().await;
-                    continue;
-                }
-                break;
             }
         }
     });
 
+    let reader_tun = tun.clone();
     let udp_reply_tx = egress_tx.clone();
-    let tun_reader_handle = tokio::spawn(async move {
+    let mut tun_reader_handle = tokio::spawn(async move {
         let mut read_buf = vec![0u8; 65535];
+        // DNS lookups live in a JoinSet owned by this task, so they end with
+        // the session: an in-flight lookup can neither keep using this
+        // session's upstream nor touch the shared DNS table after a stop.
+        let mut lookups = JoinSet::new();
         loop {
-            if !TUN2SOCKS_RUNNING.load(Ordering::SeqCst) {
-                break;
-            }
-            tokio::task::yield_now().await;
-
-            let mut did_work = false;
-            loop {
-                let n =
-                    unsafe { libc::read(fd, read_buf.as_mut_ptr() as *mut c_void, read_buf.len()) };
-                if n <= 0 {
-                    break;
+            let mut guard = match reader_tun.readable().await {
+                Ok(guard) => guard,
+                Err(e) => {
+                    logging::bridge_log(&format!("tun2socks: TUN poll error: {}", e));
+                    return;
                 }
-                did_work = true;
-                let n = n as usize;
+            };
+
+            // Drain every queued packet before sleeping again.
+            loop {
+                let n = match guard.try_io(|tun| read_fd(tun.get_ref().as_raw_fd(), &mut read_buf))
+                {
+                    Ok(Ok(0)) => {
+                        guard.clear_ready();
+                        break;
+                    }
+                    Ok(Ok(n)) => n,
+                    Ok(Err(e)) if e.kind() == io::ErrorKind::Interrupted => continue,
+                    Ok(Err(e)) => {
+                        logging::bridge_log(&format!("tun2socks: TUN read error: {}", e));
+                        return;
+                    }
+                    // Queue empty: readiness was cleared, wait for the next packet.
+                    Err(_would_block) => break,
+                };
                 let ip_data = &read_buf[..n];
 
                 if let Some((src_ip, src_port, dst_ip, dst_port, payload)) =
                     parse_udp_packet(ip_data)
                 {
                     if dst_port == 53 {
-                        let reply_tx = udp_reply_tx.clone();
-                        let query = payload.to_vec();
-                        tokio::spawn(async move {
-                            handle_dns_query(src_ip, src_port, dst_ip, dst_port, query, reply_tx)
-                                .await;
-                        });
+                        // Reap finished lookups so the set stays small.
+                        while lookups.try_join_next().is_some() {}
+                        lookups.spawn(handle_dns_query(
+                            src_ip,
+                            src_port,
+                            dst_ip,
+                            dst_port,
+                            payload.to_vec(),
+                            doh.clone(),
+                            udp_reply_tx.clone(),
+                        ));
                         continue;
                     }
                 }
 
                 let frame: AnyIpPktFrame = ip_data.to_vec();
-                match ingress_tx.try_send(frame) {
-                    Ok(()) => {}
-                    Err(mpsc::error::TrySendError::Full(frame)) => {
-                        let _ = ingress_tx.send(frame).await;
-                    }
-                    Err(mpsc::error::TrySendError::Closed(_)) => break,
+                if ingress_tx.send(frame).await.is_err() {
+                    return;
                 }
-            }
-
-            if !did_work {
-                tokio::time::sleep(tokio::time::Duration::from_micros(200)).await;
             }
         }
     });
 
-    // Wait for either the TUN reader to drain (fd closed) or an explicit
-    // shutdown request from `stop()`. Whichever fires first, we then tear down
-    // every spawned subtask.
-    tokio::select! {
-        _ = tun_reader_handle => {
+    // Wait for either the TUN reader to stop (interface gone) or an explicit
+    // shutdown request from `stop()` / a replacing `start()`. Whichever fires
+    // first, we then tear down every spawned subtask.
+    let reader_finished = tokio::select! {
+        _ = &mut tun_reader_handle => {
             logging::bridge_log("tun2socks: TUN reader finished");
+            true
         }
         _ = shutdown_rx => {
-            // Flip the flag so the reader's inner loop will also notice.
-            TUN2SOCKS_RUNNING.store(false, Ordering::SeqCst);
             logging::bridge_log("tun2socks: shutdown requested");
+            false
         }
-    }
+    };
 
     runner_handle.abort();
     stack_handle.abort();
     tcp_accept_handle.abort();
     tun_writer_handle.abort();
+    if !reader_finished {
+        tun_reader_handle.abort();
+        let _ = tun_reader_handle.await;
+    }
+    // Wait for the writer too: once both are gone, `tun` below is the last
+    // reference and dropping it closes our duplicate of the TUN fd.
+    let _ = tun_writer_handle.await;
+    drop(tun);
 
     logging::bridge_log("tun2socks: exiting");
     Ok(())
@@ -316,21 +412,25 @@ async fn handle_tcp_stream(
         None => Target::Ip(dst_addr),
     };
 
-    let target_desc = format!("{:?}", target);
-    logging::bridge_log(&format!(
-        "{} connect: {} -> {}",
-        cfg.kind_label(),
-        src_addr,
-        target_desc
-    ));
+    logging::traffic_log(|| format!("{} connect: {} -> {:?}", cfg.kind_label(), src_addr, target));
 
     let upstream = match connect_upstream(&cfg, &target).await {
         Ok(s) => s,
         Err(e) => {
-            logging::bridge_log(&format!(
-                "UPSTREAM FAIL: {} -> {} err={}",
-                src_addr, dst_addr, e
-            ));
+            if logging::traffic_log_enabled() {
+                logging::bridge_log(&format!(
+                    "UPSTREAM FAIL: {} -> {} err={}",
+                    src_addr, dst_addr, e
+                ));
+            } else {
+                // Still worth knowing that the upstream is refusing or
+                // unreachable, just not which destination was being reached.
+                logging::bridge_log(&format!(
+                    "{} upstream connect failed: {}",
+                    cfg.kind_label(),
+                    e
+                ));
+            }
             return;
         }
     };
@@ -338,10 +438,12 @@ async fn handle_tcp_stream(
     let mut upstream = upstream;
     match tokio::io::copy_bidirectional(&mut tun_stream, &mut upstream).await {
         Ok((up, down)) => {
-            debug!("TCP relay done: {} up={} down={}", dst_addr, up, down);
+            logging::traffic_log(|| {
+                format!("TCP relay done: {} up={} down={}", dst_addr, up, down)
+            });
         }
         Err(e) => {
-            debug!("TCP relay error: {} err={}", dst_addr, e);
+            logging::traffic_log(|| format!("TCP relay error: {} err={}", dst_addr, e));
         }
     }
 }
@@ -757,24 +859,45 @@ async fn handle_dns_query(
     dst_ip: u32,
     dst_port: u16,
     query: Vec<u8>,
+    doh: Arc<DohClient>,
     reply_tx: mpsc::UnboundedSender<Vec<u8>>,
 ) {
-    let name = dns_table::parse_dns_query_name(&query).unwrap_or_default();
-    logging::bridge_log(&format!(
-        "DoH: {} from {:?}:{}",
-        name,
-        Ipv4Addr::from(src_ip.to_ne_bytes()),
-        src_port
-    ));
+    logging::traffic_log(|| {
+        format!(
+            "DoH: {} from {:?}:{}",
+            dns_table::parse_dns_query_name(&query).unwrap_or_default(),
+            Ipv4Addr::from(src_ip.to_ne_bytes()),
+            src_port
+        )
+    });
 
-    if let Some(response) = doh_client::resolve_via_doh(&query).await {
-        for (ip, hostname, ttl) in dns_table::parse_dns_response_records(&response) {
-            dns_table::dns_table_insert(ip, hostname, ttl);
+    let response = match doh.resolve(&query).await {
+        Some(response) => {
+            for (ip, hostname, ttl) in dns_table::parse_dns_response_records(&response) {
+                dns_table::dns_table_insert(ip, hostname, ttl);
+            }
+            response
         }
-        let _ = reply_tx.send(build_udp_packet(
-            dst_ip, dst_port, src_ip, src_port, &response,
-        ));
-    }
+        // DoH is unreachable through this proxy. Answer with a placeholder
+        // address instead of failing the lookup; the connection that follows
+        // is sent to the proxy by hostname, so the proxy does the resolving.
+        None => match dns_table::build_fake_dns_response(&query) {
+            Some(response) => {
+                logging::traffic_log(|| {
+                    format!(
+                        "DNS: {} answered locally (DoH unavailable)",
+                        dns_table::parse_dns_query_name(&query).unwrap_or_default()
+                    )
+                });
+                response
+            }
+            None => return,
+        },
+    };
+
+    let _ = reply_tx.send(build_udp_packet(
+        dst_ip, dst_port, src_ip, src_port, &response,
+    ));
 }
 
 #[cfg(test)]

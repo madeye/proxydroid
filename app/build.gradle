@@ -84,6 +84,15 @@ android {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
+        jniLibs {
+            // 16 KB page-size support, part 2 (part 1 is the linker flag in the
+            // Rust crate's build.rs). Uncompressed native libraries must also
+            // be 16 KB zip-aligned inside the APK, which only AGP 8.5.1+ does,
+            // and AGP is pinned to 8.1.2 here. Android's documented workaround
+            // for older AGP is to ship the libraries compressed, so they are
+            // extracted at install time instead of mapped from the APK.
+            useLegacyPackaging true
+        }
     }
 }
 

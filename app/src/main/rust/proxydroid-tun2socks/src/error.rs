@@ -5,9 +5,6 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Tun2SocksError {
-    #[error("tun2socks already running")]
-    AlreadyRunning,
-
     #[error("invalid configuration: {0}")]
     InvalidConfig(String),
 

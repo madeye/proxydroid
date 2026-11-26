@@ -6,7 +6,21 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Android 14+ refuses startForeground() unless the service declares a
+         type. "systemExempted" is the type meant for VPN apps: the system
+         allows it once the user has granted this app VPN consent. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Android 11+ hides other apps by default. The per-app routing screen
+         lists apps that have a launcher entry, and the VPN service must be
+         able to resolve those same packages when it builds the tunnel. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
 
     <application
         android:name=".ProxyDroidApplication"
@@ -36,6 +50,7 @@
             android:name=".ProxyDroidVpnService"
             android:enabled="true"
             android:exported="false"
+            android:foregroundServiceType="systemExempted"
             android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
